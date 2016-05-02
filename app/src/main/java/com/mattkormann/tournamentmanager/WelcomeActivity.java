@@ -15,7 +15,7 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
-//
+
         LinearLayout welcomeLayout = (LinearLayout)findViewById(R.id.welcome_layout);
         welcomeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
