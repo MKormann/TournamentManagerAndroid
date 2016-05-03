@@ -15,14 +15,13 @@ import android.widget.Button;
 public class MainMenuFragment extends Fragment implements
         View.OnClickListener {
 
-    onMenuButtonPressedListener mCallback;
+    private onMenuButtonPressedListener mCallback;
 
     public MainMenuFragment() {
     }
 
-    //Interface to be implemented by containing activity.
-    public interface onMenuButtonPressedListener {
-        public void onMainMenuButtonPressed(int buttonID);
+    public static MainMenuFragment newInstance() {
+        return new MainMenuFragment();
     }
 
     @Override
@@ -60,7 +59,19 @@ public class MainMenuFragment extends Fragment implements
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback = null;
+    }
+
+    @Override
     public void onClick(View view) {
         mCallback.onMainMenuButtonPressed(view.getId());
     }
+
+    //Interface to be implemented by containing activity.
+    public interface onMenuButtonPressedListener {
+        public void onMainMenuButtonPressed(int buttonID);
+    }
+
 }

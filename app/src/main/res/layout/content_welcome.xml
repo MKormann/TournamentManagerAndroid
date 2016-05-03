@@ -25,7 +25,7 @@
         android:textAlignment="center"
         android:textIsSelectable="false"
         android:layout_centerHorizontal="true"
-        android:textSize="@dimen/welcome_screen_title" />
+        android:textSize="@dimen/generic_title" />
 
     <TextView
         android:layout_height="0dp"

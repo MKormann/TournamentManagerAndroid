@@ -27,12 +27,14 @@ public class DatabaseContract {
         public static final String TABLE_NAME = "participantList";
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_IS_TEAM = "isTeam";
+        public static final String INDIVIDUALS = "0";
+        public static final String TEAMS = "1";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 _ID + "INTEGER PRIMARY KEY," +
                 COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
-                COLUMN_NAME_IS_TEAM + INTEGER_TYPE + COMMA_SEP + " )";
+                COLUMN_NAME_IS_TEAM + INTEGER_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -46,7 +48,7 @@ public class DatabaseContract {
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 COLUMN_NAME_PART_ID + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_TEAM_ID + INTEGER_TYPE + COMMA_SEP + " )";
+                COLUMN_NAME_TEAM_ID + INTEGER_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -67,7 +69,7 @@ public class DatabaseContract {
                 COLUMN_NAME_SIZE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_DOUBLE_ELIM + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_USE_TEAMS + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_TEAM_SIZE + INTEGER_TYPE + COMMA_SEP + " )";
+                COLUMN_NAME_TEAM_SIZE + INTEGER_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
@@ -84,7 +86,7 @@ public class DatabaseContract {
                 _ID + "INTEGER PRIMARY KEY," +
                 COLUMN_NAME_TOURNAMENT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_WINNER_ID + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_FINISHED + INTEGER_TYPE + COMMA_SEP + " )";
+                COLUMN_NAME_FINISHED + INTEGER_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

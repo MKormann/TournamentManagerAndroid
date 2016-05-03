@@ -16,7 +16,7 @@
         android:layout_alignParentTop="true"
         android:textAlignment="center"
         android:textIsSelectable="false"
-        android:textSize="@dimen/welcome_screen_title"
+        android:textSize="@dimen/generic_title"
         android:layout_centerHorizontal="true"
         android:paddingBottom="20dp"/>
 
