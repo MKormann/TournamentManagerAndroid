@@ -2,7 +2,11 @@
     <string name="app_name">Tournament Manager</string>
     <string name="action_settings">Settings</string>
     <string name="tap_start">Tap screen to start.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="button_create_tournament">Create Tournament</string>
+    <string name="button_start_tournament">Start Tournament</string>
+    <string name="button_participants">Participants</string>
+    <string name="button_teams">Teams</string>
+    <string name="button_history">History</string>
+    <string name="button_exit">Exit</string>
 </resources>

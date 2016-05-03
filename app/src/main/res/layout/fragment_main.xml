@@ -6,8 +6,53 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.mattkormann.tournamentmanager.MainActivityFragment"
-    tools:showIn="@layout/activity_main">
+    tools:context="com.mattkormann.tournamentmanager.MainActivityFragment">
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_start_tournament"
+        android:id="@+id/button_start_tournament"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_create_tournament"
+        android:id="@+id/button_create_tournament"
+        android:layout_below="@+id/button_start_tournament"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_participants"
+        android:id="@+id/button_participants"
+        android:layout_below="@+id/button_create_tournament"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_teams"
+        android:id="@+id/button_teams"
+        android:layout_below="@+id/button_participants"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_history"
+        android:id="@+id/button_history"
+        android:layout_below="@+id/button_teams"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_exit"
+        android:id="@+id/button_exit"
+        android:layout_below="@+id/button_history"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
