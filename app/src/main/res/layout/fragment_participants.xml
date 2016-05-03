@@ -25,8 +25,8 @@
         android:layout_below="@+id/participant_title"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginLeft="30dp"
-        android:layout_marginStart="30dp" />
+        android:layout_marginLeft="@dimen/participant_table_padding"
+        android:layout_marginStart="@dimen/participant_table_padding" />
 
     <Button
         android:layout_width="wrap_content"
@@ -38,13 +38,21 @@
         android:layout_below="@+id/participant_title"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="30dp"
-        android:layout_marginEnd="30dp" />
+        android:layout_marginRight="@dimen/participant_table_padding"
+        android:layout_marginEnd="@dimen/participant_table_padding" />
 
-    <TableLayout
+    <ScrollView
+        android:layout_margin="@dimen/participant_table_padding"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/add_participant"
-        android:id="@+id/participant_table"
-        android:layout_gravity="center"></TableLayout>
+        android:id="@+id/participant_view"
+        android:layout_gravity="center"
+        android:layout_below="@+id/add_participant">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/participant_table">
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

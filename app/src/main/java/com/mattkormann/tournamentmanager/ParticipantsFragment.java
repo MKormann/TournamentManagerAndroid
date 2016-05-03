@@ -1,5 +1,6 @@
 package com.mattkormann.tournamentmanager;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,9 +8,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -21,7 +25,7 @@ public class ParticipantsFragment extends Fragment {
 
     private OnFragmentInteractionListener mCallback;
     private DatabaseHelper mDbHelper;
-    private TableLayout table;
+    private LinearLayout participantDisplay ;
 
     //Empty constructor
     public ParticipantsFragment() {
@@ -51,7 +55,7 @@ public class ParticipantsFragment extends Fragment {
         mDbHelper = new DatabaseHelper(getContext());
 
         //Find table layout, and populate table with initial data
-        table = (TableLayout)view.findViewById(R.id.participant_table);
+        participantDisplay = (LinearLayout)view.findViewById(R.id.participant_table);
         populateTable(DatabaseContract.ParticipantTable.INDIVIDUALS);
 
         return view;
@@ -74,16 +78,36 @@ public class ParticipantsFragment extends Fragment {
         Cursor c = retrieveParticipantData(type);
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
-            TableRow row = new TableRow(getContext());
+            LinearLayout row = new LinearLayout(getContext());
+            row.setOrientation(LinearLayout.HORIZONTAL);
 
             TextView id = new TextView(getContext());
-            id.setText(c.getInt(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
+            id.setText((i + 1) + "");
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.weight = .2f;
+            lp.gravity = Gravity.CENTER;
+            id.setLayoutParams(lp);
+
             TextView name = new TextView(getContext());
             name.setText(c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
+            LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp2.weight = .8f;
+            lp2.gravity = Gravity.LEFT;
+            name.setLayoutParams(lp2);
+
             row.addView(id);
             row.addView(name);
 
-            table.addView(row, i);
+            LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            lpRow.weight = 1.0f;
+            row.setLayoutParams(lpRow);
+            participantDisplay.addView(row);
             c.moveToNext();
         }
     }
@@ -94,17 +118,13 @@ public class ParticipantsFragment extends Fragment {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
-                DatabaseContract.ParticipantTable._ID,
                 DatabaseContract.ParticipantTable.COLUMN_NAME_NAME,
                 DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM
         };
 
-        String selection = DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM;
+        String selection = DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?";
 
         String[] selectionArgs = {type};
-
-        String sortOrder =
-                DatabaseContract.ParticipantTable._ID + " DESC";
 
         return db.query(
                 DatabaseContract.ParticipantTable.TABLE_NAME,
@@ -113,7 +133,7 @@ public class ParticipantsFragment extends Fragment {
                 selectionArgs,
                 null,
                 null,
-                sortOrder
+                null
                 );
     }
 

@@ -6,4 +6,6 @@
     <dimen name="generic_title">50sp</dimen>
     <dimen name="welcome_screen_tap">20sp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="participant_table_padding">30dp</dimen>
+    <dimen name="table_font_size">20sp</dimen>
 </resources>
