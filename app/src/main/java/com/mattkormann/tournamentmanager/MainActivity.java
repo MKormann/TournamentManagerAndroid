@@ -34,9 +34,20 @@
         //Implementation of interface from MainMenuFragment.java
         public void onMainMenuButtonPressed(int buttonID) {
 
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            transaction.replace(R.id.fragment_container, createFragment(buttonID));
+            transaction.addToBackStack(null);
+
+            transaction.commit();
+        }
+
+        //Returns an instance of the requested fragment
+        private Fragment createFragment(int id) {
+
             Fragment fragment = new Fragment();
 
-            switch (buttonID) {
+            switch (id) {
                 case (R.id.button_start_tournament):
                     //fragment = new StartTournamentFragment();
                     break;
@@ -54,12 +65,7 @@
                     break;
             }
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            transaction.replace(R.id.fragment_container, fragment);
-            transaction.addToBackStack(null);
-
-            transaction.commit();
+            return fragment;
         }
 
     }
