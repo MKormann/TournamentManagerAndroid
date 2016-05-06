@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
@@ -12,18 +11,19 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
 
-public class ParticipantsFragment extends Fragment {
+import java.util.logging.Logger;
 
-    private OnFragmentInteractionListener mCallback;
+public class ParticipantsFragment extends Fragment
+        implements View.OnClickListener{
+
+    private ParticipantInfoListener mCallback;
     private DatabaseHelper mDbHelper;
     private LinearLayout participantDisplay ;
 
@@ -33,7 +33,7 @@ public class ParticipantsFragment extends Fragment {
     }
 
     //Static method to retrieve instance
-    public static ParticipantsFragment newInstance(String param1, String param2) {
+    public static ParticipantsFragment newInstance() {
         ParticipantsFragment fragment = new ParticipantsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -51,6 +51,12 @@ public class ParticipantsFragment extends Fragment {
         //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_participants, container, false);
 
+        //Set button listeners
+        Button addButton = (Button)view.findViewById(R.id.add_participant);
+        addButton.setOnClickListener(this);
+        Button editButton = (Button)view.findViewById(R.id.edit_participant);
+        editButton.setOnClickListener(this);
+
         //Initialize database helper
         mDbHelper = new DatabaseHelper(getContext());
 
@@ -64,19 +70,26 @@ public class ParticipantsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mCallback = (OnFragmentInteractionListener) context;
+        if (context instanceof ParticipantInfoListener) {
+            mCallback = (ParticipantInfoListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement ParticipantInfoListener");
         }
     }
 
     //Fill table with participant information
     //@param refers to value of isTeam column, returning individuals or teams
     private void populateTable(String type) {
+
+        //Retrieve participant information from database
         Cursor c = retrieveParticipantData(type);
         c.moveToFirst();
+
+        //Erase any existing display
+        participantDisplay.removeAllViews();
+
+        //Create a row with count and name fields for each entry
         for (int i = 0; i < c.getCount(); i++) {
             LinearLayout row = new LinearLayout(getContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -137,6 +150,28 @@ public class ParticipantsFragment extends Fragment {
                 );
     }
 
+
+    void saveInformation(String name, boolean team) {
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME, name);
+        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, team ? 1 : 0);
+
+        long newRowId;
+        newRowId = db.insert(
+                DatabaseContract.ParticipantTable.TABLE_NAME,
+                null,
+                values
+        );
+
+        //Display updated participant list
+        String type = team ? DatabaseContract.ParticipantTable.TEAMS :
+                DatabaseContract.ParticipantTable.INDIVIDUALS;
+        populateTable(type);
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -144,7 +179,15 @@ public class ParticipantsFragment extends Fragment {
         mDbHelper = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+    @Override
+    public void onClick(View view) {
+        mCallback.showParticipantInfoDialog();
+    }
+
+    //Interface to be implemented by MainActivity class
+    //Methods to show Add/Edit Dialog and receive information entered
+    public interface ParticipantInfoListener {
+        void showParticipantInfoDialog();
+        void onFinishParticipantInformationDialog(String name, boolean team);
     }
 }

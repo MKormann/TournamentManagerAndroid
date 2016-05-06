@@ -1,16 +1,17 @@
     package com.mattkormann.tournamentmanager;
 
-    import android.net.Uri;
     import android.os.Bundle;
     import android.support.v4.app.Fragment;
     import android.support.v4.app.FragmentActivity;
+    import android.support.v4.app.FragmentManager;
     import android.support.v4.app.FragmentTransaction;
 
-    import com.mattkormann.tournamentmanager.participants.Participant;
+    import java.util.logging.Level;
+    import java.util.logging.Logger;
 
     public class MainActivity extends FragmentActivity
             implements MainMenuFragment.onMenuButtonPressedListener,
-            ParticipantsFragment.OnFragmentInteractionListener {
+            ParticipantsFragment.ParticipantInfoListener {
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +49,6 @@
 
         //Returns an instance of the requested fragment
         private Fragment createFragment(int id) {
-
-            Fragment fragment = new Fragment();
-
             switch (id) {
                 case (R.id.button_start_tournament):
                     //fragment = new StartTournamentFragment();
@@ -59,8 +57,7 @@
                     //fragment = new CreateTournamentFragment();
                     break;
                 case (R.id.button_participants):
-                    fragment = new ParticipantsFragment();
-                    break;
+                    return new ParticipantsFragment();
                 case (R.id.button_teams):
                     //fragment = new TeamsFragment();
                     break;
@@ -69,12 +66,24 @@
                     break;
             }
 
-            return fragment;
+            return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        }
+
+        //Methods implemented from Participants fragment to show info editor and retrieve new data
+        @Override
+        public void showParticipantInfoDialog() {
+            FragmentManager fm = getSupportFragmentManager();
+            ParticipantInfoFragment participantInfo = ParticipantInfoFragment.newInstance();
+            participantInfo.show(fm, "fragment_participant_info");
         }
 
         @Override
-        public void onFragmentInteraction(Uri uri) {
-
+        public void onFinishParticipantInformationDialog(String name, boolean team) {
+            ParticipantsFragment pf = (ParticipantsFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (pf != null) {
+                pf.saveInformation(name, team);
+            }
         }
 
     }

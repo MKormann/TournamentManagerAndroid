@@ -35,5 +35,5 @@
         android:textAlignment="center"
         android:textIsSelectable="false"
         android:layout_centerHorizontal="true"
-        android:textSize="@dimen/welcome_screen_tap" />
+        android:textSize="@dimen/generic_subtitle" />
 </LinearLayout>
