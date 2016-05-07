@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface Tournament {
 
-    public static final int NOT_YET_OCCURRED = -2;
+    int NOT_YET_OCCURRED = -2;
 
     int getSize();
     List getParticipants(); // TODO add generic when Participant class created
