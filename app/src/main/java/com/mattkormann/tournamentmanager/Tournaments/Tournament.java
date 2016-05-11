@@ -1,5 +1,7 @@
 package com.mattkormann.tournamentmanager.tournaments;
 
+import com.mattkormann.tournamentmanager.participants.Participant;
+
 import java.util.List;
 
 /**
@@ -8,8 +10,25 @@ import java.util.List;
 public interface Tournament {
 
     int NOT_YET_OCCURRED = -2;
+    int MIN_TOURNAMENT_SIZE = 4;
+    int MAX_TOURNAMENT_SIZE = 256;
 
+    //Return size (number of participants) of tournament
     int getSize();
-    List getParticipants(); // TODO add generic when Participant class created
+
+    //Return list of Participants
+    Participant[] getParticipants();
+
+    //Return whether or not the tournament has concluded
     boolean isOver();
+
+    //Return the number of rounds in given tournament
+    //e.g. in a single elimination tournament, 5-8 participants = 3 rounds, 9-16 = 4 rounds, etc.
+    int getNumberOfRounds();
+
+    //Returns array marker value for when a given round begins, inclusive
+    int getRoundStartDelimiter(int roundNumber);
+
+    //Returns array marker value for when a given round ends, exclusive
+    int getRoundEndDelimiter(int roundNumber);
 }
