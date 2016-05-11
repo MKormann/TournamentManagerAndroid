@@ -29,6 +29,6 @@ public interface Tournament {
     //Returns array marker value for when a given round begins, inclusive
     int getRoundStartDelimiter(int roundNumber);
 
-    //Returns array marker value for when a given round ends, exclusive
+    //Returns array marker value for when a given round ends, inclusive
     int getRoundEndDelimiter(int roundNumber);
 }

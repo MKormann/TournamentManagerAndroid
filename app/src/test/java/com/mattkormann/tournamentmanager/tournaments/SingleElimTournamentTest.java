@@ -1,39 +1,55 @@
 package com.mattkormann.tournamentmanager.tournaments;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 
 /**
  * Created by Matt on 5/10/2016.
  */
+@RunWith(Parameterized.class)
 public class SingleElimTournamentTest {
 
-    private SingleElimTournament tournament;
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {8, 3, 2, 4, 5}, {128, 7, 4, 112, 119}, {61, 6, 2, 29, 44}, {250, 8, 8, 248, 248}
+        });
+    }
 
-    @Test
-    public void testGetNumberOfRounds() {
-        tournament = new SingleElimTournament(8);
-        assertEquals(3, tournament.getNumberOfRounds());
-        tournament = new SingleElimTournament(32);
-        assertEquals(5, tournament.getNumberOfRounds());
-        tournament = new SingleElimTournament(128);
-        assertEquals(7, tournament.getNumberOfRounds());
+    private SingleElimTournament tournament;
+    private int roundToCheck;
+    private int expectedRounds;
+    private int expectedStartDelim;
+    private int expectedEndDelim;
+
+    public SingleElimTournamentTest(int size, int rounds, int check, int startDelim, int endDelim) {
+        tournament = new SingleElimTournament(size);
+        expectedRounds = rounds;
+        roundToCheck = check;
+        expectedStartDelim = startDelim;
+        expectedEndDelim = endDelim;
     }
 
     @Test
-    public void testGetRoundEndDelimiter() {
-        tournament = new SingleElimTournament(128);
-        assertEquals(126, tournament.getRoundEndDelimiter(tournament.getNumberOfRounds()));
-        assertEquals(95, tournament.getRoundEndDelimiter(2));
-        assertEquals(63, tournament.getRoundEndDelimiter(1));
+    public void testGetNumberOfRounds() {
+        assertEquals(expectedRounds, tournament.getNumberOfRounds());
     }
 
     @Test
     public void testGetRoundStartDelimiter() {
-        tournament = new SingleElimTournament(61);
-        assertEquals(59, tournament.getRoundStartDelimiter(tournament.getNumberOfRounds()));
-        assertEquals(29, tournament.getRoundStartDelimiter(2));
-        assertEquals(0, tournament.getRoundStartDelimiter(1));
+        assertEquals(expectedStartDelim, tournament.getRoundStartDelimiter(roundToCheck));
     }
+
+    @Test
+    public void testGetRoundEndDelimiter() {
+        assertEquals(expectedEndDelim, tournament.getRoundEndDelimiter(roundToCheck));
+    }
+
 }
