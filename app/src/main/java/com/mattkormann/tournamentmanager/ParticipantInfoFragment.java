@@ -16,7 +16,6 @@ import android.widget.TextView;
 public class ParticipantInfoFragment extends DialogFragment implements TextView.OnEditorActionListener {
 
     private EditText mEditText;
-    private CheckBox mCheckBox;
 
     public ParticipantInfoFragment() {
         // Required empty public constructor
@@ -35,7 +34,6 @@ public class ParticipantInfoFragment extends DialogFragment implements TextView.
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_participant_info, container, false);
         mEditText = (EditText) view.findViewById(R.id.name_text_box);
-        mCheckBox = (CheckBox) view.findViewById(R.id.is_team_check);
         getDialog().setTitle("Participant Info");
 
         //Show keyboard
@@ -51,7 +49,8 @@ public class ParticipantInfoFragment extends DialogFragment implements TextView.
         if (EditorInfo.IME_ACTION_DONE == actionId) {
             //Return text to activity
             ParticipantsFragment.ParticipantInfoListener activity = (ParticipantsFragment.ParticipantInfoListener)getActivity();
-            activity.onFinishParticipantInformationDialog(mEditText.getText().toString(), mCheckBox.isChecked());
+            activity.onFinishParticipantInformationDialog(mEditText.getText().toString(),
+                    getArguments().getInt(ParticipantsFragment.TYPE_TO_DISPLAY));
             this.dismiss();
             return true;
         }

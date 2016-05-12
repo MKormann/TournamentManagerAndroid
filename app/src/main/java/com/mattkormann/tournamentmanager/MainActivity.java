@@ -85,18 +85,21 @@
 
         //Methods implemented from Participants fragment to show info editor and retrieve new data
         @Override
-        public void showParticipantInfoDialog() {
+        public void showParticipantInfoDialog(int type) {
             FragmentManager fm = getSupportFragmentManager();
             ParticipantInfoFragment participantInfo = ParticipantInfoFragment.newInstance();
+            Bundle args = new Bundle();
+            args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, type);
+            participantInfo.setArguments(args);
             participantInfo.show(fm, "fragment_participant_info");
         }
 
         @Override
-        public void onFinishParticipantInformationDialog(String name, boolean team) {
+        public void onFinishParticipantInformationDialog(String name, int type) {
             ParticipantsFragment pf = (ParticipantsFragment)
                     getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (pf != null) {
-                pf.saveInformation(name, team);
+                pf.saveInformation(name, type);
             }
         }
 

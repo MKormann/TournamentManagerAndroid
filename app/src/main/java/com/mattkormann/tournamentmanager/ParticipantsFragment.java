@@ -168,13 +168,13 @@ public class ParticipantsFragment extends Fragment
         return row;
     }
 
-    void saveInformation(String name, boolean team) {
+    void saveInformation(String name, int type) {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME, name);
-        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, team ? 1 : 0);
+        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, type);
 
         long newRowId;
         newRowId = db.insert(
@@ -218,13 +218,13 @@ public class ParticipantsFragment extends Fragment
 
     @Override
     public void onClick(View view) {
-        mCallback.showParticipantInfoDialog();
+        mCallback.showParticipantInfoDialog(getArguments().getInt(TYPE_TO_DISPLAY));
     }
 
     //Interface to be implemented by MainActivity class
     //Methods to show Add/Edit Dialog and receive information entered
     public interface ParticipantInfoListener {
-        void showParticipantInfoDialog();
-        void onFinishParticipantInformationDialog(String name, boolean team);
+        void showParticipantInfoDialog(int type);
+        void onFinishParticipantInformationDialog(String name, int type);
     }
 }
