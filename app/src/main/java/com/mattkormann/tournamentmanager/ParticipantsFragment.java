@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,6 +27,10 @@ public class ParticipantsFragment extends Fragment
     private ParticipantInfoListener mCallback;
     private DatabaseHelper mDbHelper;
     private LinearLayout participantDisplay ;
+
+    public static final String TYPE_TO_DISPLAY = "TYPE_TO_DISPLAY";
+    public static final int INDIVIDUALS = 0;
+    public static final int TEAMS = 1;
 
     //Empty constructor
     public ParticipantsFragment() {
@@ -51,6 +56,8 @@ public class ParticipantsFragment extends Fragment
         //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_participants, container, false);
 
+        setLabels(view);
+
         //Set button listeners
         Button addButton = (Button)view.findViewById(R.id.add_participant);
         addButton.setOnClickListener(this);
@@ -62,7 +69,7 @@ public class ParticipantsFragment extends Fragment
 
         //Find table layout, and populate table with initial data
         participantDisplay = (LinearLayout)view.findViewById(R.id.participant_table);
-        populateTable(DatabaseContract.ParticipantTable.INDIVIDUALS);
+        populateTable(getArguments().getInt(TYPE_TO_DISPLAY));
 
         return view;
     }
@@ -80,7 +87,7 @@ public class ParticipantsFragment extends Fragment
 
     //Fill table with participant information
     //@param refers to value of isTeam column, returning individuals or teams
-    private void populateTable(String type) {
+    private void populateTable(int type) {
 
         //Retrieve participant information from database
         Cursor c = retrieveParticipantData(type);
@@ -101,7 +108,7 @@ public class ParticipantsFragment extends Fragment
 
     //Executes the SQL statement to retrieve participant data from table
     //@param type refers to value of isTeam column, returning individuals or teams
-    private Cursor retrieveParticipantData(String type) {
+    private Cursor retrieveParticipantData(int type) {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
@@ -112,7 +119,7 @@ public class ParticipantsFragment extends Fragment
 
         String selection = DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?";
 
-        String[] selectionArgs = {type};
+        String[] selectionArgs = {String.valueOf(type)};
 
         String sortOrder = DatabaseContract.ParticipantTable._ID + " ASC";
 
@@ -126,7 +133,7 @@ public class ParticipantsFragment extends Fragment
                 sortOrder
                 );
     }
-    
+
     private LinearLayout getParticipantRow(String rowId, String rowName) {
         LinearLayout row = new LinearLayout(getContext());
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -176,10 +183,30 @@ public class ParticipantsFragment extends Fragment
                 values
         );
 
+
         //Display updated participant list
-        String type = team ? DatabaseContract.ParticipantTable.TEAMS :
-                DatabaseContract.ParticipantTable.INDIVIDUALS;
-        populateTable(type);
+        populateTable(getArguments().getInt(TYPE_TO_DISPLAY));
+    }
+
+    // Set subtitle and button labels based on what type is being displayed
+    private void setLabels(View view) {
+        if (getArguments() != null) {
+            TextView text = (TextView)view.findViewById(R.id.participant_type);
+            Button addButton = (Button)view.findViewById(R.id.add_participant);
+            Button editButton = (Button)view.findViewById(R.id.edit_participant);
+            switch(getArguments().getInt(TYPE_TO_DISPLAY)) {
+                case(TEAMS):
+                    text.setText(getString(R.string.teams));
+                    addButton.setText(R.string.add_team);
+                    editButton.setText(R.string.edit_team);
+                    break;
+                case(INDIVIDUALS):
+                    text.setText(R.string.individuals);
+                    addButton.setText(R.string.add_participant);
+                    editButton.setText(R.string.edit_participant);
+                    break;
+            }
+        }
     }
 
     @Override

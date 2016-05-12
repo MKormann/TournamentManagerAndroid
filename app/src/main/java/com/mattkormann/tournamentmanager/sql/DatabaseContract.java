@@ -28,8 +28,6 @@ public class DatabaseContract {
         public static final String TABLE_NAME = "participantList";
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_IS_TEAM = "isTeam";
-        public static final String INDIVIDUALS = "0";
-        public static final String TEAMS = "1";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +

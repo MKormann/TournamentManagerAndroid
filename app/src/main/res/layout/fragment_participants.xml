@@ -19,7 +19,6 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/individuals"
         android:layout_marginBottom="@dimen/generic_padding"
         android:id="@+id/participant_type"
         android:layout_gravity="center_horizontal|top"

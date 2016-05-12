@@ -6,12 +6,16 @@
     import android.support.v4.app.FragmentManager;
     import android.support.v4.app.FragmentTransaction;
 
+    import com.mattkormann.tournamentmanager.tournaments.Tournament;
+
     import java.util.logging.Level;
     import java.util.logging.Logger;
 
     public class MainActivity extends FragmentActivity
             implements MainMenuFragment.onMenuButtonPressedListener,
             ParticipantsFragment.ParticipantInfoListener {
+
+        private Tournament currentTournament;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,7 @@
 
         //Returns an instance of the requested fragment
         private Fragment createFragment(int id) {
+            Bundle args = new Bundle();
             switch (id) {
                 case (R.id.button_start_tournament):
                     //fragment = new StartTournamentFragment();
@@ -57,16 +62,25 @@
                     //fragment = new CreateTournamentFragment();
                     break;
                 case (R.id.button_participants):
-                    return new ParticipantsFragment();
+                    ParticipantsFragment pfi = new ParticipantsFragment();
+                    args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.INDIVIDUALS);
+                    pfi.setArguments(args);
+                    return pfi;
                 case (R.id.button_teams):
-                    //fragment = new TeamsFragment();
-                    break;
+                    ParticipantsFragment pft = new ParticipantsFragment();
+                    args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.TEAMS);
+                    pft.setArguments(args);
+                    return pft;
                 case (R.id.button_history):
                     //fragment = new HistoryFragment();
                     break;
             }
 
             return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        }
+
+        public void setCurrentTournament(Tournament tournament) {
+            this.currentTournament = tournament;
         }
 
         //Methods implemented from Participants fragment to show info editor and retrieve new data
