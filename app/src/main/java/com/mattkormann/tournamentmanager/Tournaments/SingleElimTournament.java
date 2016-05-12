@@ -58,7 +58,6 @@ public class SingleElimTournament implements Tournament {
     @Override
     public int getRoundStartDelimiter(int roundNumber) {
         if (roundNumber == 1) return 0;
-        //else if (roundNumber == rounds) return getRoundEndDelimiter(roundNumber);
         else return (getRoundEndDelimiter(roundNumber - 1) + 1);
     }
 

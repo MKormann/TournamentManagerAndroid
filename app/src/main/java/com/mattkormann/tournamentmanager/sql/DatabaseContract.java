@@ -1,6 +1,7 @@
 package com.mattkormann.tournamentmanager.sql;
 
 import android.provider.BaseColumns;
+import android.provider.Telephony;
 
 /**
  * Created by Matt on 5/2/2016.
@@ -32,7 +33,7 @@ public class DatabaseContract {
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
-                _ID + "INTEGER PRIMARY KEY," +
+                _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_IS_TEAM + INTEGER_TYPE + " )";
 
@@ -64,7 +65,7 @@ public class DatabaseContract {
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
-                _ID + "INTEGER PRIMARY KEY," +
+                _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_SIZE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_DOUBLE_ELIM + INTEGER_TYPE + COMMA_SEP +
@@ -83,7 +84,7 @@ public class DatabaseContract {
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
-                _ID + "INTEGER PRIMARY KEY," +
+                _ID + " INTEGER PRIMARY KEY," +
                 COLUMN_NAME_TOURNAMENT_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_WINNER_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_FINISHED + INTEGER_TYPE + " )";

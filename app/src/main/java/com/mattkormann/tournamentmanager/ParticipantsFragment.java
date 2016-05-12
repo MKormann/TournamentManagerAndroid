@@ -95,7 +95,7 @@ public class ParticipantsFragment extends Fragment
             row.setOrientation(LinearLayout.HORIZONTAL);
 
             TextView id = new TextView(getContext());
-            id.setText((i + 1) + "");
+            id.setText(c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -131,6 +131,7 @@ public class ParticipantsFragment extends Fragment
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
+                DatabaseContract.ParticipantTable._ID,
                 DatabaseContract.ParticipantTable.COLUMN_NAME_NAME,
                 DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM
         };
@@ -139,6 +140,8 @@ public class ParticipantsFragment extends Fragment
 
         String[] selectionArgs = {type};
 
+        String sortOrder = DatabaseContract.ParticipantTable._ID + " ASC";
+
         return db.query(
                 DatabaseContract.ParticipantTable.TABLE_NAME,
                 projection,
@@ -146,7 +149,7 @@ public class ParticipantsFragment extends Fragment
                 selectionArgs,
                 null,
                 null,
-                null
+                sortOrder
                 );
     }
 

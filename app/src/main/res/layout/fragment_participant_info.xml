@@ -12,7 +12,7 @@
         android:text="@string/enter_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/participant_table_padding"
+        android:paddingLeft="@dimen/generic_padding"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -21,8 +21,8 @@
         android:id="@+id/name_text_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingRight="@dimen/participant_table_padding"
-        android:paddingEnd="@dimen/participant_table_padding"
+        android:paddingRight="@dimen/generic_padding"
+        android:paddingEnd="@dimen/generic_padding"
         android:inputType="text"
         android:imeOptions="actionDone"
         android:layout_toRightOf="@id/name_label"
@@ -33,7 +33,7 @@
         android:text="@string/is_team"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/participant_table_padding"
+        android:paddingLeft="@dimen/generic_padding"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/team_label"
-        android:paddingRight="@dimen/participant_table_padding"
-        android:paddingEnd="@dimen/participant_table_padding"/>
+        android:paddingRight="@dimen/generic_padding"
+        android:paddingEnd="@dimen/generic_padding"/>
 
 </RelativeLayout>

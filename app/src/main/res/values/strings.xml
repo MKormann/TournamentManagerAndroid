@@ -16,6 +16,12 @@
     <string name="teams">Teams</string>
     <string name="enter_name">Enter name:</string>
     <string name="is_team">Team?</string>
+    <string name="tournament_size">Tournament Size:</string>
+    <string name="tournament_settings">Tournament Settings</string>
+    <string name="tournament_name_label">Tournament Name:</string>
+    <string name="elimination_type_label">Elimination Type:</string>
+    <string name="team_size_label">Team Size:</string>
+    <string name="stat_tracking_label">Stat Tracking:</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

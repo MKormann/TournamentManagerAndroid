@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/individuals"
-        android:layout_marginBottom="@dimen/participant_table_padding"
+        android:layout_marginBottom="@dimen/generic_padding"
         android:id="@+id/participant_type"
         android:layout_gravity="center_horizontal|top"
         android:textSize="@dimen/generic_subtitle"
@@ -37,8 +37,8 @@
         android:layout_below="@+id/participant_type"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginLeft="@dimen/participant_table_padding"
-        android:layout_marginStart="@dimen/participant_table_padding" />
+        android:layout_marginLeft="@dimen/generic_padding"
+        android:layout_marginStart="@dimen/generic_padding" />
 
     <Button
         android:layout_width="wrap_content"
@@ -50,11 +50,11 @@
         android:layout_below="@+id/participant_type"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="@dimen/participant_table_padding"
-        android:layout_marginEnd="@dimen/participant_table_padding" />
+        android:layout_marginRight="@dimen/generic_padding"
+        android:layout_marginEnd="@dimen/generic_padding" />
 
     <ScrollView
-        android:layout_margin="@dimen/participant_table_padding"
+        android:layout_margin="@dimen/generic_padding"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/participant_view"
