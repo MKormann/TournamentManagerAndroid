@@ -91,35 +91,9 @@ public class ParticipantsFragment extends Fragment
 
         //Create a row with count and name fields for each entry
         for (int i = 0; i < c.getCount(); i++) {
-            LinearLayout row = new LinearLayout(getContext());
-            row.setOrientation(LinearLayout.HORIZONTAL);
-
-            TextView id = new TextView(getContext());
-            id.setText(c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.weight = .2f;
-            lp.gravity = Gravity.CENTER;
-            id.setLayoutParams(lp);
-
-            TextView name = new TextView(getContext());
-            name.setText(c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
-            LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp2.weight = .8f;
-            lp2.gravity = Gravity.LEFT;
-            name.setLayoutParams(lp2);
-
-            row.addView(id);
-            row.addView(name);
-
-            LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            lpRow.weight = 1.0f;
-            row.setLayoutParams(lpRow);
+            LinearLayout row = getParticipantRow(
+                    c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
+                    c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
             participantDisplay.addView(row);
             c.moveToNext();
         }
@@ -152,7 +126,40 @@ public class ParticipantsFragment extends Fragment
                 sortOrder
                 );
     }
+    
+    private LinearLayout getParticipantRow(String rowId, String rowName) {
+        LinearLayout row = new LinearLayout(getContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
 
+        TextView id = new TextView(getContext());
+        id.setText(rowId);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.weight = .2f;
+        lp.gravity = Gravity.CENTER;
+        id.setLayoutParams(lp);
+
+        TextView name = new TextView(getContext());
+        name.setText(rowName);
+        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp2.weight = .8f;
+        lp2.gravity = Gravity.LEFT;
+        name.setLayoutParams(lp2);
+
+        row.addView(id);
+        row.addView(name);
+
+        LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        lpRow.weight = 1.0f;
+        row.setLayoutParams(lpRow);
+
+        return row;
+    }
 
     void saveInformation(String name, boolean team) {
 

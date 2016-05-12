@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.ToggleButton;
 
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
@@ -38,6 +40,20 @@ public class TournamentSettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tournament_settings, container, false);
 
+        // Set listeners for buttons
+        Button button = (Button)view.findViewById(R.id.generate_tournament);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mCallback.generateTournament();
+            }
+        });
+        ToggleButton tButton = (ToggleButton)view.findViewById(R.id.stat_tracking_toggle);
+        tButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mCallback.displayStatEntry();
+            }
+        });
+
         // Create a spinner for choosing tournament size
         int numChoices = Tournament.MAX_TOURNAMENT_SIZE - Tournament.MIN_TOURNAMENT_SIZE + 1;
         Integer[] sizes = new Integer[numChoices];
@@ -46,7 +62,7 @@ public class TournamentSettingsFragment extends Fragment {
         }
         ArrayAdapter<Integer> integerArrayAdapter = new ArrayAdapter<Integer>(getContext(),
                 R.layout.support_simple_spinner_dropdown_item, sizes);
-        Spinner spinner = (Spinner)container.findViewById(R.id.tournament_size_spinner);
+        Spinner spinner = (Spinner)view.findViewById(R.id.tournament_size_spinner);
         spinner.setAdapter(integerArrayAdapter);
 
         return view;
@@ -70,6 +86,7 @@ public class TournamentSettingsFragment extends Fragment {
     }
 
     public interface TournamentSettingsListener {
-        void onFragmentInteraction(Uri uri);
+        void generateTournament();
+        void displayStatEntry();
     }
 }
