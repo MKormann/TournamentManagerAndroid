@@ -116,4 +116,14 @@
         </ToggleButton>
     </LinearLayout>
 
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingLeft="@dimen/generic_padding"
+        android:paddingRight="@dimen/generic_padding"
+        android:paddingEnd="@dimen/generic_padding"
+        android:id="@+id/generate_tournament"
+        android:text="@string/generate_tournament">
+
+    </Button>
 </LinearLayout>

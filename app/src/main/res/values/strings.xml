@@ -22,6 +22,7 @@
     <string name="elimination_type_label">Elimination Type:</string>
     <string name="team_size_label">Team Size:</string>
     <string name="stat_tracking_label">Stat Tracking:</string>
+    <string name="generate_tournament">Generate</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
