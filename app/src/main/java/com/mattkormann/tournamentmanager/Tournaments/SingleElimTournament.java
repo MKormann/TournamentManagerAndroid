@@ -11,26 +11,33 @@ import java.util.List;
 public class SingleElimTournament implements Tournament {
 
     private int size;
+    private int teamSize;
     private int rounds;
     private Participant[] participants;
     private Match[] matches;
+    private String[] statCategories;
+
+    private final boolean IS_DOUBLE_ELIM = false;
 
     public SingleElimTournament() {
 
     }
 
-    public SingleElimTournament(int size) {
-        this(size, new Participant[size]);
+    public SingleElimTournament(int size, int teamSize) {
+        this(size, teamSize, new String[] {}, new Participant[size]);
     }
 
 
-    public SingleElimTournament(int size, Participant[] participants) {
+    public SingleElimTournament(int size, int teamSize, String[] statCategories,
+                                Participant[] participants) {
         if (size < MIN_TOURNAMENT_SIZE)
             throw new IllegalArgumentException("Tournament is less than minimum allowed size.");
         this.size = size;
+        this.teamSize = teamSize;
         this.rounds = Integer.toBinaryString(size - 1).length();
         this.participants = participants;
         this.matches = new Match[size - 1];
+        this.statCategories = statCategories;
     }
 
     //Compares the value of the last Match in the match array to the static Tournament value
@@ -41,8 +48,18 @@ public class SingleElimTournament implements Tournament {
     }
 
     @Override
+    public boolean isDoubleElimination() {
+        return IS_DOUBLE_ELIM;
+    }
+
+    @Override
     public int getSize() {
         return size;
+    }
+
+    @Override
+    public int getTeamSize() {
+        return teamSize;
     }
 
     @Override
@@ -67,6 +84,21 @@ public class SingleElimTournament implements Tournament {
             throw new IllegalArgumentException("Round number is invalid: " + roundNumber);
         }
         return (int)(matches.length - Math.pow(2, (rounds - roundNumber)));
+    }
+
+    @Override
+    public boolean isStatTrackingEnabled(){
+        return (statCategories.length != 0);
+    }
+
+    @Override
+    public String[] getStatCategories() {
+        return statCategories;
+    }
+
+    @Override
+    public int getNumberOfStatistics() {
+        return statCategories.length;
     }
 }
 

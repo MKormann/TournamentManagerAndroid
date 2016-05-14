@@ -13,7 +13,8 @@
 
     public class MainActivity extends FragmentActivity
             implements MainMenuFragment.onMenuButtonPressedListener,
-            ParticipantsFragment.ParticipantInfoListener {
+            ParticipantsFragment.ParticipantInfoListener,
+            TournamentSettingsFragment.TournamentSettingsListener {
 
         private Tournament currentTournament;
 
@@ -55,12 +56,18 @@
         private Fragment createFragment(int id) {
             Bundle args = new Bundle();
             switch (id) {
-                case (R.id.button_start_tournament):
-                    //fragment = new StartTournamentFragment();
-                    break;
-                case (R.id.button_create_tournament):
-                    //fragment = new CreateTournamentFragment();
-                    break;
+                case (R.id.start_tournament_create_new):
+                    TournamentSettingsFragment tsfc = new TournamentSettingsFragment();
+                    return tsfc;
+                case (R.id.start_tournament_load_saved):
+                    TournamentSettingsFragment tsfs = new TournamentSettingsFragment();
+                    return tsfs;
+                case (R.id.create_tournament_new_menu):
+                    TournamentSettingsFragment tsfn = new TournamentSettingsFragment();
+                    return tsfn;
+                case (R.id.create_tournament_load_menu):
+                    TournamentSettingsFragment tsfl = new TournamentSettingsFragment();
+                    return tsfl;
                 case (R.id.button_participants):
                     ParticipantsFragment pfi = new ParticipantsFragment();
                     args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.INDIVIDUALS);
@@ -101,6 +108,17 @@
             if (pf != null) {
                 pf.saveInformation(name, type);
             }
+        }
+
+        //Methods implemented from Tournament Settings fragment
+        @Override
+        public void generateTournament() {
+
+        }
+
+        @Override
+        public void displayStatEntry() {
+
         }
 
     }

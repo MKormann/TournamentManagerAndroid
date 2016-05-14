@@ -16,11 +16,17 @@ public interface Tournament {
     //Return size (number of participants) of tournament
     int getSize();
 
+    //Return size of teams
+    int getTeamSize();
+
     //Return list of Participants
     Participant[] getParticipants();
 
     //Return whether or not the tournament has concluded
     boolean isOver();
+
+    //Return whether tournament is double or single elimination
+    boolean isDoubleElimination();
 
     //Return the number of rounds in given tournament
     //e.g. in a single elimination tournament, 5-8 participants = 3 rounds, 9-16 = 4 rounds, etc.
@@ -31,4 +37,10 @@ public interface Tournament {
 
     //Returns array marker value for when a given round ends, inclusive
     int getRoundEndDelimiter(int roundNumber);
+
+    boolean isStatTrackingEnabled();
+
+    String[] getStatCategories() ;
+
+    int getNumberOfStatistics();
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="create_tournament_new_menu" type="id"/>
+    <item name="create_tournament_load_menu" type="id"/>
+    <item name="start_tournament_create_new" type="id"/>
+    <item name="start_tournament_load_saved" type="id"/>
+</resources>

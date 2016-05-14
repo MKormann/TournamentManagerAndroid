@@ -1,22 +1,37 @@
 package com.mattkormann.tournamentmanager;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
+import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.ToggleButton;
 
+import com.mattkormann.tournamentmanager.sql.DatabaseContract;
+import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
 public class TournamentSettingsFragment extends Fragment {
 
     private TournamentSettingsListener mCallback;
+    private DatabaseHelper mDbHelper;
+    private Button generateButton;
+    private ToggleButton tButton;
+    private NumberPicker np;
+    private Spinner eSpinner;
+    private Spinner teamSpinner;
+    private EditText editName;
 
     public TournamentSettingsFragment() {
         // Required empty public constructor
@@ -40,30 +55,48 @@ public class TournamentSettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_tournament_settings, container, false);
 
+        generateButton = (Button)view.findViewById(R.id.generate_tournament);
+        tButton = (ToggleButton)view.findViewById(R.id.stat_tracking_toggle);
+        eSpinner = (Spinner)view.findViewById(R.id.elimination_type_spinner);
+        teamSpinner = (Spinner)view.findViewById(R.id.team_size_spinner);
+        editName = (EditText)view.findViewById(R.id.tournament_name_text);
+        np = (NumberPicker)view.findViewById(R.id.tournament_size_picker);
+
         // Set listeners for buttons
-        Button button = (Button)view.findViewById(R.id.generate_tournament);
-        button.setOnClickListener(new View.OnClickListener() {
+        generateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                final View view = v;
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                alertDialogBuilder.setTitle(getString(R.string.button_create_tournament));
+                alertDialogBuilder.setMessage(getString(R.string.create_tournament_alert_dialog));
+                alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveTournament(view);
+                    }
+                });
+                alertDialogBuilder.setNeutralButton(getString(R.string.buttonCancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialogBuilder.show();
                 mCallback.generateTournament();
             }
         });
-        ToggleButton tButton = (ToggleButton)view.findViewById(R.id.stat_tracking_toggle);
         tButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCallback.displayStatEntry();
             }
         });
 
-        // Create a spinner for choosing tournament size
-        int numChoices = Tournament.MAX_TOURNAMENT_SIZE - Tournament.MIN_TOURNAMENT_SIZE + 1;
-        Integer[] sizes = new Integer[numChoices];
-        for (int i = 0; i < numChoices ; i++) {
-            sizes[i] = i + Tournament.MIN_TOURNAMENT_SIZE;
-        }
-        ArrayAdapter<Integer> integerArrayAdapter = new ArrayAdapter<Integer>(getContext(),
-                R.layout.support_simple_spinner_dropdown_item, sizes);
-        Spinner spinner = (Spinner)view.findViewById(R.id.tournament_size_spinner);
-        spinner.setAdapter(integerArrayAdapter);
+        mDbHelper = new DatabaseHelper(getContext());
+
+        // Create a number picker for choosing tournament size
+        np.setMinValue(Tournament.MIN_TOURNAMENT_SIZE);
+        np.setMaxValue(Tournament.MAX_TOURNAMENT_SIZE);
+        np.setWrapSelectorWheel(false);
 
         return view;
     }
@@ -83,6 +116,32 @@ public class TournamentSettingsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mCallback = null;
+    }
+
+    // Save new Tournament schema to the SavedTournaments SQL table
+    public void saveTournament(View view) {
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_NAME, editName.getText().toString());
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_SIZE, np.getValue());
+
+        String elimType = eSpinner.getSelectedItem().toString();
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_DOUBLE_ELIM, elimType.equals("Double") ? 1 : 0);
+
+        int teamSize = Integer.valueOf(teamSpinner.getSelectedItem().toString());
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_TEAM_SIZE, teamSize);
+
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_USE_STATS, tButton.isChecked() ? 1 : 0);
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_STATS_ARRAY, " ");//TODO
+
+        long newRowId;
+        newRowId = db.insert(
+                DatabaseContract.SavedTournaments.TABLE_NAME,
+                null,
+                values
+        );
     }
 
     public interface TournamentSettingsListener {

@@ -58,8 +58,9 @@ public class DatabaseContract {
         public static final String COLUMN_NAME_NAME = "tournamentName";
         public static final String COLUMN_NAME_SIZE = "size";
         public static final String COLUMN_NAME_DOUBLE_ELIM = "doubleElim";
-        public static final String COLUMN_NAME_USE_TEAMS = "useTeams";
         public static final String COLUMN_NAME_TEAM_SIZE = "teamSize";
+        public static final String COLUMN_NAME_USE_STATS = "useStats";
+        public static final String COLUMN_NAME_STATS_ARRAY = "statsArray";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -67,8 +68,9 @@ public class DatabaseContract {
                 COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_SIZE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_DOUBLE_ELIM + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_USE_TEAMS + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_TEAM_SIZE + INTEGER_TYPE + " )";
+                COLUMN_NAME_TEAM_SIZE + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_USE_STATS + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_STATS_ARRAY + TEXT_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
