@@ -78,16 +78,37 @@ public class DatabaseContract {
     //Table of previously run tournaments
     public static abstract class TournamentHistory implements BaseColumns {
         public static final String TABLE_NAME = "tournamentHistory";
-        public static final String COLUMN_NAME_TOURNAMENT_ID = "savedTournID";
+        public static final String COLUMN_NAME_TOURNAMENT_NAME = "tournamentName";
+        public static final String COLUMN_NAME_SIZE = "size";
         public static final String COLUMN_NAME_WINNER_ID = "winnerID";
+        public static final String COLUMN_NAME_RUNNER_UP_ID = "runnerUpID";
         public static final String COLUMN_NAME_FINISHED = "isFinished";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_TOURNAMENT_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_TOURNAMENT_NAME + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_SIZE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_WINNER_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_RUNNER_UP_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_FINISHED + INTEGER_TYPE + " )";
+
+        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    }
+
+    //Table of each inidividual performance in previously run tournaments
+    public static abstract class IndividualHistory implements BaseColumns {
+        public static final String TABLE_NAME = "individualHistory";
+        public static final String COLUMN_NAME_PART_ID = "participantID";
+        public static final String COLUMN_NAME_FINISHED_TOURNAMENT_ID = "tournamentNumber";
+        public static final String COLUMN_NAME_PLACE = "place";
+
+        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
+                TABLE_NAME + " (" +
+                _ID + " INTEGER PRIMARY KEY," +
+                COLUMN_NAME_PART_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_FINISHED_TOURNAMENT_ID + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_PLACE + INTEGER_TYPE + COMMA_SEP + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
