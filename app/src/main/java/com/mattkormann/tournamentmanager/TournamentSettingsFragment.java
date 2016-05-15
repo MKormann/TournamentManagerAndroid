@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -32,6 +31,7 @@ public class TournamentSettingsFragment extends Fragment {
     private Spinner eSpinner;
     private Spinner teamSpinner;
     private EditText editName;
+    private String[] statCategories;
 
     public TournamentSettingsFragment() {
         // Required empty public constructor
@@ -87,7 +87,7 @@ public class TournamentSettingsFragment extends Fragment {
         });
         tButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCallback.displayStatEntry();
+                if (tButton.isChecked()) mCallback.displayStatEntry();
             }
         });
 

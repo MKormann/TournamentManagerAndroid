@@ -14,7 +14,8 @@
     public class MainActivity extends FragmentActivity
             implements MainMenuFragment.onMenuButtonPressedListener,
             ParticipantsFragment.ParticipantInfoListener,
-            TournamentSettingsFragment.TournamentSettingsListener {
+            TournamentSettingsFragment.TournamentSettingsListener,
+            StatEntryFragment.StatEntryFragmentListener {
 
         private Tournament currentTournament;
 
@@ -118,7 +119,20 @@
 
         @Override
         public void displayStatEntry() {
+            FragmentManager fm = getSupportFragmentManager();
+            StatEntryFragment statEntryFragment = StatEntryFragment.newInstance();
+            Bundle args = new Bundle();
+            statEntryFragment.setArguments(args);
+            statEntryFragment.show(fm, "fragment_stat_entry");
+        }
 
+        @Override
+        public void onOkButtonPressed() {
+            TournamentSettingsFragment tsf = (TournamentSettingsFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (tsf != null) {
+                //TODO save stat entry to settings array
+            }
         }
 
     }
