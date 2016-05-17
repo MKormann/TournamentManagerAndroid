@@ -33,6 +33,8 @@ public class TournamentSettingsFragment extends Fragment {
     private EditText editName;
     private String[] statCategories;
 
+    public static final String STAT_CATEGORIES = "STAT_CATEGORIES";
+
     public TournamentSettingsFragment() {
         // Required empty public constructor
     }
@@ -61,6 +63,7 @@ public class TournamentSettingsFragment extends Fragment {
         teamSpinner = (Spinner)view.findViewById(R.id.team_size_spinner);
         editName = (EditText)view.findViewById(R.id.tournament_name_text);
         np = (NumberPicker)view.findViewById(R.id.tournament_size_picker);
+        statCategories = new String[getContext().getResources().getInteger(R.integer.max_number_of_stats)];
 
         // Set listeners for buttons
         generateButton.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +90,7 @@ public class TournamentSettingsFragment extends Fragment {
         });
         tButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (tButton.isChecked()) mCallback.displayStatEntry();
+                if (tButton.isChecked()) mCallback.displayStatEntry(statCategories);
             }
         });
 
@@ -144,8 +147,12 @@ public class TournamentSettingsFragment extends Fragment {
         );
     }
 
+    public void setStatCategories(String[] statCategories) {
+        this.statCategories = statCategories;
+    }
+
     public interface TournamentSettingsListener {
         void generateTournament();
-        void displayStatEntry();
+        void displayStatEntry(String[] statCategories);
     }
 }

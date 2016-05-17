@@ -30,7 +30,7 @@ public class SingleElimTournamentTest {
     private int expectedEndDelim;
 
     public SingleElimTournamentTest(int size, int rounds, int check, int startDelim, int endDelim) {
-        tournament = new SingleElimTournament(size);
+        tournament = new SingleElimTournament(size, 1);
         expectedRounds = rounds;
         roundToCheck = check;
         expectedStartDelim = startDelim;

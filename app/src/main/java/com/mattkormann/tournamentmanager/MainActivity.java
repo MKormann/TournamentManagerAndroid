@@ -118,20 +118,23 @@
         }
 
         @Override
-        public void displayStatEntry() {
+        public void displayStatEntry(String[] statCategories) {
             FragmentManager fm = getSupportFragmentManager();
             StatEntryFragment statEntryFragment = StatEntryFragment.newInstance();
             Bundle args = new Bundle();
+            if (statCategories != null) {
+                args.putStringArray(TournamentSettingsFragment.STAT_CATEGORIES, statCategories);
+            }
             statEntryFragment.setArguments(args);
             statEntryFragment.show(fm, "fragment_stat_entry");
         }
 
         @Override
-        public void onOkButtonPressed() {
+        public void onOkButtonPressed(String[] statCategories) {
             TournamentSettingsFragment tsf = (TournamentSettingsFragment)
                     getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (tsf != null) {
-                //TODO save stat entry to settings array
+                tsf.setStatCategories(statCategories);
             }
         }
 
