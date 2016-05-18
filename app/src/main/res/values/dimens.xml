@@ -7,5 +7,6 @@
     <dimen name="generic_subtitle">20sp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="generic_padding">30dp</dimen>
+    <dimen name="generic_half_padding">15dp</dimen>
     <dimen name="table_font_size">20sp</dimen>
 </resources>

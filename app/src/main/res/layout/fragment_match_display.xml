@@ -1,0 +1,79 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.mattkormann.tournamentmanager.MatchDisplayFragment">
+
+    <TextView
+        android:id="@+id/match_no_title"
+        android:layout_marginTop="@dimen/generic_padding"
+        android:text="@string/matchNo"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:textSize="@dimen/generic_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/enter_result_button"
+        android:layout_marginBottom="@dimen/generic_padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_alignParentBottom="true"
+        style="@android:style/Widget.Button"
+        android:text="@string/enter_result">
+    </Button>
+
+    <LinearLayout
+        android:layout_below="@+id/match_no_title"
+        android:layout_above="@+id/enter_result_button"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_marginTop="@dimen/generic_half_padding"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/match_layout_left"
+            android:orientation="vertical">
+
+            <TextView
+                android:textAlignment="center"
+                android:textSize="@dimen/generic_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Left Participant"
+                android:id="@+id/participant_name_left"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="@dimen/generic_half_padding"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/match_layout_right"
+            android:orientation="vertical">
+
+            <TextView
+                android:textAlignment="center"
+                android:textSize="@dimen/generic_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Right Participant"
+                android:id="@+id/participant_name_right"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

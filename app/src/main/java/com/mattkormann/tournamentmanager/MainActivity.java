@@ -87,7 +87,11 @@
             return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         }
 
-        public void setCurrentTournament(Tournament tournament) {
+        public Tournament getCurrentTournament() {
+            return currentTournament;
+        }
+
+        private void setCurrentTournament(Tournament tournament) {
             this.currentTournament = tournament;
         }
 

@@ -33,7 +33,8 @@
     <string name="start_tournament_create_new">Create New</string>
     <string name="start_tournament_load_saved">Load</string>
     <string name="stat_entry_title">Enter Stat Categories</string>
-
+    <string name="matchNo">Match #</string>
+    <string name="enter_result">Enter Result</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
