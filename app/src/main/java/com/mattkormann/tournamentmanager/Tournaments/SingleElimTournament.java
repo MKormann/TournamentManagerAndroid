@@ -68,6 +68,13 @@ public class SingleElimTournament implements Tournament {
     }
 
     @Override
+    public Participant getParticipant(int index) {
+        if (index < 0 || index >= participants.length)
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds.");
+        return participants[index];
+    }
+
+    @Override
     public int getNumberOfRounds() {
         return rounds;
     }

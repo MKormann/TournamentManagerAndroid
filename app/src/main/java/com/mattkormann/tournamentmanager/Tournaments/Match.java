@@ -9,4 +9,6 @@ public interface Match {
     double[] getStatistics();
     double getSingleStatistic(int statIndex);
     double[] getSingleStatisticForAll(int statIndex);
+    int[] getParticipantIndices();
+    int getParticipantIndex(int index);
 }

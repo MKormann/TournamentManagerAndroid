@@ -49,6 +49,10 @@ public class TournamentDisplayFragment extends Fragment {
         }
     }
 
+    public void onClick(View view) {
+        
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -56,6 +60,6 @@ public class TournamentDisplayFragment extends Fragment {
     }
 
     public interface TournamentDisplayListener {
-        void onFragmentInteraction(Uri uri);
+        void onMatchClick(int matchId);
     }
 }
