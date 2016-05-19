@@ -15,7 +15,8 @@
             implements MainMenuFragment.onMenuButtonPressedListener,
             ParticipantsFragment.ParticipantInfoListener,
             TournamentSettingsFragment.TournamentSettingsListener,
-            StatEntryFragment.StatEntryFragmentListener {
+            StatEntryFragment.StatEntryFragmentListener,
+            TournamentDisplayFragment.TournamentDisplayListener {
 
         private Tournament currentTournament;
 
@@ -87,6 +88,7 @@
             return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         }
 
+        @Override
         public Tournament getCurrentTournament() {
             return currentTournament;
         }
@@ -133,6 +135,7 @@
             statEntryFragment.show(fm, "fragment_stat_entry");
         }
 
+        //Method implemented from Stat Entry Fragment
         @Override
         public void onOkButtonPressed(String[] statCategories) {
             TournamentSettingsFragment tsf = (TournamentSettingsFragment)
@@ -140,6 +143,12 @@
             if (tsf != null) {
                 tsf.setStatCategories(statCategories);
             }
+        }
+
+        //Method implemented from Tournament Display Fragment
+        @Override
+        public void displayMatch(int matchId) {
+
         }
 
     }

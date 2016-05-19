@@ -25,6 +25,9 @@ public interface Tournament {
     //Return single participant
     Participant getParticipant(int index);
 
+    //Return array of matches
+    Match[] getMatches();
+
     //Return whether or not the tournament has concluded
     boolean isOver();
 
