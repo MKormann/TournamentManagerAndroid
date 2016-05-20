@@ -19,7 +19,8 @@ public class SingleElimTournamentTest {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {8, 3, 2, 4, 5}, {128, 7, 4, 112, 119}, {61, 6, 2, 29, 44}, {250, 8, 8, 248, 248}
+                {16, 4, 1, 0, 7, 8}, {8, 3, 2, 4, 5, 4}, {128, 7, 4, 112, 119, 64}, {61, 6, 2, 29, 44, 29},
+                {250, 8, 8, 248, 248, 122}
         });
     }
 
@@ -28,13 +29,16 @@ public class SingleElimTournamentTest {
     private int expectedRounds;
     private int expectedStartDelim;
     private int expectedEndDelim;
+    private int expectedNextMatchId;
 
-    public SingleElimTournamentTest(int size, int rounds, int check, int startDelim, int endDelim) {
+    public SingleElimTournamentTest(int size, int rounds, int check, int startDelim,
+                                    int endDelim, int nextMatchId) {
         tournament = new SingleElimTournament(size, 1);
         expectedRounds = rounds;
         roundToCheck = check;
         expectedStartDelim = startDelim;
         expectedEndDelim = endDelim;
+        expectedNextMatchId = nextMatchId;
     }
 
     @Test
@@ -50,6 +54,11 @@ public class SingleElimTournamentTest {
     @Test
     public void testGetRoundEndDelimiter() {
         assertEquals(expectedEndDelim, tournament.getRoundEndDelimiter(roundToCheck));
+    }
+
+    @Test
+    public void testGetNextMatchId() {
+        assertEquals(expectedNextMatchId, tournament.getNextMatchId(0));
     }
 
 }

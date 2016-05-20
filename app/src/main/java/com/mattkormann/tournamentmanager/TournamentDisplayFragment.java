@@ -48,15 +48,20 @@ public class TournamentDisplayFragment extends Fragment {
 
         //Create a bracket matchup for each match in tournament
         matchBracketDisplays = new View[tournament.getMatches().length];
-        int cnt = 0;
-        for (Match m : tournament.getMatches()) {
+
+        Match[] matches = tournament.getMatches();
+        for (int cnt = 0; cnt < matches.length; cnt++) {
+
+            Match m = matches[cnt];
+
             //Create layout to hold participants of a single match
-            LinearLayout layout = new LinearLayout(getContext());
+            MatchBracketLayout layout = new MatchBracketLayout(getContext(), cnt);
             layout.setOrientation(LinearLayout.VERTICAL);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
 
+            //Check if match is null (no participants have been determined)
             if (m != null) {
                 for (int i = 0; i < m.getParticipantIndices().length; i++) {
 
@@ -66,19 +71,23 @@ public class TournamentDisplayFragment extends Fragment {
                             R.layout.single_participant_bracket_display;
                     View bracket = inflater.inflate(bracketStyle, null);
 
-                    TextView seed = (TextView) bracket.findViewById(R.id.display_seed);
-                    seed.setText(m.getParticipantIndex(i));
-                    TextView name = (TextView) bracket.findViewById(R.id.display_name);
-                    name.setText(tournament.getParticipant(i).getName());
-                    TextView stat = (TextView) bracket.findViewById(R.id.display_stat);
-                    stat.setText(String.valueOf(m.getSingleStatistic(i)));
+                    //Check whether or not each participant has been determined
+                    if (m.getParticipantIndex(i) != Match.NOT_YET_ASSIGNED) {
+
+                        TextView seed = (TextView) bracket.findViewById(R.id.display_seed);
+                        seed.setText(m.getParticipantIndex(i));
+                        TextView name = (TextView) bracket.findViewById(R.id.display_name);
+                        name.setText(tournament.getParticipant(i).getName());
+                        TextView stat = (TextView) bracket.findViewById(R.id.display_stat);
+                        stat.setText(String.valueOf(m.getSingleStatistic(i)));
+                    }
 
                     layout.addView(bracket);
                 }
             }
 
             layout.setLayoutParams(lp);
-            matchBracketDisplays[cnt++] = layout;
+            matchBracketDisplays[cnt] = layout;
         }
 
         return view;
@@ -96,7 +105,10 @@ public class TournamentDisplayFragment extends Fragment {
     }
 
     public void onMatchClick(View view) {
-
+        if (view instanceof MatchBracketLayout) {
+            MatchBracketLayout mbl = (MatchBracketLayout)view;
+            mCallback.displayMatch(mbl.getMatchId());
+        }
     }
 
     @Override

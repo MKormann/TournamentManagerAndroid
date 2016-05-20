@@ -1,14 +1,12 @@
 package com.mattkormann.tournamentmanager.tournaments;
 
-import com.mattkormann.tournamentmanager.participants.Participant;
-
 /**
  * Created by Matt on 5/6/2016.
  */
 public class StandardMatch implements Match {
 
     private double[] statistics;
-    private int winner = -1;
+    private int winner = Match.NO_WINNER;
     private int[] participants;
 
     private final int numParticipants;
@@ -23,14 +21,14 @@ public class StandardMatch implements Match {
         statistics = new double[numStats];
     }
 
-    public boolean checkIndexIsValid(int index) {
-        if (index < 0 || index >= numParticipants)
+    public boolean checkParticipantNumIsValid(int participantNum) {
+        if (participantNum < 0 || participantNum >= numParticipants)
             return false;
         return true;
     }
 
     public void setWinner(int winner) {
-        checkIndexIsValid(winner);
+        checkParticipantNumIsValid(winner);
         this.winner = winner;
     }
 
@@ -68,8 +66,20 @@ public class StandardMatch implements Match {
     }
 
     @Override
-    public int getParticipantIndex(int index) {
-        checkIndexIsValid(index);
-        return participants[index];
+    public int getParticipantIndex(int participantNum) {
+        checkParticipantNumIsValid(participantNum);
+        return participants[participantNum];
+    }
+
+    @Override
+    public void setParticipants(int[] indices) {
+        if (indices != null && indices.length == numParticipants) {
+            this.participants = indices;
+        }
+    }
+
+    @Override
+    public void setParticipant(int participantNum, int index) {
+        if (checkParticipantNumIsValid(participantNum)) participants[participantNum] = index;
     }
 }

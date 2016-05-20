@@ -44,6 +44,9 @@ public interface Tournament {
     //Returns array marker value for when a given round ends, inclusive
     int getRoundEndDelimiter(int roundNumber);
 
+    //Returns id of the match that the winner of the match given advances to
+    int getNextMatchId(int matchId);
+
     boolean isStatTrackingEnabled();
 
     String[] getStatCategories() ;
