@@ -17,6 +17,8 @@ public class ParticipantInfoFragment extends DialogFragment implements TextView.
 
     private EditText mEditText;
 
+    public static final String SOURCE_ID = "SOURCE_ID";
+
     public ParticipantInfoFragment() {
         // Required empty public constructor
     }

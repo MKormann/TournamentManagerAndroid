@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface Tournament {
 
+    String STAT_CATEGORIES = "STAT_CATEGORIES";
+
     int NOT_YET_OCCURRED = -2;
     int MIN_TOURNAMENT_SIZE = 4;
     int MAX_TOURNAMENT_SIZE = 256;
@@ -25,8 +27,14 @@ public interface Tournament {
     //Return single participant
     Participant getParticipant(int index);
 
+    //Set participant array
+    void setParticipants(Participant[] participants);
+
     //Return array of matches
     Match[] getMatches();
+
+    //Return single instance of match
+    Match getMatch(int matchId);
 
     //Return whether or not the tournament has concluded
     boolean isOver();

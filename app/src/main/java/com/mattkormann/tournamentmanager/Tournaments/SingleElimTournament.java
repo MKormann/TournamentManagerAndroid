@@ -1,7 +1,9 @@
 package com.mattkormann.tournamentmanager.tournaments;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
+import com.mattkormann.tournamentmanager.participants.SingleParticipant;
 
+import java.util.ArrayList;
 import java.util.IllegalFormatCodePointException;
 import java.util.List;
 
@@ -73,10 +75,22 @@ public class SingleElimTournament implements Tournament {
     }
 
     @Override
+    public Match getMatch(int matchId) {
+        return matches[matchId];
+    }
+
+    @Override
     public Participant getParticipant(int index) {
         if (index < 0 || index >= participants.length)
             throw new IndexOutOfBoundsException("Index " + index + " is out of bounds.");
         return participants[index];
+    }
+
+    @Override
+    public void setParticipants(Participant[] participants) {
+        if (participants.length != size)
+            throw new IllegalArgumentException("Participant array does not equal tournament size.");
+        this.participants = participants;
     }
 
     @Override
@@ -96,6 +110,27 @@ public class SingleElimTournament implements Tournament {
             throw new IllegalArgumentException("Round number is invalid: " + roundNumber);
         }
         return (int)(matches.length - Math.pow(2, (rounds - roundNumber)));
+    }
+
+    @Override
+    public int getNextMatchId(int matchId) {
+
+        //Adds a modifier of 1 to id if the tournament size is odd
+        int nextMatchId = size % 2 == 0 ? matchId : matchId + 1;
+        nextMatchId /= 2;
+
+        int roundOneLength = (getRoundEndDelimiter(1) - getRoundStartDelimiter(1) + 1);
+
+        //Check if the first round is a full round, if so add length to id and return
+        //If not, add length of first full round ( 2) and add half of round 1 length
+        if (size == Math.pow(2, rounds)) {
+            return nextMatchId + roundOneLength;
+        } else if (matchId <= getRoundEndDelimiter(1)) {
+            return nextMatchId + roundOneLength;
+        } else {
+            return nextMatchId + (roundOneLength / 2) +
+                    (getRoundEndDelimiter(2) - getRoundStartDelimiter(2) + 1);
+        }
     }
 
     @Override

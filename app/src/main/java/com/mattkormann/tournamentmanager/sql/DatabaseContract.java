@@ -11,6 +11,7 @@ public class DatabaseContract {
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
+    private static final String DATETIME_TYPE = " DATETIME";
     private static final String COMMA_SEP = ",";
 
     //Holds create statement for every table for use in onCreate method
@@ -83,6 +84,11 @@ public class DatabaseContract {
         public static final String COLUMN_NAME_WINNER_ID = "winnerID";
         public static final String COLUMN_NAME_RUNNER_UP_ID = "runnerUpID";
         public static final String COLUMN_NAME_FINISHED = "isFinished";
+        public static final String COLUMN_NAME_FINISH_TIME = "finishTime";
+        public static final String COLUMN_NAME_PARTICIPANT_IDS = "participantIds";
+        public static final String COLUMN_NAME_MATCH_DETAILS = "matchDetails";
+        public static final String COLUMN_NAME_STAT_CATEGORIES = "statCategories";
+        public static final String COLUMN_NAME_STAT_VALUES = "statValues";
 
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
@@ -91,7 +97,12 @@ public class DatabaseContract {
                 COLUMN_NAME_SIZE + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_WINNER_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_RUNNER_UP_ID + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_FINISHED + INTEGER_TYPE + " )";
+                COLUMN_NAME_FINISHED + INTEGER_TYPE + COMMA_SEP +
+                COLUMN_NAME_FINISH_TIME + DATETIME_TYPE + COMMA_SEP +
+                COLUMN_NAME_PARTICIPANT_IDS + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_MATCH_DETAILS + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_STAT_CATEGORIES + TEXT_TYPE + COMMA_SEP +
+                COLUMN_NAME_STAT_VALUES + TEXT_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

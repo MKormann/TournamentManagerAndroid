@@ -35,6 +35,14 @@
     <string name="stat_entry_title">Enter Stat Categories</string>
     <string name="matchNo">Match #</string>
     <string name="enter_result">Enter Result</string>
+    <string name="vs_subtitle">VS</string>
+    <string name="start_tournament">Start</string>
+    <string name="finalize_participants_title">Start Tournament</string>
+    <string name="finalize_participants_message">Ready to proceed with current participants?</string>
+    <string name="unassigned_title">Unassigned Participants</string>
+    <string name="unassigned_message">Some participants are still unassigned.  Empty spots will
+        be filled with generic participants.  Proceed?</string>
+    <string name="create_new_participant">(New Participant)</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

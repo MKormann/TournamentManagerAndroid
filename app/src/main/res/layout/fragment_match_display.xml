@@ -35,10 +35,10 @@
 
         <LinearLayout
             android:layout_marginTop="@dimen/generic_half_padding"
-            android:layout_weight="1"
+            android:layout_weight=".4"
             android:gravity="center_horizontal"
             android:textAlignment="center"
-            android:layout_width="match_parent"
+            android:layout_width="0dip"
             android:layout_height="match_parent"
             android:id="@+id/match_layout_left"
             android:orientation="vertical">
@@ -55,10 +55,30 @@
 
         <LinearLayout
             android:layout_marginTop="@dimen/generic_half_padding"
-            android:layout_weight="1"
+            android:layout_weight=".2"
             android:gravity="center_horizontal"
             android:textAlignment="center"
-            android:layout_width="match_parent"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:id="@+id/match_layout_center"
+            android:orientation="vertical">
+
+            <TextView
+                android:textAlignment="center"
+                android:textSize="@dimen/generic_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vs_subtitle"
+                android:id="@+id/vs_subtitle"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="@dimen/generic_half_padding"
+            android:layout_weight=".4"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:layout_width="0dip"
             android:layout_height="match_parent"
             android:id="@+id/match_layout_right"
             android:orientation="vertical">

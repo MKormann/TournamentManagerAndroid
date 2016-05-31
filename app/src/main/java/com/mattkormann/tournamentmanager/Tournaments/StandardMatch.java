@@ -27,6 +27,7 @@ public class StandardMatch implements Match {
         return true;
     }
 
+    @Override
     public void setWinner(int winner) {
         checkParticipantNumIsValid(winner);
         this.winner = winner;

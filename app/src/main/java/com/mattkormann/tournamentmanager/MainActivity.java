@@ -6,6 +6,8 @@
     import android.support.v4.app.FragmentManager;
     import android.support.v4.app.FragmentTransaction;
 
+    import com.mattkormann.tournamentmanager.participants.Participant;
+    import com.mattkormann.tournamentmanager.tournaments.Match;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
     import java.util.logging.Level;
@@ -16,7 +18,9 @@
             ParticipantsFragment.ParticipantInfoListener,
             TournamentSettingsFragment.TournamentSettingsListener,
             StatEntryFragment.StatEntryFragmentListener,
-            TournamentDisplayFragment.TournamentDisplayListener {
+            TournamentDisplayFragment.TournamentDisplayListener,
+            PopulateFragment.PopulateFragmentListener,
+            ChooseParticipantFragment.ChooseParticipantListener{
 
         private Tournament currentTournament;
 
@@ -110,14 +114,25 @@
 
         @Override
         public void onFinishParticipantInformationDialog(String name, int type) {
-            ParticipantsFragment pf = (ParticipantsFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            if (pf != null) {
-                pf.saveInformation(name, type);
+
+            Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (f instanceof PopulateFragment) {
+                PopulateFragment pf = (PopulateFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (pf != null) {
+                    assignChosenParticipant(pf.saveNewParticipant(name, type), pf.getSelectedSeed());
+                }
+            }
+            else if (f instanceof ParticipantsFragment) {
+                ParticipantsFragment pf = (ParticipantsFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (pf != null) {
+                    pf.saveInformation(name, type);
+                }
             }
         }
 
-        //Methods implemented from Tournament Settings fragment
+        //Methods implemented from Tournament Settings fragment TODO
         @Override
         public void generateTournament() {
 
@@ -148,7 +163,52 @@
         //Method implemented from Tournament Display Fragment
         @Override
         public void displayMatch(int matchId) {
+            FragmentManager fm = getSupportFragmentManager();
+            MatchDisplayFragment mdf = MatchDisplayFragment.newInstance();
+            Match match = currentTournament.getMatch(matchId);
+            Bundle args = new Bundle();
+            args.putInt(Match.MATCH_ID, matchId);
+            args.putDoubleArray(Match.MATCH_STATS, match.getStatistics());
+            args.putStringArray(Tournament.STAT_CATEGORIES, currentTournament.getStatCategories());
+            args.putString(Match.PARTICIPANT_ONE, currentTournament.getParticipant(match.getParticipantIndex(0)).getName());
+            args.putString(Match.PARTICIPANT_TWO, currentTournament.getParticipant(match.getParticipantIndex(1)).getName());
+            mdf.setArguments(args);
+            mdf.show(fm, "fragment_match_display");
+        }
 
+        @Override
+        public void setWinner(int matchId, int winner) {
+            currentTournament.getMatch(matchId).setWinner(winner);
+        }
+
+        //Method implemented from Populate Fragment
+        @Override
+        public void finalizeAndContinue(Participant[] participants) {
+            currentTournament.setParticipants(participants);
+        }
+
+        public void showChooseParticipantFragment(int seed) {
+            FragmentManager fm = getSupportFragmentManager();
+            ChooseParticipantFragment cpf = ChooseParticipantFragment.newInstance();
+            Bundle args = new Bundle();
+            args.putInt(PopulateFragment.SEED_TO_ASSIGN, seed);
+            cpf.setArguments(args);
+            cpf.show(fm, "fragment_choose_participant");
+        }
+
+        //Methods implemented from Choose Participant Fragment
+        @Override
+        public void addAndAssignNewParticipant(int seed) {
+            showParticipantInfoDialog(ParticipantsFragment.INDIVIDUALS); //TODO type
+        }
+
+        @Override
+        public void assignChosenParticipant(int id, int seed) {
+            PopulateFragment pf = (PopulateFragment)getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_container);
+            if (pf != null) {
+                pf.assignSeed(id, seed);
+            }
         }
 
     }

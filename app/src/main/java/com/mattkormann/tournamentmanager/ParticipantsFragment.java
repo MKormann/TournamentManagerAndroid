@@ -168,7 +168,7 @@ public class ParticipantsFragment extends Fragment
         return row;
     }
 
-    void saveInformation(String name, int type) {
+    int saveInformation(String name, int type) {
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -186,6 +186,8 @@ public class ParticipantsFragment extends Fragment
 
         //Display updated participant list
         populateTable(getArguments().getInt(TYPE_TO_DISPLAY));
+
+        return (int)newRowId;
     }
 
     // Set subtitle and button labels based on what type is being displayed
