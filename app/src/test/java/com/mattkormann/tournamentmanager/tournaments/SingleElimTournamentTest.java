@@ -33,7 +33,7 @@ public class SingleElimTournamentTest {
 
     public SingleElimTournamentTest(int size, int rounds, int check, int startDelim,
                                     int endDelim, int nextMatchId) {
-        tournament = new SingleElimTournament(size, 1);
+        tournament = new SingleElimTournament("", size, 1);
         expectedRounds = rounds;
         roundToCheck = check;
         expectedStartDelim = startDelim;

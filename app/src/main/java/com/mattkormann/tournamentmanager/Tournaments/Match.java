@@ -15,6 +15,7 @@ public interface Match {
 
     int getWinner();
     void setWinner(int winner);
+    int getRunnerUp();
     double[] getStatistics();
     double getSingleStatistic(int statIndex);
     double[] getSingleStatisticForAll(int statIndex);
@@ -22,4 +23,5 @@ public interface Match {
     int getParticipantIndex(int participantNum);
     void setParticipants(int[] indices);
     void setParticipant(int participantNum, int index);
+    void setStatistics(double[] statistics);
 }

@@ -137,7 +137,7 @@ public class TournamentSettingsFragment extends Fragment {
         values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_TEAM_SIZE, teamSize);
 
         values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_USE_STATS, tButton.isChecked() ? 1 : 0);
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_STATS_ARRAY, " ");//TODO
+        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_STATS_ARRAY, " ");//TODO NEW DATABASE SCHEMA
 
         long newRowId;
         newRowId = db.insert(

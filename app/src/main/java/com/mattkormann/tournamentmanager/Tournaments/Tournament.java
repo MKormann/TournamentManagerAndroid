@@ -2,62 +2,169 @@ package com.mattkormann.tournamentmanager.tournaments;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Matt on 5/2/2016.
  */
-public interface Tournament {
+public class Tournament {
 
-    String STAT_CATEGORIES = "STAT_CATEGORIES";
+    public static String STAT_CATEGORIES = "STAT_CATEGORIES";
+    public static int NOT_YET_OCCURRED = -2;
+    public static int MIN_TOURNAMENT_SIZE = 4;
+    public static int MAX_TOURNAMENT_SIZE = 256;
 
-    int NOT_YET_OCCURRED = -2;
-    int MIN_TOURNAMENT_SIZE = 4;
-    int MAX_TOURNAMENT_SIZE = 256;
+    private String name;
+    private int size;
+    private int teamSize;
+    private int rounds;
+    private Participant[] participants;
+    private Match[] matches;
+    private String[] statCategories;
+    private String endTime;
+    private boolean isDoubleElim = false;
 
-    //Return size (number of participants) of tournament
-    int getSize();
+    public Tournament() {
 
-    //Return size of teams
-    int getTeamSize();
+    }
 
-    //Return list of Participants
-    Participant[] getParticipants();
+    public Tournament(String name, int size, int teamSize) {
+        this(name, size, teamSize, new String[] {}, new Participant[size]);
+    }
 
-    //Return single participant
-    Participant getParticipant(int index);
 
-    //Set participant array
-    void setParticipants(Participant[] participants);
+    public Tournament(String name, int size, int teamSize, String[] statCategories,
+                                Participant[] participants) {
+        this.name = name;
+        if (size < MIN_TOURNAMENT_SIZE)
+            throw new IllegalArgumentException("Tournament is less than minimum allowed size.");
+        this.size = size;
+        this.teamSize = teamSize;
+        this.rounds = Integer.toBinaryString(size - 1).length();
+        this.participants = participants;
+        this.matches = new Match[size - 1];
+        this.statCategories = statCategories;
+    }
 
-    //Return array of matches
-    Match[] getMatches();
+    public String getName() {
+        return name;
+    }
 
-    //Return single instance of match
-    Match getMatch(int matchId);
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    //Return whether or not the tournament has concluded
-    boolean isOver();
+    //Compares the value of the last Match in the match array to the static Tournament value
+    //for not having occurred.
+    public boolean isOver() {
+        return (matches[matches.length - 1].getWinner() != Tournament.NOT_YET_OCCURRED);
+    }
 
-    //Return whether tournament is double or single elimination
-    boolean isDoubleElimination();
+    public String getEndTime() {
+        return endTime;
+    }
 
-    //Return the number of rounds in given tournament
-    //e.g. in a single elimination tournament, 5-8 participants = 3 rounds, 9-16 = 4 rounds, etc.
-    int getNumberOfRounds();
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
 
-    //Returns array marker value for when a given round begins, inclusive
-    int getRoundStartDelimiter(int roundNumber);
+    public String setDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
 
-    //Returns array marker value for when a given round ends, inclusive
-    int getRoundEndDelimiter(int roundNumber);
+    public boolean isDoubleElimination() {
+        return isDoubleElim;
+    }
 
-    //Returns id of the match that the winner of the match given advances to
-    int getNextMatchId(int matchId);
+    public int getSize() {
+        return size;
+    }
 
-    boolean isStatTrackingEnabled();
+    public int getTeamSize() {
+        return teamSize;
+    }
 
-    String[] getStatCategories() ;
+    public Participant[] getParticipants() {
+        return participants;
+    }
 
-    int getNumberOfStatistics();
+    public Match[] getMatches() {
+        return matches;
+    }
+
+    public Match getMatch(int matchId) {
+        return matches[matchId];
+    }
+
+    public void setMatches(Match[] matches) {
+        if (matches.length != size - 1)
+            throw new IllegalArgumentException("Match array is not correct length.");
+        this.matches = matches;
+    }
+
+    public Participant getParticipant(int index) {
+        if (index < 0 || index >= participants.length)
+            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds.");
+        return participants[index];
+    }
+
+    public void setParticipants(Participant[] participants) {
+        if (participants.length != size)
+            throw new IllegalArgumentException("Participant array does not equal tournament size.");
+        this.participants = participants;
+    }
+
+    public int getNumberOfRounds() {
+        return rounds;
+    }
+
+    public int getRoundStartDelimiter(int roundNumber) {
+        if (roundNumber == 1) return 0;
+        else return (getRoundEndDelimiter(roundNumber - 1) + 1);
+    }
+
+    public int getRoundEndDelimiter(int roundNumber) {
+        if (roundNumber < 1 || roundNumber > rounds) {
+            throw new IllegalArgumentException("Round number is invalid: " + roundNumber);
+        }
+        return (int)(matches.length - Math.pow(2, (rounds - roundNumber)));
+    }
+
+    public int getNextMatchId(int matchId) {
+
+        //Adds a modifier of 1 to id if the tournament size is odd
+        int nextMatchId = size % 2 == 0 ? matchId : matchId + 1;
+        nextMatchId /= 2;
+
+        int roundOneLength = (getRoundEndDelimiter(1) - getRoundStartDelimiter(1) + 1);
+
+        //Check if the first round is a full round, if so add length to id and return
+        //If not, add length of first full round ( 2) and add half of round 1 length
+        if (size == Math.pow(2, rounds)) {
+            return nextMatchId + roundOneLength;
+        } else if (matchId <= getRoundEndDelimiter(1)) {
+            return nextMatchId + roundOneLength;
+        } else {
+            return nextMatchId + (roundOneLength / 2) +
+                    (getRoundEndDelimiter(2) - getRoundStartDelimiter(2) + 1);
+        }
+    }
+
+    public boolean isStatTrackingEnabled(){
+        return (statCategories.length != 0);
+    }
+
+    public String[] getStatCategories() {
+        return statCategories;
+    }
+
+    public int getNumberOfStatistics() {
+        return statCategories.length;
+    }
 }
+

@@ -18,7 +18,7 @@ public class StandardMatch implements Match {
     public StandardMatch(int numParticipants, int numStats) {
         this.numParticipants = numParticipants;
         this.participants = new int[numParticipants];
-        statistics = new double[numStats];
+        statistics = new double[numStats * numParticipants];
     }
 
     public boolean checkParticipantNumIsValid(int participantNum) {
@@ -36,6 +36,13 @@ public class StandardMatch implements Match {
     @Override
     public int getWinner() {
         return participants[winner];
+    }
+
+    @Override
+    public int getRunnerUp() {
+        if (getWinner() == Match.NO_WINNER) return Match.NO_WINNER;
+        if (getWinner() == 0) return participants[1];
+        else return participants[0]; //TODO change to reflect participant number
     }
 
     //Get one single stat for one participant
@@ -82,5 +89,10 @@ public class StandardMatch implements Match {
     @Override
     public void setParticipant(int participantNum, int index) {
         if (checkParticipantNumIsValid(participantNum)) participants[participantNum] = index;
+    }
+
+    @Override
+    public void setStatistics(double[] statistics) {
+        this.statistics = statistics;
     }
 }
