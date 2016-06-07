@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 6;
     public static final String DATABASE_NAME = "TournamentManager.db";
 
     public DatabaseHelper(Context context) {
@@ -26,6 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(DatabaseContract.SavedTournaments.DELETE_TABLE);
+        db.execSQL(DatabaseContract.TournamentHistory.DELETE_TABLE);
         onCreate(db);
     }
 }

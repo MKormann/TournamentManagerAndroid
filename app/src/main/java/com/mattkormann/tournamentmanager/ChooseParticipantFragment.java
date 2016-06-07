@@ -26,10 +26,11 @@ public class ChooseParticipantFragment extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static ChooseParticipantFragment newInstance() {
+    public static ChooseParticipantFragment newInstance(Map<Integer, Participant> participantMap) {
         ChooseParticipantFragment fragment = new ChooseParticipantFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
+        fragment.setListItems(participantMap);
         return fragment;
     }
 

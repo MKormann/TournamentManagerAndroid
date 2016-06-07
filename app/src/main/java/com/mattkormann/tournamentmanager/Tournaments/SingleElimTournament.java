@@ -11,15 +11,6 @@ import java.util.Locale;
  */
 public class SingleElimTournament extends Tournament {
 
-    private String name;
-    private int size;
-    private int teamSize;
-    private int rounds;
-    private Participant[] participants;
-    private Match[] matches;
-    private String[] statCategories;
-    private String endTime;
-
     private final boolean IS_DOUBLE_ELIM = false;
 
     public SingleElimTournament() {
@@ -34,6 +25,11 @@ public class SingleElimTournament extends Tournament {
     public SingleElimTournament(String name, int size, int teamSize, String[] statCategories,
                                 Participant[] participants) {
         super(name, size, teamSize, statCategories, participants);
+    }
+
+    @Override
+    public boolean isDoubleElimination() {
+        return IS_DOUBLE_ELIM;
     }
 
 }

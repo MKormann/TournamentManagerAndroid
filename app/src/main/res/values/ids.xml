@@ -4,4 +4,8 @@
     <item name="create_tournament_load_menu" type="id"/>
     <item name="start_tournament_create_new" type="id"/>
     <item name="start_tournament_load_saved" type="id"/>
+    <item name="start_tournament_load_in_progress" type="id"/>
+    <item name="main_menu_fragment" type="id"/>
+    <item name="populate_fragment" type="id"/>
+    <item name="tournament_display_fragment" type="id"/>
 </resources>

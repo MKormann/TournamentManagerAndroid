@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,7 +81,7 @@ public class HistoryFragment extends Fragment {
                 TOURNAMENT_HISTORY_PREFIX + DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID + "," +
                 TOURNAMENT_HISTORY_PREFIX + DatabaseContract.TournamentHistory.COLUMN_NAME_RUNNER_UP_ID + "," +
                 TOURNAMENT_HISTORY_PREFIX + DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED + "," +
-                TOURNAMENT_HISTORY_PREFIX + DatabaseContract.TournamentHistory.COLUMN_NAME_FINISH_TIME + "," +
+                TOURNAMENT_HISTORY_PREFIX + DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME + "," +
                 PARTICIPANT_PREFIX + DatabaseContract.ParticipantTable.COLUMN_NAME_NAME;
 
         String[] projection = {
@@ -92,7 +91,7 @@ public class HistoryFragment extends Fragment {
                 DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID,
                 DatabaseContract.TournamentHistory.COLUMN_NAME_RUNNER_UP_ID,
                 DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED,
-                DatabaseContract.TournamentHistory.COLUMN_NAME_FINISH_TIME
+                DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME
         };
 
         String selection = DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED + "=?";

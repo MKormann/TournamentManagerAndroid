@@ -1,25 +1,23 @@
 package com.mattkormann.tournamentmanager;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.ToggleButton;
 
-import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
+import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
+import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 
 public class TournamentSettingsFragment extends Fragment {
 
@@ -34,6 +32,12 @@ public class TournamentSettingsFragment extends Fragment {
     private String[] statCategories;
 
     public static final String STAT_CATEGORIES = "STAT_CATEGORIES";
+    public static final String START_TOURNAMENT_AFTER = "START_TOURNAMENT_AFTER";
+    public static final String TEMPLATE_ID = "TEMPLATE_ID";
+
+    private int templateId;
+    private boolean startTournamentAfter;
+    private TournamentDAO tDao;
 
     public TournamentSettingsFragment() {
         // Required empty public constructor
@@ -71,11 +75,18 @@ public class TournamentSettingsFragment extends Fragment {
                 final View view = v;
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                 alertDialogBuilder.setTitle(getString(R.string.button_create_tournament));
-                alertDialogBuilder.setMessage(getString(R.string.create_tournament_alert_dialog));
+                alertDialogBuilder.setMessage(templateId == TournamentDAO.NEW_TOURNAMENT_TEMPLATE ?
+                        getString(R.string.create_tournament_alert_dialog) :
+                        getString(R.string.update_tournament_alert_dialog));
                 alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        saveTournament(view);
+                        int templateId = saveTournamentTemplate(view);
+                        if (startTournamentAfter) {
+                            Tournament tournament = tDao.loadTournamentFromTemplate(templateId);
+                            mCallback.setCurrentTournament(tournament);
+                        };
+                        mCallback.advanceFromSettings(startTournamentAfter);
                     }
                 });
                 alertDialogBuilder.setNeutralButton(getString(R.string.buttonCancel), new DialogInterface.OnClickListener() {
@@ -85,7 +96,7 @@ public class TournamentSettingsFragment extends Fragment {
                     }
                 });
                 alertDialogBuilder.show();
-                mCallback.generateTournament();
+
             }
         });
         tButton.setOnClickListener(new View.OnClickListener() {
@@ -95,11 +106,22 @@ public class TournamentSettingsFragment extends Fragment {
         });
 
         mDbHelper = new DatabaseHelper(getContext());
+        tDao = new SqliteTournamentDAO(mDbHelper);
 
         // Create a number picker for choosing tournament size
         np.setMinValue(Tournament.MIN_TOURNAMENT_SIZE);
         np.setMaxValue(Tournament.MAX_TOURNAMENT_SIZE);
         np.setWrapSelectorWheel(false);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            templateId = args.getInt(TEMPLATE_ID);
+            if (templateId != TournamentDAO.NEW_TOURNAMENT_TEMPLATE)
+                loadTournamentSettings(templateId);
+            startTournamentAfter = args.getBoolean(START_TOURNAMENT_AFTER);
+        } else {
+            templateId = TournamentDAO.NEW_TOURNAMENT_TEMPLATE;
+        }
 
         return view;
     }
@@ -121,30 +143,32 @@ public class TournamentSettingsFragment extends Fragment {
         mCallback = null;
     }
 
-    // Save new Tournament schema to the SavedTournaments SQL table
-    public void saveTournament(View view) {
+    public void loadTournamentSettings(int tournamentId) {
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        if (tournamentId == TournamentDAO.NEW_TOURNAMENT_TEMPLATE) return;
 
-        ContentValues values = new ContentValues();
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_NAME, editName.getText().toString());
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_SIZE, np.getValue());
+        Tournament tournament = tDao.loadTournamentFromTemplate(tournamentId);
 
+        editName.setText(tournament.getName());
+        np.setValue(tournament.getSize());
+        int spinnerIndex = tournament.isDoubleElimination() ? 1 : 0;
+        eSpinner.setSelection(spinnerIndex);
+        teamSpinner.setSelection(tournament.getTeamSize() - 1);
+        tButton.setChecked(tournament.isStatTrackingEnabled());
+        if (tButton.isChecked()) setStatCategories(tournament.getStatCategories());
+    }
+
+    private int saveTournamentTemplate(View view) {
+
+        //Collect values from fields
+        String name = editName.getText().toString();
+        int size = np.getValue();
         String elimType = eSpinner.getSelectedItem().toString();
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_DOUBLE_ELIM, elimType.equals("Double") ? 1 : 0);
-
+        int doubleElim = elimType.equals("Double") ? 1 : 0;
         int teamSize = Integer.valueOf(teamSpinner.getSelectedItem().toString());
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_TEAM_SIZE, teamSize);
+        int useStats = tButton.isChecked() ? 1 : 0;
 
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_USE_STATS, tButton.isChecked() ? 1 : 0);
-        values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_STATS_ARRAY, " ");//TODO NEW DATABASE SCHEMA
-
-        long newRowId;
-        newRowId = db.insert(
-                DatabaseContract.SavedTournaments.TABLE_NAME,
-                null,
-                values
-        );
+        return tDao.saveTournamentTemplate(templateId, name, size, teamSize, doubleElim, useStats, statCategories);
     }
 
     public void setStatCategories(String[] statCategories) {
@@ -152,7 +176,8 @@ public class TournamentSettingsFragment extends Fragment {
     }
 
     public interface TournamentSettingsListener {
-        void generateTournament();
+        void advanceFromSettings(boolean startTournament);
         void displayStatEntry(String[] statCategories);
+        void setCurrentTournament(Tournament tournament);
     }
 }

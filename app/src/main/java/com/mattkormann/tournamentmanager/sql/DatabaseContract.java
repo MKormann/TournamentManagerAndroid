@@ -1,7 +1,6 @@
 package com.mattkormann.tournamentmanager.sql;
 
 import android.provider.BaseColumns;
-import android.provider.Telephony;
 
 /**
  * Created by Matt on 5/2/2016.
@@ -17,7 +16,9 @@ public class DatabaseContract {
     //Holds create statement for every table for use in onCreate method
     public static final String[] TABLE_CREATE_STATEMENTS = {
             ParticipantTable.CREATE_TABLE,
-            TeamPairings.CREATE_TABLE
+            TeamPairings.CREATE_TABLE,
+            SavedTournaments.CREATE_TABLE,
+            TournamentHistory.CREATE_TABLE
     };
 
     public DatabaseContract() {
@@ -84,7 +85,7 @@ public class DatabaseContract {
         public static final String COLUMN_NAME_WINNER_ID = "winnerID";
         public static final String COLUMN_NAME_RUNNER_UP_ID = "runnerUpID";
         public static final String COLUMN_NAME_FINISHED = "isFinished";
-        public static final String COLUMN_NAME_FINISH_TIME = "finishTime";
+        public static final String COLUMN_NAME_SAVE_TIME = "saveTime";
         public static final String COLUMN_NAME_PARTICIPANT_IDS = "participantIds";
         public static final String COLUMN_NAME_MATCH_DETAILS = "matchDetails";
         public static final String COLUMN_NAME_STAT_CATEGORIES = "statCategories";
@@ -98,7 +99,7 @@ public class DatabaseContract {
                 COLUMN_NAME_WINNER_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_RUNNER_UP_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_FINISHED + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_FINISH_TIME + DATETIME_TYPE + COMMA_SEP +
+                COLUMN_NAME_SAVE_TIME + DATETIME_TYPE + COMMA_SEP +
                 COLUMN_NAME_PARTICIPANT_IDS + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_MATCH_DETAILS + TEXT_TYPE + COMMA_SEP +
                 COLUMN_NAME_STAT_CATEGORIES + TEXT_TYPE + COMMA_SEP +

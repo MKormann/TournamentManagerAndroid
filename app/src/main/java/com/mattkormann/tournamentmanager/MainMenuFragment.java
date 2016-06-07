@@ -1,10 +1,8 @@
 package com.mattkormann.tournamentmanager;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuItemImpl;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,11 +41,13 @@ public class MainMenuFragment extends Fragment implements
                         Menu.NONE, getString(R.string.start_tournament_create_new));
                 popup.getMenu().add(Menu.NONE, R.id.start_tournament_load_saved,
                         Menu.NONE, getString(R.string.start_tournament_load_saved));
+                popup.getMenu().add(Menu.NONE, R.id.start_tournament_load_in_progress,
+                        Menu.NONE, getString(R.string.start_tournament_load_in_progress));
 
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        mCallback.onMainMenuButtonPressed(item.getItemId());
+                        mCallback.swapFragment(item.getItemId());
                         return true;
                     }
                 });
@@ -70,7 +70,7 @@ public class MainMenuFragment extends Fragment implements
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                      mCallback.onMainMenuButtonPressed(item.getItemId());
+                      mCallback.swapFragment(item.getItemId());
                       return true;
                     }
                 });
@@ -110,12 +110,12 @@ public class MainMenuFragment extends Fragment implements
 
     @Override
     public void onClick(View view) {
-        mCallback.onMainMenuButtonPressed(view.getId());
+        mCallback.swapFragment(view.getId());
     }
 
     //Interface to be implemented by containing activity.
     public interface onMenuButtonPressedListener {
-        void onMainMenuButtonPressed(int buttonID);
+        void swapFragment(int buttonID);
     }
 
 }

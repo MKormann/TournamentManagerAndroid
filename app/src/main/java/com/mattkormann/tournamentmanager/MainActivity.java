@@ -1,17 +1,19 @@
     package com.mattkormann.tournamentmanager;
 
+    import android.content.DialogInterface;
     import android.os.Bundle;
     import android.support.v4.app.Fragment;
     import android.support.v4.app.FragmentActivity;
     import android.support.v4.app.FragmentManager;
     import android.support.v4.app.FragmentTransaction;
+    import android.support.v7.app.AlertDialog;
 
     import com.mattkormann.tournamentmanager.participants.Participant;
     import com.mattkormann.tournamentmanager.tournaments.Match;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
+    import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 
-    import java.util.logging.Level;
-    import java.util.logging.Logger;
+    import java.util.Map;
 
     public class MainActivity extends FragmentActivity
             implements MainMenuFragment.onMenuButtonPressedListener,
@@ -20,7 +22,8 @@
             StatEntryFragment.StatEntryFragmentListener,
             TournamentDisplayFragment.TournamentDisplayListener,
             PopulateFragment.PopulateFragmentListener,
-            ChooseParticipantFragment.ChooseParticipantListener{
+            ChooseParticipantFragment.ChooseParticipantListener,
+            ChooseTournamentFragment.ChooseTournamentListener {
 
         private Tournament currentTournament;
 
@@ -48,45 +51,53 @@
 
         //Replace fragment in fragment_container with id of corresponding button passed.
         //Implementation of interface from MainMenuFragment.java
-        public void onMainMenuButtonPressed(int buttonID) {
+        @Override
+        public void swapFragment(int id) {
+            swapFragment(getFragmentFromButton(id));
+        }
+
+        public void swapFragment(Fragment fragment) {
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-            transaction.replace(R.id.fragment_container, createFragment(buttonID));
+            transaction.replace(R.id.fragment_container, fragment);
             transaction.addToBackStack(null);
 
             transaction.commit();
         }
 
         //Returns an instance of the requested fragment
-        private Fragment createFragment(int id) {
+        private Fragment getFragmentFromButton(int id) {
             Bundle args = new Bundle();
             switch (id) {
                 case (R.id.start_tournament_create_new):
-                    TournamentSettingsFragment tsfc = new TournamentSettingsFragment();
-                    return tsfc;
+                    args.putBoolean(TournamentSettingsFragment.START_TOURNAMENT_AFTER, true);
+                    args.putInt(TournamentSettingsFragment.TEMPLATE_ID, TournamentDAO.NEW_TOURNAMENT_TEMPLATE);
+                    return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
                 case (R.id.start_tournament_load_saved):
-                    TournamentSettingsFragment tsfs = new TournamentSettingsFragment();
-                    return tsfs;
+                    args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
+                    args.putString(ChooseTournamentFragment.TOURNAMENT_TYPE, ChooseTournamentFragment.TEMPLATES);
+                    return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
+                case (R.id.start_tournament_load_in_progress):
+                    args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
+                    args.putString(ChooseTournamentFragment.TOURNAMENT_TYPE, ChooseTournamentFragment.IN_PROGRESS);
+                    return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.create_tournament_new_menu):
-                    TournamentSettingsFragment tsfn = new TournamentSettingsFragment();
-                    return tsfn;
+                    args.putBoolean(TournamentSettingsFragment.START_TOURNAMENT_AFTER, false);
+                    args.putInt(TournamentSettingsFragment.TEMPLATE_ID, TournamentDAO.NEW_TOURNAMENT_TEMPLATE);
+                    return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
                 case (R.id.create_tournament_load_menu):
-                    TournamentSettingsFragment tsfl = new TournamentSettingsFragment();
-                    return tsfl;
+                    args.putBoolean(ChooseTournamentFragment.START_AFTER, false);
+                    args.putString(ChooseTournamentFragment.TOURNAMENT_TYPE, ChooseTournamentFragment.TEMPLATES);
+                    return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.button_participants):
-                    ParticipantsFragment pfi = new ParticipantsFragment();
                     args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.INDIVIDUALS);
-                    pfi.setArguments(args);
-                    return pfi;
+                    return FragmentFactory.getFragment(FragmentFactory.PARTICIPANTS_FRAGMENT, args);
                 case (R.id.button_teams):
-                    ParticipantsFragment pft = new ParticipantsFragment();
                     args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.TEAMS);
-                    pft.setArguments(args);
-                    return pft;
+                    return FragmentFactory.getFragment(FragmentFactory.PARTICIPANTS_FRAGMENT, args);
                 case (R.id.button_history):
-                    //fragment = new HistoryFragment();
-                    break;
+                    return FragmentFactory.getFragment(FragmentFactory.HISTORY_FRAGMENT, args);
             }
 
             return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
@@ -97,7 +108,7 @@
             return currentTournament;
         }
 
-        private void setCurrentTournament(Tournament tournament) {
+        public void setCurrentTournament(Tournament tournament) {
             this.currentTournament = tournament;
         }
 
@@ -134,8 +145,12 @@
 
         //Methods implemented from Tournament Settings fragment TODO
         @Override
-        public void generateTournament() {
-
+        public void advanceFromSettings(boolean startTournament) {
+            if (startTournament) {
+                swapFragment(FragmentFactory.getFragment(FragmentFactory.POPULATE_FRAGMENT));
+            } else {
+                swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
+            }
         }
 
         @Override
@@ -182,14 +197,9 @@
         }
 
         //Method implemented from Populate Fragment
-        @Override
-        public void finalizeAndContinue(Participant[] participants) {
-            currentTournament.setParticipants(participants);
-        }
-
-        public void showChooseParticipantFragment(int seed) {
+        public void showChooseParticipantFragment(int seed, Map<Integer, Participant> participantMap) {
             FragmentManager fm = getSupportFragmentManager();
-            ChooseParticipantFragment cpf = ChooseParticipantFragment.newInstance();
+            ChooseParticipantFragment cpf = ChooseParticipantFragment.newInstance(participantMap);
             Bundle args = new Bundle();
             args.putInt(PopulateFragment.SEED_TO_ASSIGN, seed);
             cpf.setArguments(args);
@@ -209,6 +219,20 @@
             if (pf != null) {
                 pf.assignSeed(id, seed);
             }
+        }
+
+        @Override
+        public void displayNoTournamentMessage() {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(getString(R.string.no_tournaments_title));
+            alertDialogBuilder.setMessage(getString(R.string.no_tournaments_message));
+            alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            alertDialogBuilder.show();
         }
 
     }

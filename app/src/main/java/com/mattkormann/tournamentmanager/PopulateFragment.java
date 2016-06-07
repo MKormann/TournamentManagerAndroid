@@ -20,6 +20,9 @@ import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.participants.ParticipantFactory;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
+import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
+import com.mattkormann.tournamentmanager.tournaments.Tournament;
+import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +71,9 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         seedViews = new SeedView[size];
         mDbHelper = new DatabaseHelper(getContext());
 
+        loadSavedParticipants();
+        populateParticipantLayout();
+
         startButton = (Button) view.findViewById(R.id.start_tournament);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,7 +85,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    private void retrieveSavedParticipants() {
+    private void loadSavedParticipants() {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
@@ -142,6 +148,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             lp2.gravity = Gravity.LEFT;
             sv.setLayoutParams(lp2);
             //Add to views array
+            sv.setOnClickListener(new ParticipantClickListener());
             seedViews[i] = sv;
 
             row.addView(id);
@@ -206,7 +213,13 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                         Participant.GENERIC);
             }
         }
-        mCallback.finalizeAndContinue(participants);
+
+        //Set the participants to the current tournament, save into history, and display
+        Tournament tournament = mCallback.getCurrentTournament();
+        tournament.setParticipants(participants);
+        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
+        tDao.saveFullTournament(tournament);
+        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
     }
 
     //Swap participants assigned to the two given seeds
@@ -280,8 +293,9 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     }
 
     public interface PopulateFragmentListener {
-        void finalizeAndContinue(Participant[] participants);
-        void showChooseParticipantFragment(int seed);
+        Tournament getCurrentTournament();
+        void swapFragment(Fragment fragment);
+        void showChooseParticipantFragment(int seed, Map<Integer, Participant> participantMap);
     }
 
     class ParticipantClickListener implements View.OnClickListener {
@@ -290,7 +304,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             SeedView sv = (SeedView) v;
             if (!swapping) {
                 selectedSeed = sv.getSeed();
-                if (!sv.isAssigned()) mCallback.showChooseParticipantFragment(selectedSeed);
+                if (!sv.isAssigned()) mCallback.showChooseParticipantFragment(selectedSeed, participantMap);
                 else {
                     swapping = true;
                     //TODO Change style of seed to indicate swapping
