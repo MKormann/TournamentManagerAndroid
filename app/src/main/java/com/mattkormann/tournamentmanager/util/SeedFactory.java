@@ -1,5 +1,7 @@
 package com.mattkormann.tournamentmanager.util;
 
+import com.mattkormann.tournamentmanager.tournaments.Match;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -32,13 +34,18 @@ public class SeedFactory {
         prelimSeeds = new int[prelimParticipants];
 
         //Create array to hold first round seeds, if first round participants is less than size
-        //then the default array value of zero is left to represent a "bye" and pad the array for
+        //then the Match interface value for a BYE is left to and pad the array for
         //the method seedSort.
         int firstRoundParticipants = size - prelimParticipants;
 
         firstRoundSeeds = new int[maxMatchesInRound * 2];
-        for (int i = 0; i < firstRoundParticipants; i++) {
-            firstRoundSeeds[i] = i + 1;
+        int cnt = 0;
+        while (cnt < firstRoundParticipants) {
+            firstRoundSeeds[cnt] = cnt + 1;
+            cnt++;
+        }
+        while (cnt < firstRoundSeeds.length) {
+            firstRoundSeeds[cnt++] = Match.BYE;
         }
 
         temp = new int[firstRoundSeeds.length];
@@ -85,7 +92,7 @@ public class SeedFactory {
     public void assignPrelimSeeds() {
         int cnt = 0;
         for (int i = 0; i < firstRoundSeeds.length - 1; i += 2) {
-            if (firstRoundSeeds[i + 1] == 0) {
+            if (firstRoundSeeds[i + 1] == Match.BYE) {
                 int one = firstRoundSeeds.length + 1 - firstRoundSeeds[i];
                 int two = firstRoundSeeds.length + firstRoundSeeds[i];
                 prelimSeeds[cnt++] = one;

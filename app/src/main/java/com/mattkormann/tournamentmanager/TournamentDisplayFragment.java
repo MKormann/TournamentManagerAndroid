@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
+import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 
 public class TournamentDisplayFragment extends Fragment {
@@ -18,6 +19,7 @@ public class TournamentDisplayFragment extends Fragment {
     private TournamentDisplayListener mCallback;
 
     private Tournament tournament;
+    private int[] seedsInMatchOrder;
     private View[] matchBracketDisplays;
     private LinearLayout grid;
     private int maxRoundSize;
@@ -47,7 +49,8 @@ public class TournamentDisplayFragment extends Fragment {
         //Set tournament to the current tournament from Main Activity
         tournament = mCallback.getCurrentTournament();
 
-
+        SeedFactory sf = new SeedFactory(tournament.getSize());
+        seedsInMatchOrder = sf.getSeedsInMatchOrder();
 
         grid = (LinearLayout)view.findViewById(R.id.tournament_grid);
         //Determine tournament grid display size
@@ -68,9 +71,11 @@ public class TournamentDisplayFragment extends Fragment {
     //Create a bracket matchup for each match in tournament
     private void createMatchBracketViews(LayoutInflater inflater) {
 
-        matchBracketDisplays = new View[tournament.getMatches().length];
+        int numMatches = tournament.getMatches().length;
 
-        for (int cnt = 0; cnt < tournament.getMatches().length; cnt++) {
+        matchBracketDisplays = new View[numMatches];
+
+        for (int cnt = 0; cnt < numMatches; cnt++) {
 
             Match m = tournament.getMatch(cnt);
 

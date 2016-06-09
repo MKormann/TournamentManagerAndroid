@@ -12,6 +12,7 @@ public interface Match {
 
     int NO_WINNER = -1;
     int NOT_YET_ASSIGNED = -2;
+    int BYE = -3;
 
     int getWinner();
     void setWinner(int winner);
