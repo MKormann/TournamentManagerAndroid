@@ -1,9 +1,6 @@
 package com.mattkormann.tournamentmanager.sql;
 
 import android.test.AndroidTestCase;
-import android.test.RenamingDelegatingContext;
-
-import org.junit.Test;
 
 /**
  * Created by Matt on 5/2/2016.

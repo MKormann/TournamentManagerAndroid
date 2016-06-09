@@ -2,10 +2,6 @@ package com.mattkormann.tournamentmanager.tournaments;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 /**
  * Created by Matt on 5/2/2016.
  */

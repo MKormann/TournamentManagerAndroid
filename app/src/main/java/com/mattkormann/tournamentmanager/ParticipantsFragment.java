@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,8 +16,6 @@ import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
-
-import java.util.logging.Logger;
 
 public class ParticipantsFragment extends Fragment
         implements View.OnClickListener{

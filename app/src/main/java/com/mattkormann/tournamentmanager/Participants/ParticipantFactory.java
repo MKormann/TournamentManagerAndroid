@@ -1,12 +1,5 @@
 package com.mattkormann.tournamentmanager.participants;
 
-import android.database.sqlite.SQLiteDatabase;
-
-import com.mattkormann.tournamentmanager.ChooseParticipantFragment;
-import com.mattkormann.tournamentmanager.MatchBracketLayout;
-import com.mattkormann.tournamentmanager.PopulateFragment;
-import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
-
 /**
  * Created by Matt on 5/3/2016.
  */

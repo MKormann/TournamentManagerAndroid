@@ -1,5 +1,6 @@
 package com.mattkormann.tournamentmanager.tournaments;
 
+import com.mattkormann.tournamentmanager.R;
 import com.mattkormann.tournamentmanager.participants.Participant;
 
 import java.text.SimpleDateFormat;
@@ -20,10 +21,11 @@ public class Tournament {
     private int size;
     private int teamSize;
     private int rounds;
+    private int savedId;
     private Participant[] participants;
     private Match[] matches;
     private String[] statCategories;
-    private String endTime;
+    private String saveTime;
     private boolean isDoubleElim = false;
 
     public Tournament() {
@@ -62,19 +64,19 @@ public class Tournament {
         return (matches[matches.length - 1].getWinner() != Tournament.NOT_YET_OCCURRED);
     }
 
-    public String getEndTime() {
-        return endTime;
+    public String getSaveTime() {
+        return saveTime;
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public void setSaveTime(String saveTime) {
+        this.saveTime = saveTime;
     }
 
-    public String setDateTime() {
+    public void setSaveTimeToCurrent() {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         Date date = new Date();
-        return dateFormat.format(date);
+        setSaveTime(dateFormat.format(date));
     }
 
     public boolean isDoubleElimination() {
@@ -155,12 +157,26 @@ public class Tournament {
         }
     }
 
+    public int getSavedId() {
+        return savedId;
+    }
+
+    public void setSavedId(int id) {
+        savedId = id;
+    }
+
     public boolean isStatTrackingEnabled(){
         return (statCategories.length != 0);
     }
 
     public String[] getStatCategories() {
         return statCategories;
+    }
+
+    public void setStatCategories(String[] statCategories) {
+        if (statCategories.length > R.integer.max_number_of_stats)
+            throw new IllegalArgumentException("Maximum number of stat categories is " + R.integer.max_number_of_stats);
+        this.statCategories = statCategories;
     }
 
     public int getNumberOfStatistics() {

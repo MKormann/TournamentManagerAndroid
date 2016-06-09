@@ -76,7 +76,7 @@ public class TournamentSettingsFragment extends Fragment {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
                 alertDialogBuilder.setTitle(getString(R.string.button_create_tournament));
                 alertDialogBuilder.setMessage(templateId == TournamentDAO.NEW_TOURNAMENT_TEMPLATE ?
-                        getString(R.string.create_tournament_alert_dialog) :
+                        getString(R.string.save_tournament_alert_dialog) :
                         getString(R.string.update_tournament_alert_dialog));
                 alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
                     @Override

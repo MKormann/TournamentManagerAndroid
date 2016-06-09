@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.tournaments.Match;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
@@ -20,6 +19,8 @@ public class TournamentDisplayFragment extends Fragment {
 
     private Tournament tournament;
     private View[] matchBracketDisplays;
+    private LinearLayout grid;
+    private int maxRoundSize;
 
     public TournamentDisplayFragment() {
         // Required empty public constructor
@@ -46,12 +47,19 @@ public class TournamentDisplayFragment extends Fragment {
         //Set tournament to the current tournament from Main Activity
         tournament = mCallback.getCurrentTournament();
 
+
+
+        grid = (LinearLayout)view.findViewById(R.id.tournament_grid);
+        //Determine tournament grid display size
+        //gridHor = tournament.getNumberOfRounds();
+        //gridVer = Integer.highestOneBit(tournament.getSize() - 1) * 2;
+
         //Create a view for each match
         createMatchBracketViews(inflater);
 
         //Create a layout for each round and add corresponding views
         for (int i = 1; i <= tournament.getNumberOfRounds(); i++) {
-            createViewForRound(i);
+            grid.addView(createViewForRound(i));
         }
 
         return view;
@@ -103,10 +111,12 @@ public class TournamentDisplayFragment extends Fragment {
         }
     }
 
-    private void createViewForRound(int round) {
+    private LinearLayout createViewForRound(int round) {
 
         int roundStart = tournament.getRoundStartDelimiter(round);
         int roundEnd = tournament.getRoundEndDelimiter(round);
+        int start = (int)Math.pow(2, round - 1);
+        int gap = start * 2;
 
         LinearLayout roundLayout = new LinearLayout(getContext());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -117,6 +127,8 @@ public class TournamentDisplayFragment extends Fragment {
         for (int i = roundStart; i <= roundEnd; i++) {
             roundLayout.addView(matchBracketDisplays[i]);
         }
+
+        return roundLayout;
     }
 
     @Override

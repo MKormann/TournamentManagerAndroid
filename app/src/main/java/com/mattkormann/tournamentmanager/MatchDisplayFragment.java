@@ -4,19 +4,15 @@ package com.mattkormann.tournamentmanager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
-
-import org.w3c.dom.Text;
 
 public class MatchDisplayFragment extends DialogFragment {
 
