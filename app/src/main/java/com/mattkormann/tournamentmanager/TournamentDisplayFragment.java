@@ -120,8 +120,7 @@ public class TournamentDisplayFragment extends Fragment {
 
         int roundStart = tournament.getRoundStartDelimiter(round);
         int roundEnd = tournament.getRoundEndDelimiter(round);
-        int start = (int)Math.pow(2, round - 1);
-        int gap = start * 2;
+        int roundSize = roundEnd - roundStart + 1;
 
         LinearLayout roundLayout = new LinearLayout(getContext());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -129,7 +128,14 @@ public class TournamentDisplayFragment extends Fragment {
         roundLayout.setOrientation(LinearLayout.VERTICAL);
         roundLayout.setLayoutParams(lp);
 
+        //Create new layout parameters to assign each view a height of 0, and a weight equivalent
+        LinearLayout.LayoutParams matchLayout = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0
+        );
+        matchLayout.weight = .1f;
+
         for (int i = roundStart; i <= roundEnd; i++) {
+            matchBracketDisplays[i].setLayoutParams(matchLayout);
             roundLayout.addView(matchBracketDisplays[i]);
         }
 

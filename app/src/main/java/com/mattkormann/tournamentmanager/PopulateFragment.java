@@ -217,6 +217,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         //Set the participants to the current tournament, save into history, and display
         Tournament tournament = mCallback.getCurrentTournament();
         tournament.setParticipants(participants);
+        tournament.assignSeeds();
         TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
         tDao.saveFullTournament(tournament);
         mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));

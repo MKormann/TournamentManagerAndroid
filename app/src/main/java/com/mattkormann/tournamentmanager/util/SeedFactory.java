@@ -6,6 +6,9 @@ import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Created by Matt on 6/8/2016.
+ * Note in this class the round referred to as the "First Round" is in fact the first FULL round
+ * as opposed to a preliminary round of shorter length.  However outside of this class the preliminary
+ * round is numerically round 1
  */
 public class SeedFactory {
 
@@ -45,17 +48,17 @@ public class SeedFactory {
             cnt++;
         }
         while (cnt < firstRoundSeeds.length) {
-            firstRoundSeeds[cnt++] = Match.BYE;
+            firstRoundSeeds[cnt++] = (hasPrelimRound) ? Match.NOT_YET_ASSIGNED : Match.BYE;
         }
 
         temp = new int[firstRoundSeeds.length];
         seedSort(0, firstRoundSeeds.length);
 
         //Assign prelim seeds to the prelim array
-        if (hasPrelimRound) assignPrelimSeeds();
-
-        if (!hasPrelimRound) return firstRoundSeeds;
-        else return ArrayUtils.addAll(prelimSeeds, firstRoundSeeds);
+        if (hasPrelimRound) {
+            assignPrelimSeeds();
+            return ArrayUtils.addAll(prelimSeeds, firstRoundSeeds);
+        } else return firstRoundSeeds;
     }
 
 
@@ -92,12 +95,16 @@ public class SeedFactory {
     public void assignPrelimSeeds() {
         int cnt = 0;
         for (int i = 0; i < firstRoundSeeds.length - 1; i += 2) {
-            if (firstRoundSeeds[i + 1] == Match.BYE) {
+            if (firstRoundSeeds[i + 1] == Match.NOT_YET_ASSIGNED) {
                 int one = firstRoundSeeds.length + 1 - firstRoundSeeds[i];
                 int two = firstRoundSeeds.length + firstRoundSeeds[i];
                 prelimSeeds[cnt++] = one;
                 prelimSeeds[cnt++] = two;
             }
         }
+    }
+
+    public int getPrelimNumber() {
+        return prelimSeeds.length;
     }
 }

@@ -2,8 +2,10 @@ package com.mattkormann.tournamentmanager.tournaments;
 
 import com.mattkormann.tournamentmanager.R;
 import com.mattkormann.tournamentmanager.participants.Participant;
+import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -137,23 +139,59 @@ public class Tournament {
         return (int)(matches.length - Math.pow(2, (rounds - roundNumber)));
     }
 
-    public int getNextMatchId(int matchId) {
+    public void setNextMatchIds(int prelimParticipants) {
 
-        //Adds a modifier of 1 to id if the tournament size is odd
-        int nextMatchId = size % 2 == 0 ? matchId : matchId + 1;
-        nextMatchId /= 2;
+       //Get index for final match, set next match equal to a bye since it doesn't exist
+        int num = matches.length - 1;
+        matches[num].setNextMatchId(Match.BYE);
 
-        int roundOneLength = (getRoundEndDelimiter(1) - getRoundStartDelimiter(1) + 1);
+        //Get number of prelim matches
+        int prelimMatches = prelimParticipants / 2;
 
-        //Check if the first round is a full round, if so add length to id and return
-        //If not, add length of first full round ( 2) and add half of round 1 length
-        if (size == Math.pow(2, rounds)) {
-            return nextMatchId + roundOneLength;
-        } else if (matchId <= getRoundEndDelimiter(1)) {
-            return nextMatchId + roundOneLength;
-        } else {
-            return nextMatchId + (roundOneLength / 2) +
-                    (getRoundEndDelimiter(2) - getRoundStartDelimiter(2) + 1);
+
+        //Iterate backwards through tournament setting next match, until prelim round is hit
+        for (int i = num - 1; i >= prelimMatches;) {
+            matches[i--].setNextMatchId(num);
+            matches[i--].setNextMatchId(num--);
+        }
+
+        if (prelimMatches > 0) {
+            //Assign next match id for the preliminary round matches
+            for (int i = 0, j = getRoundStartDelimiter(2); i <= getRoundEndDelimiter(1); j++) {
+                if (matches[j].getParticipantIndex(1) == Match.NOT_YET_ASSIGNED) {
+                    matches[i++].setNextMatchId(j);
+                }
+            }
+        }
+
+    }
+
+    public void assignSeeds() {
+
+        SeedFactory sf = new SeedFactory(size);
+        int[] seedsInMatchOrder = sf.getSeedsInMatchOrder();
+
+        for (int i = 0; i < matches.length; i++) {
+            matches[i] = new StandardMatch(2, statCategories.length); //TODO multi-participant matches
+
+            if (i * 2 + 1 < seedsInMatchOrder.length) {
+                matches[i].setParticipant(0, seedsInMatchOrder[i * 2]);
+                matches[i].setParticipant(1, seedsInMatchOrder[i * 2 + 1]);
+            } else {
+                matches[i].setParticipants(new int[] {Match.NOT_YET_ASSIGNED, Match.NOT_YET_ASSIGNED});
+            }
+        }
+
+        int prelimParticipants = sf.getPrelimNumber();
+        setNextMatchIds(prelimParticipants);
+
+        //Set winner and advance those with byes
+        for (int i = 0; i <= getRoundEndDelimiter(1); i++) {
+            if (matches[i].getParticipantIndex(1) == Match.BYE) {
+                matches[i].setWinner(0);
+                Match m = matches[matches[i].getNextMatchId()];
+                m.setParticipant(0, matches[i].getParticipantIndex(0));
+            }
         }
     }
 

@@ -10,7 +10,6 @@ public interface Match {
     String PARTICIPANT_ONE = "PARTICIPANT_ONE";
     String PARTICIPANT_TWO = "PARTICIPANT_TWO";
 
-    int NO_WINNER = -1;
     int NOT_YET_ASSIGNED = -2;
     int BYE = -3;
 
@@ -25,4 +24,6 @@ public interface Match {
     void setParticipants(int[] indices);
     void setParticipant(int participantNum, int index);
     void setStatistics(double[] statistics);
+    void setNextMatchId(int nextMatchId);
+    int getNextMatchId();
 }

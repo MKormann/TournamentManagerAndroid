@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
+import com.mattkormann.tournamentmanager.tournaments.SimpleTournamentInfo;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
 import java.util.ArrayList;
@@ -15,15 +16,15 @@ import java.util.ArrayList;
 /**
  * Created by Matt on 6/1/2016.
  */
-public class TournamentAdapter extends ArrayAdapter<Tournament> {
+public class TournamentAdapter extends ArrayAdapter<SimpleTournamentInfo> {
 
-    public TournamentAdapter(Context context, ArrayList<Tournament> tournaments) {
+    public TournamentAdapter(Context context, ArrayList<SimpleTournamentInfo> tournaments) {
         super(context, 0, tournaments);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Tournament tournament = getItem(position);
+        SimpleTournamentInfo tournament = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.choose_list_tournament_view,
@@ -35,10 +36,10 @@ public class TournamentAdapter extends ArrayAdapter<Tournament> {
         TextView sizeView = (TextView) convertView.findViewById(R.id.list_tournament_size);
         TextView dateView = (TextView) convertView.findViewById(R.id.list_tournament_date);
 
-        idView.setText(tournament.getSavedId());
+        idView.setText(tournament.getId());
         nameView.setText(tournament.getName());
         sizeView.setText(tournament.getSize());
-        dateView.setText(tournament.getSaveTime());
+        dateView.setText(tournament.getDate());
 
         return convertView;
     }

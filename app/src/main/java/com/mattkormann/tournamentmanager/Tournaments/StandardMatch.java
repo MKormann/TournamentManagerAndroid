@@ -6,8 +6,9 @@ package com.mattkormann.tournamentmanager.tournaments;
 public class StandardMatch implements Match {
 
     private double[] statistics;
-    private int winner = Match.NO_WINNER;
+    private int winner = Match.NOT_YET_ASSIGNED;
     private int[] participants;
+    private int nextMatchId;
 
     private final int numParticipants;
 
@@ -40,7 +41,7 @@ public class StandardMatch implements Match {
 
     @Override
     public int getRunnerUp() {
-        if (getWinner() == Match.NO_WINNER) return Match.NO_WINNER;
+        if (getWinner() == Match.NOT_YET_ASSIGNED) return Match.NOT_YET_ASSIGNED;
         if (getWinner() == 0) return participants[1];
         else return participants[0]; //TODO change to reflect participant number
     }
@@ -94,5 +95,15 @@ public class StandardMatch implements Match {
     @Override
     public void setStatistics(double[] statistics) {
         this.statistics = statistics;
+    }
+
+    @Override
+    public void setNextMatchId(int nextMatchId) {
+        this.nextMatchId = nextMatchId;
+    }
+
+    @Override
+    public int getNextMatchId() {
+        return nextMatchId;
     }
 }

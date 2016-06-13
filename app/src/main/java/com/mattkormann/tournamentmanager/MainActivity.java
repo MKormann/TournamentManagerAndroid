@@ -23,7 +23,8 @@
             TournamentDisplayFragment.TournamentDisplayListener,
             PopulateFragment.PopulateFragmentListener,
             ChooseParticipantFragment.ChooseParticipantListener,
-            ChooseTournamentFragment.ChooseTournamentListener {
+            ChooseTournamentFragment.ChooseTournamentListener,
+            HistoryFragment.HistoryFragmentListener {
 
         private Tournament currentTournament;
 
@@ -229,7 +230,7 @@
             alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
+                    swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
                 }
             });
             alertDialogBuilder.show();

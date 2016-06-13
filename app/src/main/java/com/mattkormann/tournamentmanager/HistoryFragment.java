@@ -16,7 +16,7 @@ import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
 
 public class HistoryFragment extends Fragment {
 
-    private OnFragmentInteractionListener mCallback;
+    private HistoryFragmentListener mCallback;
     private DatabaseHelper mDbHelper;
 
     public static final String TOURNAMENT_HISTORY_PREFIX = "TH.";
@@ -52,11 +52,11 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mCallback = (OnFragmentInteractionListener) context;
+        if (context instanceof HistoryFragmentListener) {
+            mCallback = (HistoryFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement PopulateFragmentListener");
+                    + " must implement HistoryFragmentListener");
         }
     }
 
@@ -111,7 +111,7 @@ public class HistoryFragment extends Fragment {
         );
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+    public interface HistoryFragmentListener {
+
     }
 }

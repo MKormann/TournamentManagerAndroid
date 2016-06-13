@@ -39,10 +39,10 @@ public class SqliteTournamentDAO implements TournamentDAO {
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE, size);
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID, tournament.isOver() ?
                 tournament.getMatch(tournament.getMatches().length - 1).getWinner() :
-                Match.NO_WINNER);
+                Match.NOT_YET_ASSIGNED);
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_RUNNER_UP_ID, tournament.isOver() ?
                 tournament.getMatch(tournament.getMatches().length - 1).getRunnerUp() :
-                Match.NO_WINNER);
+                Match.NOT_YET_ASSIGNED);
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED, tournament.isOver() ? 1 : 0);
 
         tournament.setSaveTimeToCurrent();

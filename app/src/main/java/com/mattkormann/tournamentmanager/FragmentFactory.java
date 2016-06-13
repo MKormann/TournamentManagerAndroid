@@ -29,26 +29,37 @@ public class FragmentFactory {
         switch (fragmentClass) {
             case (MAIN_MENU_FRAGMENT):
                 fragment = new MainMenuFragment();
+                break;
             case (CHOOSE_PARTICIPANT_FRAGMENT):
                 fragment = new ChooseParticipantFragment();
+                break;
             case (CHOOOSE_TOURNAMENT_FRAGMENT):
                 fragment = new ChooseTournamentFragment();
+                break;
             case (HISTORY_FRAGMENT):
                 fragment = new HistoryFragment();
+                break;
             case (MATCH_DISPLAY_FRAGMENT):
                 fragment = new MatchDisplayFragment();
+                break;
             case (PARTICIPANT_INFO_FRAGMENT):
                 fragment = new ParticipantInfoFragment();
+                break;
             case (PARTICIPANTS_FRAGMENT):
                 fragment = new ParticipantsFragment();
+                break;
             case (POPULATE_FRAGMENT):
                 fragment = new PopulateFragment();
+                break;
             case (STAT_ENTRY_FRAGMENT):
                 fragment = new StatEntryFragment();
+                break;
             case (TOURNAMENT_DISPLAY_FRAGMENT):
                 fragment = new TournamentDisplayFragment();
+                break;
             case (TOURNAMENT_SETTINGS_FRAGMENT):
                 fragment = new TournamentSettingsFragment();
+                break;
         }
         fragment.setArguments(args);
         return fragment;

@@ -15,10 +15,13 @@ import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
+import com.mattkormann.tournamentmanager.tournaments.SimpleTournamentInfo;
 import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 import com.mattkormann.tournamentmanager.util.TournamentAdapter;
+
+import java.util.ArrayList;
 
 public class ChooseTournamentFragment extends DialogFragment {
 
@@ -64,16 +67,6 @@ public class ChooseTournamentFragment extends DialogFragment {
         mDbHelper = new DatabaseHelper(getContext());
         loadTournaments();
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView idView = (TextView)view.findViewById(R.id.list_tournament_id);
-                int clickedId = Integer.valueOf(idView.getText().toString());
-                loadSelectedTournament(clickedId);
-                dismiss();
-            }
-        });
-
         return view;
     }
 
@@ -109,41 +102,50 @@ public class ChooseTournamentFragment extends DialogFragment {
         }
 
         Cursor c = db.query(tableName, projection, selection, selectionArgs, null, null, null);
-        populateList(c);
+        setListItems(c);
     }
 
-    private void populateList(Cursor c) {
+    private void setListItems(Cursor c) {
         c.moveToFirst();
 
         if (c.getCount() == 0) {
             mCallback.displayNoTournamentMessage();
             dismiss();
         }
-        LayoutInflater li = LayoutInflater.from(getContext());
+
+        ArrayList<SimpleTournamentInfo> tournaments = new ArrayList<>();
+        tournamentAdapter = new TournamentAdapter(getContext(), tournaments);
+        listView.setAdapter(tournamentAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView idView = (TextView)view.findViewById(R.id.list_tournament_id);
+                int clickedId = Integer.valueOf(idView.getText().toString());
+                loadSelectedTournament(clickedId);
+                dismiss();
+            }
+        });
 
         for (int i = 0; i < c.getCount(); i++) {
-            View listItem = li.inflate(R.layout.choose_list_tournament_view, null);
 
-            TextView idView = (TextView) listItem.findViewById(R.id.list_tournament_id);
-            TextView nameView = (TextView) listItem.findViewById(R.id.list_tournament_name);
-            TextView sizeView = (TextView) listItem.findViewById(R.id.list_tournament_size);
-            TextView dateView = (TextView) listItem.findViewById(R.id.list_tournament_date);
-
+            SimpleTournamentInfo sti;
             switch(tournamentType) {
                 case (TEMPLATES):
-                    idView.setText(c.getInt(c.getColumnIndex(DatabaseContract.SavedTournaments._ID)));
-                    nameView.setText(c.getString(c.getColumnIndex(DatabaseContract.SavedTournaments.COLUMN_NAME_NAME)));
-                    sizeView.setText("Size: " + c.getInt(c.getColumnIndex(DatabaseContract.SavedTournaments.COLUMN_NAME_SIZE)));
+                    int tempId = c.getInt(c.getColumnIndex(DatabaseContract.SavedTournaments._ID));
+                    String tempName = c.getString(c.getColumnIndex(DatabaseContract.SavedTournaments.COLUMN_NAME_NAME));
+                    int tempSize = c.getInt(c.getColumnIndex(DatabaseContract.SavedTournaments.COLUMN_NAME_SIZE));
+                    sti = new SimpleTournamentInfo(tempId, tempName, tempSize, "");
+                    tournaments.add(sti);
                     break;
                 case (IN_PROGRESS):
                 case (HISTORY):
-                    idView.setText(c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory._ID)));
-                    nameView.setText(c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME)));
-                    sizeView.setText("Size: " + c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE)));
-                    dateView.setText(c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME)));
+                    int histId = c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory._ID));
+                    String histName = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME));
+                    int histSize = c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE));
+                    String histDate = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME));
+                    sti = new SimpleTournamentInfo(histId, histName, histSize, histDate);
+                    tournaments.add(sti);
             }
-
-            listView.addView(listItem);
             c.moveToNext();
         }
     }
