@@ -15,7 +15,7 @@ public class SeedView extends TextView {
 
     public SeedView(Context context) {
         super(context);
-        setText("(Add participant)");
+        setText(R.string.add_participant_seedview);
         setClickable(true);
     }
 
@@ -29,7 +29,9 @@ public class SeedView extends TextView {
 
     public void setParticipant(Participant participant) {
         this.participant = participant;
-        setText(participant.getName());
+        if (participant != null)
+            setText(participant.getName());
+        else setText(R.string.add_participant_seedview);
     }
 
     public boolean isAssigned() {

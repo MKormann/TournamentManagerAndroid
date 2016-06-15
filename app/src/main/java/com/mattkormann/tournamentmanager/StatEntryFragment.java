@@ -63,7 +63,7 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
         String[] statCategories;
         if (args != null && args.containsKey(TournamentSettingsFragment.STAT_CATEGORIES)) {
             statCategories = (String[]) args.get(TournamentSettingsFragment.STAT_CATEGORIES);
-            for (int i = 0; i < editTexts.length; i++) {
+            for (int i = 0; i < statCategories.length; i++) {
                 if (statCategories[i] != null && !statCategories[i].equals("")) {
                     editTexts[i].setText(statCategories[i]);
                     if (i < editTexts.length -1) {

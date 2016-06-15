@@ -45,6 +45,7 @@
     <string name="unassigned_message">Some participants are still unassigned.  Empty spots will
         be filled with generic participants.  Proceed?</string>
     <string name="create_new_participant">(New Participant)</string>
+    <string name="add_participant_seedview">(Add Participant)</string>
     <string name="no_tournaments_title">No Tournaments Found</string>
     <string name="no_tournaments_message">There were no tournaments found to load.</string>
 

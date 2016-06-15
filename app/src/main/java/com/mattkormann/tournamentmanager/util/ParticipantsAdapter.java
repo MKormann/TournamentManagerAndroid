@@ -33,7 +33,7 @@ public class ParticipantsAdapter extends ArrayAdapter<Participant> {
         TextView idView = (TextView) convertView.findViewById(R.id.list_view_id);
         TextView nameView = (TextView) convertView.findViewById(R.id.list_view_name);
 
-        idView.setText(participant.getID());
+        idView.setText(String.valueOf(participant.getID()));
         nameView.setText(participant.getName());
 
         return convertView;

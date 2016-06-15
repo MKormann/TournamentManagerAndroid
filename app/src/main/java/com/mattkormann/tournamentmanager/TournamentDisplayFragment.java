@@ -53,6 +53,7 @@ public class TournamentDisplayFragment extends Fragment {
         seedsInMatchOrder = sf.getSeedsInMatchOrder();
 
         grid = (LinearLayout)view.findViewById(R.id.tournament_grid);
+        grid.setWeightSum(1f);
         //Determine tournament grid display size
         //gridHor = tournament.getNumberOfRounds();
         //gridVer = Integer.highestOneBit(tournament.getSize() - 1) * 2;
@@ -86,29 +87,34 @@ public class TournamentDisplayFragment extends Fragment {
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
 
-            //Check if match is null (no participants have been determined)
-            if (m != null) {
-                for (int i = 0; i < m.getParticipantIndices().length; i++) {
 
-                    //Check if team has won and choose style to reflect
-                    int bracketStyle = m.getWinner() == i ?
-                            R.layout.single_winner_bracket_display :
-                            R.layout.single_participant_bracket_display;
-                    View bracket = inflater.inflate(bracketStyle, null);
+            for (int i = 0; i < m.getParticipantIndices().length; i++) {
 
-                    //Check whether or not each participant has been determined
-                    if (m.getParticipantIndex(i) != Match.NOT_YET_ASSIGNED) {
+                //Check if team has won and choose style to reflect
+                int bracketStyle = m.getWinner() == i ?
+                        R.layout.single_winner_bracket_display :
+                        R.layout.single_participant_bracket_display;
+                View bracket = inflater.inflate(bracketStyle, null);
 
-                        TextView seed = (TextView) bracket.findViewById(R.id.display_seed);
-                        seed.setText(m.getParticipantIndex(i));
-                        TextView name = (TextView) bracket.findViewById(R.id.display_name);
-                        name.setText(tournament.getParticipant(i).getName());
-                        TextView stat = (TextView) bracket.findViewById(R.id.display_stat);
-                        stat.setText(String.valueOf(m.getSingleStatistic(i)));
-                    }
+                int index = m.getParticipantIndex(i);
+                TextView seed = (TextView) bracket.findViewById(R.id.display_seed);
+                TextView name = (TextView) bracket.findViewById(R.id.display_name);
+                TextView stat = (TextView) bracket.findViewById(R.id.display_stat);
 
-                    layout.addView(bracket);
+                if (index != Match.NOT_YET_ASSIGNED && index != Match.BYE) {
+                    seed.setText(String.valueOf(index + 1));
+                    name.setText(tournament.getParticipant(index).getName());
+                    if (tournament.isStatTrackingEnabled()) stat.setText(String.valueOf(m.getSingleStatistic(i)));
+                } else if (index == Match.NOT_YET_ASSIGNED) {
+                    seed.setText("__") ;
+                    name.setText("_________");
+                    if (tournament.isStatTrackingEnabled()) stat.setText(String.valueOf(m.getSingleStatistic(i)));
+                } else if (index == Match.BYE) {
+                    seed.setText("-");
+                    name.setText("BYE");
+                    if (tournament.isStatTrackingEnabled()) stat.setText("-");
                 }
+                layout.addView(bracket);
             }
 
             layout.setLayoutParams(lp);
@@ -124,8 +130,9 @@ public class TournamentDisplayFragment extends Fragment {
 
         LinearLayout roundLayout = new LinearLayout(getContext());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                0, ViewGroup.LayoutParams.WRAP_CONTENT);
         roundLayout.setOrientation(LinearLayout.VERTICAL);
+        lp.weight = .18f;
         roundLayout.setLayoutParams(lp);
 
         //Create new layout parameters to assign each view a height of 0, and a weight equivalent

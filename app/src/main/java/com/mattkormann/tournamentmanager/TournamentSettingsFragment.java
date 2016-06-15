@@ -81,9 +81,9 @@ public class TournamentSettingsFragment extends Fragment {
                 alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        int templateId = saveTournamentTemplate(view);
+                        int savedId = saveTournamentTemplate(view);
                         if (startTournamentAfter) {
-                            Tournament tournament = tDao.loadTournamentFromTemplate(templateId);
+                            Tournament tournament = tDao.loadTournamentFromTemplate(savedId);
                             mCallback.setCurrentTournament(tournament);
                         };
                         mCallback.advanceFromSettings(startTournamentAfter);
@@ -112,6 +112,7 @@ public class TournamentSettingsFragment extends Fragment {
         np.setMinValue(Tournament.MIN_TOURNAMENT_SIZE);
         np.setMaxValue(Tournament.MAX_TOURNAMENT_SIZE);
         np.setWrapSelectorWheel(false);
+        np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
         Bundle args = getArguments();
         if (args != null) {

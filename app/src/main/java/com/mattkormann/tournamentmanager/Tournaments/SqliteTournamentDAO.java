@@ -60,7 +60,7 @@ public class SqliteTournamentDAO implements TournamentDAO {
 
         //Create integer array equal to the number of matches (size - 1) multiplied by the number
         //of participants + an extra spot for the winner id
-        Integer[] matchesInfo = new Integer[(size - 1) * (numParticipants + 1)];
+        Integer[] matchesInfo = new Integer[(tournament.getMatches().length) * (numParticipants + 1)];
         int count = 0;
         for (Match m : tournament.getMatches()) {
             for (int i: m.getParticipantIndices()) {
@@ -78,7 +78,7 @@ public class SqliteTournamentDAO implements TournamentDAO {
         int numStats = tournament.getStatCategories().length;
 
         //Create an array equal to number of matches * total stats for each match (categories * participants)
-        Double[] statValues = new Double[(size - 1) * (numStats * numParticipants)];
+        Double[] statValues = new Double[(tournament.getMatches().length) * (numStats * numParticipants)];
         count = 0;
         for (Match m: tournament.getMatches()) {
             for (double d : m.getStatistics()) {
@@ -162,16 +162,12 @@ public class SqliteTournamentDAO implements TournamentDAO {
         String name = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME));
         int size = c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE));
         int finished = c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED));
-        String endTime = "";
-        if (finished == 1) {
-            endTime = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME));
-        }
+        String saveTime = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME));
 
         String statCategoriesString = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_STAT_CATEGORIES));
-        String[] statCategories = stringToArray(statCategoriesString);
-
-        //Create matches array
-        Match[] matches = new Match[size - 1];
+        String[] statCategories;
+        if (statCategoriesString.equals("")) statCategories = new String[0];
+        else statCategories = stringToArray(statCategoriesString);
 
         //Read match String from database, convert to String array, then int array
         String matchesInfoString = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_MATCH_DETAILS));
@@ -181,7 +177,11 @@ public class SqliteTournamentDAO implements TournamentDAO {
             matchesInfo[i] = Integer.valueOf(matchesInfoArray[i]);
         }
 
+        //Create matches array
+        Match[] matches = new Match[matchesInfo.length / 3];
+
         //Read stat values from database, convert to double array
+        int numStats = statCategories.length;
         String statValuesString = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_STAT_VALUES));
         String[] statValuesArray = stringToArray(statValuesString);
         double[] statistics = new double[statValuesArray.length];
@@ -189,14 +189,15 @@ public class SqliteTournamentDAO implements TournamentDAO {
             statistics[i] = Double.valueOf(statValuesArray[i]);
         }
 
+
         //Assign match data
-        int numStats = statCategories.length;
         for (int i = 0; i < matches.length; i++) {
             Match m = new StandardMatch(2, statCategories.length); //TODO change the 2's to accommodate different numParticipants
-            m.setStatistics(Arrays.copyOfRange(statistics, (i * numStats), ((i + 1) * numStats)));
+            if (numStats > 0) m.setStatistics(Arrays.copyOfRange(statistics, (i * numStats), ((i + 1) * numStats)));
             m.setParticipant(0, matchesInfo[(2 + 1) * i]);
             m.setParticipant(1, matchesInfo[((2 + 1) * i) + 1]);
             m.setWinner(matchesInfo[((2 + 1) * i) + 2]);
+            matches[i] = m;
         }
 
         //Create map of saved participants to create new Participant objects
@@ -204,8 +205,9 @@ public class SqliteTournamentDAO implements TournamentDAO {
         pc.moveToFirst();
         Map<Integer, String> participantMap = new HashMap<>();
         for (int i = 0; i < pc.getCount(); i++) {
-            participantMap.put(c.getInt(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
-                    c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
+            participantMap.put(pc.getInt(pc.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
+                    pc.getString(pc.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
+            pc.moveToNext();
         }
 
         //Create participants array
@@ -229,7 +231,7 @@ public class SqliteTournamentDAO implements TournamentDAO {
         Tournament tournament = new SingleElimTournament(name, size, 1, statCategories, participants);
         tournament.setSavedId(tournamentId);
         tournament.setMatches(matches);
-        if (finished == 1) tournament.setSaveTime(endTime);
+        tournament.setSaveTime(saveTime);
 
         return tournament;
     }
@@ -293,27 +295,26 @@ public class SqliteTournamentDAO implements TournamentDAO {
         if (useStats == 1) statsArray = arrayToString(statCategories);
         values.put(DatabaseContract.SavedTournaments.COLUMN_NAME_STATS_ARRAY, statsArray);
 
-        int rowId;
         if (templateId == NEW_TOURNAMENT_TEMPLATE) {
             long newRowId = db.insert(
                     DatabaseContract.SavedTournaments.TABLE_NAME,
                     null,
                     values
             );
-            rowId = (int)newRowId;
+            return (int)newRowId;
         } else {
             String selection = DatabaseContract.SavedTournaments._ID + "=?";
             String[] selectionArgs = {String.valueOf(templateId)};
 
-            rowId = db.update(
+            int rowId = db.update(
                     DatabaseContract.SavedTournaments.TABLE_NAME,
                     values,
                     selection,
                     selectionArgs
             );
-        }
 
-        return rowId;
+            return templateId;
+        }
     }
 
     private Cursor readParticipantsData(SQLiteDatabase db) {

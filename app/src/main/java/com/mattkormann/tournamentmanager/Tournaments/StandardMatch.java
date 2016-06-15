@@ -36,7 +36,8 @@ public class StandardMatch implements Match {
 
     @Override
     public int getWinner() {
-        return participants[winner];
+        if (winner == NOT_YET_ASSIGNED) return winner;
+        else return participants[winner];
     }
 
     @Override

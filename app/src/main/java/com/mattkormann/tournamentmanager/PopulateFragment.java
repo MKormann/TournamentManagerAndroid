@@ -35,6 +35,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     private PopulateFragmentListener mCallback;
 
     private Map<Integer, Participant> participantMap;
+    private LinearLayout participantsLayout;
     private DatabaseHelper mDbHelper;
     private SeedView[] seedViews;
     private Button startButton;
@@ -66,6 +67,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_populate, container, false);
+        participantsLayout = (LinearLayout) view.findViewById(R.id.choose_participants_layout);
 
         participantMap = new HashMap<>();
         seedViews = new SeedView[size];
@@ -124,23 +126,22 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
 
     private void populateParticipantLayout() {
 
-        LinearLayout layout = (LinearLayout) getView().findViewById(R.id.choose_participants_layout);
-
         for (int i = 0; i < size; i++) {
             LinearLayout row = new LinearLayout(getContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
 
-            TextView id = new TextView(getContext());
-            id.setText(i + 1);
+            int seed = i + 1;
+            TextView seedNum = new TextView(getContext());
+            seedNum.setText(String.valueOf(seed));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.weight = .2f;
             lp.gravity = Gravity.CENTER;
-            id.setLayoutParams(lp);
+            seedNum.setLayoutParams(lp);
 
             SeedView sv = new SeedView(getContext());
-            sv.setSeed(i + 1);
+            sv.setSeed(seed);
             LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -151,7 +152,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             sv.setOnClickListener(new ParticipantClickListener());
             seedViews[i] = sv;
 
-            row.addView(id);
+            row.addView(seedNum);
             row.addView(sv);
 
             LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
@@ -160,15 +161,12 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             lpRow.weight = 1.0f;
             row.setLayoutParams(lpRow);
 
-            layout.addView(row);
+            participantsLayout.addView(row);
         }
     }
 
     @Override
     public void onClick(View v) {
-        if (!(v instanceof SeedView)) return;
-        SeedView sv = (SeedView) v;
-
     }
 
     private void setTournamentParticipants() {
@@ -227,9 +225,21 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     private void swapSeeds(int seed1, int seed2) {
         if (!checkValidSeed(seed1) || !checkValidSeed(seed2)) return;
         if (seed1 == seed2) return;
-        Participant temp = seedViews[seed1 - 1].getParticipant();
-        seedViews[seed1 - 1].setParticipant(seedViews[seed2 - 1].getParticipant());
-        seedViews[seed2 - 1].setParticipant(temp);
+        SeedView one = seedViews[seed1 - 1];
+        SeedView two = seedViews[seed2 - 1];
+        if (!one.isAssigned() && !two.isAssigned()) return;
+        else if (!one.isAssigned()) {
+            one.setParticipant(two.getParticipant());
+            two.setParticipant(null);
+        }
+        else if (!two.isAssigned()) {
+            two.setParticipant(one.getParticipant());
+            one.setParticipant(null);
+        } else {
+            Participant temp = one.getParticipant();
+            one.setParticipant(two.getParticipant());
+            two.setParticipant(temp);
+        }
     }
 
     private boolean checkValidSeed(int seed) {

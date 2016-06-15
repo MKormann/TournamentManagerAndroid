@@ -13,6 +13,7 @@ import org.apache.commons.lang3.ArrayUtils;
 public class SeedFactory {
 
     private int size;
+    private int byes;
     private int[] firstRoundSeeds;
     private int[] prelimSeeds;
     private int[] temp;
@@ -48,17 +49,25 @@ public class SeedFactory {
             cnt++;
         }
         while (cnt < firstRoundSeeds.length) {
-            firstRoundSeeds[cnt++] = (hasPrelimRound) ? Match.NOT_YET_ASSIGNED : Match.BYE;
+            if (hasPrelimRound) {
+                firstRoundSeeds[cnt++] = Match.NOT_YET_ASSIGNED;
+            } else {
+                firstRoundSeeds[cnt++] = Match.BYE;
+
+            }
         }
 
         temp = new int[firstRoundSeeds.length];
         seedSort(0, firstRoundSeeds.length);
 
         //Assign prelim seeds to the prelim array
-        if (hasPrelimRound) {
-            assignPrelimSeeds();
-            return ArrayUtils.addAll(prelimSeeds, firstRoundSeeds);
-        } else return firstRoundSeeds;
+        if (hasPrelimRound) assignPrelimSeeds();
+
+        //Method to subtract one from the seed numbers to refer to a zero-based array
+        changeFromSeedToIndex(firstRoundSeeds);
+        changeFromSeedToIndex(prelimSeeds);
+
+        return hasPrelimRound ? ArrayUtils.addAll(prelimSeeds, firstRoundSeeds) : firstRoundSeeds;
     }
 
 
@@ -102,6 +111,17 @@ public class SeedFactory {
                 prelimSeeds[cnt++] = two;
             }
         }
+    }
+
+    private void changeFromSeedToIndex(int[] seeds) {
+        for (int i = 0; i < seeds.length; i++) {
+            if (seeds[i] == Match.NOT_YET_ASSIGNED || seeds[i] == Match.BYE) continue;
+            seeds[i] = seeds[i] - 1;
+        }
+    }
+
+    public int getByes() {
+        return byes;
     }
 
     public int getPrelimNumber() {

@@ -20,6 +20,7 @@ public class ChooseParticipantFragment extends DialogFragment {
 
     private ChooseParticipantListener mCallback;
     private ParticipantsAdapter participantsAdapter;
+    private Map<Integer, Participant> participantMap;
     private ListView listView;
 
     public ChooseParticipantFragment() {
@@ -30,7 +31,7 @@ public class ChooseParticipantFragment extends DialogFragment {
         ChooseParticipantFragment fragment = new ChooseParticipantFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
-        fragment.setListItems(participantMap);
+        fragment.participantMap = participantMap;
         return fragment;
     }
 
@@ -49,11 +50,12 @@ public class ChooseParticipantFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_choose_participant, container, false);
 
         listView = (ListView)view.findViewById(R.id.choose_list);
+        setListItems();
 
         return view;
     }
 
-    public void setListItems(Map<Integer, Participant> participantMap) {
+    public void setListItems() {
 
         //Create adapter for list view to display participants
         ArrayList<Participant> arrayOfParticipants = new ArrayList<>();

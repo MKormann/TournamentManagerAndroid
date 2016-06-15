@@ -106,8 +106,6 @@ public class Tournament {
     }
 
     public void setMatches(Match[] matches) {
-        if (matches.length != size - 1)
-            throw new IllegalArgumentException("Match array is not correct length.");
         this.matches = matches;
     }
 
@@ -170,6 +168,11 @@ public class Tournament {
 
         SeedFactory sf = new SeedFactory(size);
         int[] seedsInMatchOrder = sf.getSeedsInMatchOrder();
+
+        int byes = sf.getByes();
+        if (byes > 0) {
+            matches = new Match[size - 1 + byes];
+        }
 
         for (int i = 0; i < matches.length; i++) {
             matches[i] = new StandardMatch(2, statCategories.length); //TODO multi-participant matches

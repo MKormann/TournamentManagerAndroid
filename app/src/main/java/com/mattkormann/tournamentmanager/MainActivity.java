@@ -148,7 +148,9 @@
         @Override
         public void advanceFromSettings(boolean startTournament) {
             if (startTournament) {
-                swapFragment(FragmentFactory.getFragment(FragmentFactory.POPULATE_FRAGMENT));
+                Bundle args = new Bundle();
+                args.putInt(PopulateFragment.TOURNAMENT_SIZE, currentTournament.getSize());
+                swapFragment(FragmentFactory.getFragment(FragmentFactory.POPULATE_FRAGMENT, args));
             } else {
                 swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
             }

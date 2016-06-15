@@ -36,9 +36,9 @@ public class TournamentAdapter extends ArrayAdapter<SimpleTournamentInfo> {
         TextView sizeView = (TextView) convertView.findViewById(R.id.list_tournament_size);
         TextView dateView = (TextView) convertView.findViewById(R.id.list_tournament_date);
 
-        idView.setText(tournament.getId());
+        idView.setText(String.valueOf(tournament.getId()));
         nameView.setText(tournament.getName());
-        sizeView.setText(tournament.getSize());
+        sizeView.setText("Size: " + tournament.getSize());
         dateView.setText(tournament.getDate());
 
         return convertView;
