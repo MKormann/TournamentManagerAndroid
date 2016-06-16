@@ -208,7 +208,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             else {
                 participants[i] = ParticipantFactory.getParticipant("single",
                         "Participant " + ++genCount,
-                        Participant.GENERIC);
+                        genCount - Tournament.MAX_TOURNAMENT_SIZE - 1);
             }
         }
 

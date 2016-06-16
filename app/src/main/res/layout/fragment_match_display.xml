@@ -15,17 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/enter_result_button"
-        android:layout_marginBottom="@dimen/generic_padding"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_alignParentBottom="true"
-        style="@android:style/Widget.Button"
-        android:text="@string/enter_result">
-    </Button>
-
     <LinearLayout
         android:layout_below="@+id/match_no_title"
         android:layout_above="@+id/enter_result_button"
@@ -50,6 +39,17 @@
                 android:layout_height="wrap_content"
                 android:text="Left Participant"
                 android:id="@+id/participant_name_left"/>
+
+            <ToggleButton
+                android:id="@+id/set_winner_left"
+                android:layout_marginBottom="@dimen/generic_padding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                style="@android:style/Widget.Button"
+                android:textOn="@string/winner"
+                android:textOff="">
+            </ToggleButton>
 
         </LinearLayout>
 
@@ -90,6 +90,17 @@
                 android:layout_height="wrap_content"
                 android:text="Right Participant"
                 android:id="@+id/participant_name_right"/>
+
+            <ToggleButton
+                android:id="@+id/set_winner_right"
+                android:layout_marginBottom="@dimen/generic_padding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                style="@android:style/Widget.Button"
+                android:textOn="@string/winner"
+                android:textOff="">
+            </ToggleButton>
 
         </LinearLayout>
 

@@ -106,8 +106,8 @@ public class TournamentDisplayFragment extends Fragment {
                     name.setText(tournament.getParticipant(index).getName());
                     if (tournament.isStatTrackingEnabled()) stat.setText(String.valueOf(m.getSingleStatistic(i)));
                 } else if (index == Match.NOT_YET_ASSIGNED) {
-                    seed.setText("__") ;
-                    name.setText("_________");
+                    seed.setText("_") ;
+                    name.setText("_____");
                     if (tournament.isStatTrackingEnabled()) stat.setText(String.valueOf(m.getSingleStatistic(i)));
                 } else if (index == Match.BYE) {
                     seed.setText("-");
@@ -118,6 +118,18 @@ public class TournamentDisplayFragment extends Fragment {
             }
 
             layout.setLayoutParams(lp);
+            layout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MatchBracketLayout mbl = (MatchBracketLayout)v;
+                    Match m = tournament.getMatch(mbl.getMatchId());
+                    for (int i : m.getParticipantIndices()) {
+                        if (i == Match.BYE || i == Match.NOT_YET_ASSIGNED)
+                            return;
+                    }
+                    mCallback.displayMatch(mbl.getMatchId());
+                }
+            });
             matchBracketDisplays[cnt] = layout;
         }
     }
@@ -132,7 +144,8 @@ public class TournamentDisplayFragment extends Fragment {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT);
         roundLayout.setOrientation(LinearLayout.VERTICAL);
-        lp.weight = .18f;
+        Float roundWeight = 1f / tournament.getNumberOfRounds();
+        lp.weight = roundWeight;
         roundLayout.setLayoutParams(lp);
 
         //Create new layout parameters to assign each view a height of 0, and a weight equivalent
@@ -141,12 +154,35 @@ public class TournamentDisplayFragment extends Fragment {
         );
         matchLayout.weight = .1f;
 
+        //Add views to Round Layout
+        //Gap and getSpace method used to space out display appropriately
+        int gap = (int)Math.pow(2, round - 1) - 1;
         for (int i = roundStart; i <= roundEnd; i++) {
+
+            if (round > 1 && i == roundStart) {
+                roundLayout.addView(getSpace(gap / 2));
+            }
             matchBracketDisplays[i].setLayoutParams(matchLayout);
             roundLayout.addView(matchBracketDisplays[i]);
+            if (round > 1 && i == roundEnd) {
+                getSpace(gap / 2);
+            } else if (round > 1) {
+                getSpace(gap);
+            }
         }
 
         return roundLayout;
+    }
+
+    //
+    private LinearLayout getSpace(float weight) {
+        LinearLayout space = new LinearLayout(getContext());
+        LinearLayout.LayoutParams lpSpace = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0
+        );
+        lpSpace.weight = weight;
+        space.setLayoutParams(lpSpace);
+        return space;
     }
 
     @Override
@@ -157,13 +193,6 @@ public class TournamentDisplayFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement TournamentDisplayListener");
-        }
-    }
-
-    public void onMatchClick(View view) {
-        if (view instanceof MatchBracketLayout) {
-            MatchBracketLayout mbl = (MatchBracketLayout)view;
-            mCallback.displayMatch(mbl.getMatchId());
         }
     }
 

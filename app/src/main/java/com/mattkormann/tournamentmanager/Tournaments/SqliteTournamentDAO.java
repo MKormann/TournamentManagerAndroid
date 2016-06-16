@@ -193,7 +193,7 @@ public class SqliteTournamentDAO implements TournamentDAO {
         //Assign match data
         for (int i = 0; i < matches.length; i++) {
             Match m = new StandardMatch(2, statCategories.length); //TODO change the 2's to accommodate different numParticipants
-            if (numStats > 0) m.setStatistics(Arrays.copyOfRange(statistics, (i * numStats), ((i + 1) * numStats)));
+            if (numStats > 0) m.setStatistics(Arrays.copyOfRange(statistics, (i * (numStats * 2)), ((i + 1) * (numStats * 2))));
             m.setParticipant(0, matchesInfo[(2 + 1) * i]);
             m.setParticipant(1, matchesInfo[((2 + 1) * i) + 1]);
             m.setWinner(matchesInfo[((2 + 1) * i) + 2]);
@@ -223,9 +223,11 @@ public class SqliteTournamentDAO implements TournamentDAO {
 
         //Assign participants to array
         for (int i = 0; i < participants.length; i++) {
-            participants[i] = participantMap.containsKey(participantIds[i]) ?
-                ParticipantFactory.getParticipant("single", participantMap.get(participantIds[i]), participantIds[i]) :
-                ParticipantFactory.getParticipant("single", "Unknown Participant", Participant.GENERIC);
+            if (participantMap.containsKey(participantIds[i]))
+                participants[i] = ParticipantFactory.getParticipant("single", participantMap.get(participantIds[i]), participantIds[i]);
+            else if (participantIds[i] < 0 && participantIds[i] >= (0 - Tournament.MAX_TOURNAMENT_SIZE))
+                participants[i] = ParticipantFactory.getParticipant("generic single", "", participantIds[i]);
+            else participants[i] = ParticipantFactory.getParticipant("single", "Unknown Participant", Participant.GENERIC);
         }
 
         Tournament tournament = new SingleElimTournament(name, size, 1, statCategories, participants);

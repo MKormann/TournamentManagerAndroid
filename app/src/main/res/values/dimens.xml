@@ -9,4 +9,6 @@
     <dimen name="generic_padding">30dp</dimen>
     <dimen name="generic_half_padding">15dp</dimen>
     <dimen name="table_font_size">20sp</dimen>
+    <dimen name="match_bracket_display_height">60dp</dimen>
+    <dimen name="match_bracket_display_width">150dp</dimen>
 </resources>

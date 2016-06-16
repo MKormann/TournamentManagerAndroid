@@ -14,6 +14,8 @@ import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.util.ParticipantsAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 public class ChooseParticipantFragment extends DialogFragment {
@@ -72,6 +74,8 @@ public class ChooseParticipantFragment extends DialogFragment {
                 dismiss();
             }
         });
+
+        Collection ps = participantMap.values();
 
         arrayOfParticipants.addAll(participantMap.values());
 

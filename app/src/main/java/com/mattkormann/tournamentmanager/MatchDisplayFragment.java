@@ -8,8 +8,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
@@ -17,6 +19,9 @@ import com.mattkormann.tournamentmanager.tournaments.Tournament;
 public class MatchDisplayFragment extends DialogFragment {
 
     MatchDisplayListener mCallback;
+    private ToggleButton[] winButtons;
+    private int matchId;
+    private double[] stats;
 
     public MatchDisplayFragment() {
         // Required empty public constructor
@@ -51,8 +56,9 @@ public class MatchDisplayFragment extends DialogFragment {
         //Set text views with arguments passed
         Bundle args = getArguments();
         if (args != null) {
+            matchId = args.getInt(Match.MATCH_ID);
             TextView title = (TextView)view.findViewById(R.id.match_no_title);
-            title.setText(getString(R.string.matchNo) + " " + args.getInt(Match.MATCH_ID));
+            title.setText(getString(R.string.matchNo) + " " + (matchId + 1));
             TextView textParticipantOne = (TextView) view.findViewById(R.id.participant_name_left);
             textParticipantOne.setText(args.getString(Match.PARTICIPANT_ONE));
             TextView textParticipantTwo = (TextView) view.findViewById(R.id.participant_name_right);
@@ -60,7 +66,7 @@ public class MatchDisplayFragment extends DialogFragment {
 
             //Display stats if used
             String[] categories = args.getStringArray(Tournament.STAT_CATEGORIES);
-            double[] stats = args.getDoubleArray(Match.MATCH_STATS);
+            stats = args.getDoubleArray(Match.MATCH_STATS);
             if (categories != null && stats != null) {
 
                 //Get references to the three linear layouts
@@ -94,6 +100,22 @@ public class MatchDisplayFragment extends DialogFragment {
 
             }
         }
+
+        winButtons = new ToggleButton[2];
+        winButtons[0] = (ToggleButton)view.findViewById(R.id.set_winner_left);
+        winButtons[1] = (ToggleButton) view.findViewById(R.id.set_winner_right);
+        for (int i = 0; i < winButtons.length; i++) {
+            final int winner = i;
+            winButtons[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    for (ToggleButton tb : winButtons) {
+                        if (tb != v) tb.setChecked(false);
+                    }
+                    mCallback.setWinner(matchId, winner, stats);
+                }
+            });
+        }
     }
 
     @Override
@@ -114,7 +136,7 @@ public class MatchDisplayFragment extends DialogFragment {
     }
 
     public interface MatchDisplayListener {
-
+        void setWinner(int matchId, int winner, double[] stats);
     }
 
 

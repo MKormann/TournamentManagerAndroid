@@ -13,10 +13,11 @@ import org.apache.commons.lang3.ArrayUtils;
 public class SeedFactory {
 
     private int size;
-    private int byes;
+    private int byes = 0;
     private int[] firstRoundSeeds;
     private int[] prelimSeeds;
     private int[] temp;
+    private boolean hasPrelimRound;
 
     public SeedFactory(int size) {
         this.size = size;
@@ -29,7 +30,7 @@ public class SeedFactory {
         int lowerNum = Integer.highestOneBit(size) / 2;
         int maxMatchesInRound = size > higherNum + lowerNum ? higherNum : lowerNum;
 
-        boolean hasPrelimRound = size > maxMatchesInRound * 2;
+        hasPrelimRound = size > maxMatchesInRound * 2;
 
         // if there is a prelim round, set number of participants competing in that round, else 0
         int prelimParticipants = (hasPrelimRound) ?
@@ -53,7 +54,7 @@ public class SeedFactory {
                 firstRoundSeeds[cnt++] = Match.NOT_YET_ASSIGNED;
             } else {
                 firstRoundSeeds[cnt++] = Match.BYE;
-
+                byes += 1;
             }
         }
 
@@ -118,6 +119,10 @@ public class SeedFactory {
             if (seeds[i] == Match.NOT_YET_ASSIGNED || seeds[i] == Match.BYE) continue;
             seeds[i] = seeds[i] - 1;
         }
+    }
+
+    public boolean hasPrelimRound() {
+        return hasPrelimRound;
     }
 
     public int getByes() {

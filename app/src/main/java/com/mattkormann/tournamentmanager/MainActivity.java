@@ -9,6 +9,8 @@
     import android.support.v7.app.AlertDialog;
 
     import com.mattkormann.tournamentmanager.participants.Participant;
+    import com.mattkormann.tournamentmanager.sql.DatabaseContract;
+    import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
     import com.mattkormann.tournamentmanager.tournaments.Match;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
     import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
@@ -24,7 +26,8 @@
             PopulateFragment.PopulateFragmentListener,
             ChooseParticipantFragment.ChooseParticipantListener,
             ChooseTournamentFragment.ChooseTournamentListener,
-            HistoryFragment.HistoryFragmentListener {
+            HistoryFragment.HistoryFragmentListener,
+            MatchDisplayFragment.MatchDisplayListener {
 
         private Tournament currentTournament;
 
@@ -182,7 +185,6 @@
         @Override
         public void displayMatch(int matchId) {
             FragmentManager fm = getSupportFragmentManager();
-            MatchDisplayFragment mdf = MatchDisplayFragment.newInstance();
             Match match = currentTournament.getMatch(matchId);
             Bundle args = new Bundle();
             args.putInt(Match.MATCH_ID, matchId);
@@ -190,7 +192,8 @@
             args.putStringArray(Tournament.STAT_CATEGORIES, currentTournament.getStatCategories());
             args.putString(Match.PARTICIPANT_ONE, currentTournament.getParticipant(match.getParticipantIndex(0)).getName());
             args.putString(Match.PARTICIPANT_TWO, currentTournament.getParticipant(match.getParticipantIndex(1)).getName());
-            mdf.setArguments(args);
+            MatchDisplayFragment mdf =
+                    (MatchDisplayFragment)FragmentFactory.getFragment(FragmentFactory.MATCH_DISPLAY_FRAGMENT, args);
             mdf.show(fm, "fragment_match_display");
         }
 
@@ -236,6 +239,15 @@
                 }
             });
             alertDialogBuilder.show();
+        }
+
+        //Method from MatchDisplayFragment
+        @Override
+        public void setWinner(int matchId, int winner, double[] stats) {
+            Match match = currentTournament.getMatch(matchId);
+            match.setWinner(winner);
+            match.setStatistics(stats);
+            int nextId = match.getNextMatchId();
         }
 
     }

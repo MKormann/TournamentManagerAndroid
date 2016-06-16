@@ -78,7 +78,7 @@ public class TournamentSettingsFragment extends Fragment {
                 alertDialogBuilder.setMessage(templateId == TournamentDAO.NEW_TOURNAMENT_TEMPLATE ?
                         getString(R.string.save_tournament_alert_dialog) :
                         getString(R.string.update_tournament_alert_dialog));
-                alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
+                alertDialogBuilder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         int savedId = saveTournamentTemplate(view);
@@ -89,7 +89,22 @@ public class TournamentSettingsFragment extends Fragment {
                         mCallback.advanceFromSettings(startTournamentAfter);
                     }
                 });
-                alertDialogBuilder.setNeutralButton(getString(R.string.buttonCancel), new DialogInterface.OnClickListener() {
+                if (templateId != TournamentDAO.NEW_TOURNAMENT_TEMPLATE) {
+                    alertDialogBuilder.setNegativeButton(R.string.save_new, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            templateId = TournamentDAO.NEW_TOURNAMENT_TEMPLATE;
+                            int savedId = saveTournamentTemplate(view);
+                            if (startTournamentAfter) {
+                                Tournament tournament = tDao.loadTournamentFromTemplate(savedId);
+                                mCallback.setCurrentTournament(tournament);
+                            }
+                            ;
+                            mCallback.advanceFromSettings(startTournamentAfter);
+                        }
+                    });
+                }
+                alertDialogBuilder.setNeutralButton(R.string.buttonCancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -120,6 +135,7 @@ public class TournamentSettingsFragment extends Fragment {
             if (templateId != TournamentDAO.NEW_TOURNAMENT_TEMPLATE)
                 loadTournamentSettings(templateId);
             startTournamentAfter = args.getBoolean(START_TOURNAMENT_AFTER);
+            if (!startTournamentAfter) generateButton.setText(R.string.save);
         } else {
             templateId = TournamentDAO.NEW_TOURNAMENT_TEMPLATE;
         }
