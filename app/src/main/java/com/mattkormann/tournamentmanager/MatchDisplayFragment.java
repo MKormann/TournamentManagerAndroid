@@ -20,7 +20,9 @@ public class MatchDisplayFragment extends DialogFragment {
 
     MatchDisplayListener mCallback;
     private ToggleButton[] winButtons;
+    private Button enterButton;
     private int matchId;
+    private int winner = Match.NOT_YET_ASSIGNED;
     private double[] stats;
 
     public MatchDisplayFragment() {
@@ -63,6 +65,7 @@ public class MatchDisplayFragment extends DialogFragment {
             textParticipantOne.setText(args.getString(Match.PARTICIPANT_ONE));
             TextView textParticipantTwo = (TextView) view.findViewById(R.id.participant_name_right);
             textParticipantTwo.setText(args.getString(Match.PARTICIPANT_TWO));
+            winner = args.getInt(Match.MATCH_WINNER);
 
             //Display stats if used
             String[] categories = args.getStringArray(Tournament.STAT_CATEGORIES);
@@ -100,22 +103,35 @@ public class MatchDisplayFragment extends DialogFragment {
 
             }
         }
-
         winButtons = new ToggleButton[2];
         winButtons[0] = (ToggleButton)view.findViewById(R.id.set_winner_left);
         winButtons[1] = (ToggleButton) view.findViewById(R.id.set_winner_right);
         for (int i = 0; i < winButtons.length; i++) {
-            final int winner = i;
+            if (i == winner) winButtons[i].setChecked(true);
             winButtons[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    for (ToggleButton tb : winButtons) {
-                        if (tb != v) tb.setChecked(false);
+                    ToggleButton tb = (ToggleButton)v;
+                    if (tb.isChecked()) {
+                        for (int i = 0; i < winButtons.length; i++) {
+                            if (winButtons[i] != tb) winButtons[i].setChecked(false);
+                            else winner = i;
+                        }
+                    } else if (!tb.isChecked()) {
+                        winner = Match.NOT_YET_ASSIGNED;
                     }
-                    mCallback.setWinner(matchId, winner, stats);
                 }
             });
         }
+
+        enterButton = (Button)view.findViewById(R.id.enter_result_button);
+        enterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.setWinner(matchId, winner, stats);
+                dismiss();
+            }
+        });
     }
 
     @Override

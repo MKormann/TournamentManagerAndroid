@@ -5,7 +5,6 @@ import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -15,7 +14,6 @@ import java.util.Locale;
 public class Tournament {
 
     public static String STAT_CATEGORIES = "STAT_CATEGORIES";
-    public static int NOT_YET_OCCURRED = -2;
     public static int MIN_TOURNAMENT_SIZE = 4;
     public static int MAX_TOURNAMENT_SIZE = 256;
 
@@ -63,7 +61,7 @@ public class Tournament {
     //Compares the value of the last Match in the match array to the static Tournament value
     //for not having occurred.
     public boolean isOver() {
-        return (matches[matches.length - 1].getWinner() != Tournament.NOT_YET_OCCURRED);
+        return (matches[matches.length - 1].hasWinner());
     }
 
     public String getSaveTime() {
@@ -112,7 +110,7 @@ public class Tournament {
     public Participant getParticipant(int index) {
         if (index < 0 || index >= participants.length)
             throw new IndexOutOfBoundsException("Index " + index + " is out of bounds.");
-        return participants[index];
+            return participants[index];
     }
 
     public void setParticipants(Participant[] participants) {
@@ -196,6 +194,51 @@ public class Tournament {
                 m.setParticipant(0, matches[i].getParticipantIndex(0));
             }
         }
+    }
+
+    public void setMatchWinner(int matchId, int winner) {
+        //Retrieve given match
+        Match m = getMatch(matchId);
+
+        //If winner hasn't changed, do nothing, else set winner
+        if (m.getWinner() == winner) return;
+        m.setWinner(winner);
+
+        //If reaching this point, winner has changed.  Iterate through remaining rounds, set
+        //participant in next to new winner, and check if previous winner had won future matches and
+        //remove
+        int participantIndex = (winner != Match.NOT_YET_ASSIGNED) ? m.getParticipantIndex(winner) :
+                Match.NOT_YET_ASSIGNED;
+        while (m.getNextMatchId() != Match.BYE) {
+            Match next = getMatch(m.getNextMatchId());
+            int indexInNext = getParticipantNumInNextMatch(matchId);
+            next.setParticipant(indexInNext, participantIndex);
+            if (next.getWinner() == indexInNext) {
+                next.setWinner(Match.NOT_YET_ASSIGNED);
+                m = next;
+                participantIndex = Match.NOT_YET_ASSIGNED;
+            } else break;
+        }
+    }
+
+    public void setMatchWinner(int matchId, int winner, double[] stats) {
+        //Update stats
+        getMatch(matchId).setStatistics(stats);
+        setMatchWinner(matchId, winner);
+    }
+
+    public int getParticipantNumInNextMatch(int matchId) {
+        int index = 0;
+        Match match = getMatch(matchId);
+        int prevMatchId = matchId - 1;
+        while (prevMatchId >= 0) {
+            if (getMatch(prevMatchId).getNextMatchId() == match.getNextMatchId()) {
+                index++;
+                prevMatchId--;
+            }
+            else break;
+        }
+        return index;
     }
 
     public int getSavedId() {

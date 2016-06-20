@@ -54,12 +54,9 @@ public class TournamentDisplayFragment extends Fragment {
 
         grid = (LinearLayout)view.findViewById(R.id.tournament_grid);
         grid.setWeightSum(1f);
-        //Determine tournament grid display size
-        //gridHor = tournament.getNumberOfRounds();
-        //gridVer = Integer.highestOneBit(tournament.getSize() - 1) * 2;
 
         //Create a view for each match
-        createMatchBracketViews(inflater);
+        createMatchBracketViews();
 
         //Create a layout for each round and add corresponding views
         for (int i = 1; i <= tournament.getNumberOfRounds(); i++) {
@@ -70,7 +67,7 @@ public class TournamentDisplayFragment extends Fragment {
     }
 
     //Create a bracket matchup for each match in tournament
-    private void createMatchBracketViews(LayoutInflater inflater) {
+    private void createMatchBracketViews() {
 
         int numMatches = tournament.getMatches().length;
 
@@ -79,59 +76,69 @@ public class TournamentDisplayFragment extends Fragment {
         for (int cnt = 0; cnt < numMatches; cnt++) {
 
             Match m = tournament.getMatch(cnt);
-
-            //Create layout to hold participants of a single match
-            MatchBracketLayout layout = new MatchBracketLayout(getContext(), cnt);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-
-
-            for (int i = 0; i < m.getParticipantIndices().length; i++) {
-
-                //Check if team has won and choose style to reflect
-                int bracketStyle = m.getWinner() == i ?
-                        R.layout.single_winner_bracket_display :
-                        R.layout.single_participant_bracket_display;
-                View bracket = inflater.inflate(bracketStyle, null);
-
-                int index = m.getParticipantIndex(i);
-                TextView seed = (TextView) bracket.findViewById(R.id.display_seed);
-                TextView name = (TextView) bracket.findViewById(R.id.display_name);
-                TextView stat = (TextView) bracket.findViewById(R.id.display_stat);
-
-                if (index != Match.NOT_YET_ASSIGNED && index != Match.BYE) {
-                    seed.setText(String.valueOf(index + 1));
-                    name.setText(tournament.getParticipant(index).getName());
-                    if (tournament.isStatTrackingEnabled()) stat.setText(String.valueOf(m.getSingleStatistic(i)));
-                } else if (index == Match.NOT_YET_ASSIGNED) {
-                    seed.setText("_") ;
-                    name.setText("_____");
-                    if (tournament.isStatTrackingEnabled()) stat.setText(String.valueOf(m.getSingleStatistic(i)));
-                } else if (index == Match.BYE) {
-                    seed.setText("-");
-                    name.setText("BYE");
-                    if (tournament.isStatTrackingEnabled()) stat.setText("-");
-                }
-                layout.addView(bracket);
-            }
-
-            layout.setLayoutParams(lp);
-            layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    MatchBracketLayout mbl = (MatchBracketLayout)v;
-                    Match m = tournament.getMatch(mbl.getMatchId());
-                    for (int i : m.getParticipantIndices()) {
-                        if (i == Match.BYE || i == Match.NOT_YET_ASSIGNED)
-                            return;
-                    }
-                    mCallback.displayMatch(mbl.getMatchId());
-                }
-            });
-            matchBracketDisplays[cnt] = layout;
+            MatchBracketLayout mbl = createSingleMatchBracket(m);
+            mbl.setMatchId(cnt);
+            matchBracketDisplays[cnt] = mbl;
+            updateSingleMatchInfo(mbl.getMatchId());
         }
+    }
+
+    private MatchBracketLayout createSingleMatchBracket(Match m) {
+        //Create layout to hold participants of a single match
+        MatchBracketLayout layout = new MatchBracketLayout(getContext(), m);
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MatchBracketLayout mbl = (MatchBracketLayout)v;
+                for (int i : mbl.getMatch().getParticipantIndices()) {
+                    if (i == Match.BYE || i == Match.NOT_YET_ASSIGNED)
+                        return;
+                }
+                mCallback.displayMatch(mbl.getMatchId());
+            }
+        });
+
+        return layout;
+    }
+
+    public void updateMatchInfo(int matchId) {
+        while (matchId != Match.BYE) {
+            updateSingleMatchInfo(matchId);
+            int nextMatchId = tournament.getMatch(matchId).getNextMatchId();
+            int indexInNext = tournament.getParticipantNumInNextMatch(matchId);
+            //Check if the winner of the current match
+            //if (tournament.getMatch(matchId).getWinner() !=
+            //        tournament.getMatch(nextMatchId).getParticipantIndex(indexInNext)) {
+            //
+            //}
+            matchId = nextMatchId;
+        }
+    }
+
+    private void updateSingleMatchInfo(int matchId) {
+        MatchBracketLayout mbl = (MatchBracketLayout) matchBracketDisplays[matchId];
+        Match m = tournament.getMatch(matchId);
+        String[] names = getMatchParticipantNames(m);
+        for (String s : names) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+        mbl.setMatchText(names);
+    }
+
+    private String[] getMatchParticipantNames(Match m) {
+        int[] indices = m.getParticipantIndices();
+        String[] names = new String[indices.length];
+        for (int i = 0; i < indices.length; i++) {
+            if (indices[i] == Match.NOT_YET_ASSIGNED) {
+                names[i] = "_____";
+            }
+            else if (indices[i] == Match.BYE) {
+                names[i] = "BYE";
+            } else
+                names[i] = tournament.getParticipant(indices[i]).getName();
+        }
+        return names;
     }
 
     private LinearLayout createViewForRound(int round) {

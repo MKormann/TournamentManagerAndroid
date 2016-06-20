@@ -25,6 +25,7 @@
     <string name="team_size_label">Team Size:</string>
     <string name="stat_tracking_label">Stat Tracking:</string>
     <string name="generate_tournament">Generate</string>
+    <string name="fill_participants">Fill Remaining</string>
     <string name="buttonOK">OK</string>
     <string name="buttonCancel">Cancel</string>
     <string name="save_tournament_alert_dialog">Accept changes and save tournament?</string>

@@ -99,7 +99,6 @@ public class MainMenuFragment extends Fragment implements
             throw new ClassCastException(context.toString() +
                     " must implement onMenuButtonPressedListener");
         }
-        MainMenuFragment fg = new MainMenuFragment();
     }
 
     @Override

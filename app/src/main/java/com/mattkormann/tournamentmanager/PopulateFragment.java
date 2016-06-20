@@ -38,7 +38,9 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     private LinearLayout participantsLayout;
     private DatabaseHelper mDbHelper;
     private SeedView[] seedViews;
+    private Participant[] participants;
     private Button startButton;
+    private Button fillButton;
     private int size;
     private boolean swapping = false;
     private int selectedSeed;
@@ -81,6 +83,15 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 setTournamentParticipants();
+            }
+        });
+        startButton.setEnabled(false);
+        fillButton = (Button) view.findViewById(R.id.fill_participants);
+        fillButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fillParticipants();
+                startButton.setEnabled(true);
             }
         });
 
@@ -176,7 +187,19 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                 .setTitle(getString(R.string.finalize_participants_title))
                 .setMessage(getString(R.string.finalize_participants_message))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (participants == null) fillParticipants();
+                        //Set the participants to the current tournament, save into history, and display
+                        Tournament tournament = mCallback.getCurrentTournament();
+                        tournament.setParticipants(participants);
+                        tournament.assignSeeds();
+                        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
+                        tDao.saveFullTournament(tournament);
+                        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
+                    }
+                })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -184,25 +207,13 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                     }
                 })
                 .show();
-        //After confirmation, check for unassigned participants and re-confirm.
-        if (areAnyUnassigned()) {
-            new AlertDialog.Builder(getContext())
-                    .setTitle(getString(R.string.unassigned_title))
-                    .setMessage(getString(R.string.unassigned_message))
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes, null)
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+    }
 
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            return;
-                        }
-                    })
-                    .show();
-        }
-        //Create and populate array with participants from each SeedView
-        //If participant isn't present, a generic one is created and passed along
+    //Create and populate array with participants from each SeedView
+    //If participant isn't present, a generic one is created and passed along
+    private void fillParticipants() {
         int genCount = 0;
-        Participant[] participants = new Participant[size];
+        participants = new Participant[size];
         for (int i = 0; i < size; i++) {
             if (seedViews[i].isAssigned()) participants[i] = seedViews[i].getParticipant();
             else {
@@ -211,14 +222,6 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                         genCount - Tournament.MAX_TOURNAMENT_SIZE - 1);
             }
         }
-
-        //Set the participants to the current tournament, save into history, and display
-        Tournament tournament = mCallback.getCurrentTournament();
-        tournament.setParticipants(participants);
-        tournament.assignSeeds();
-        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
-        tDao.saveFullTournament(tournament);
-        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
     }
 
     //Swap participants assigned to the two given seeds
@@ -251,6 +254,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             seedViews[seed - 1].setParticipant(participantMap.get(id));
             participantMap.remove(id);
         }
+        if (!areAnyUnassigned()) startButton.setEnabled(true);
     }
 
     //Check if any seeds have been left unassigned.

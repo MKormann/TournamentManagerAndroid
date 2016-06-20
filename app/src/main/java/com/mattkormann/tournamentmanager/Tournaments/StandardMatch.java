@@ -30,21 +30,31 @@ public class StandardMatch implements Match {
 
     @Override
     public void setWinner(int winner) {
-        checkParticipantNumIsValid(winner);
-        this.winner = winner;
+        if (checkParticipantNumIsValid(winner))
+            this.winner = winner;
     }
 
     @Override
     public int getWinner() {
+        return winner;
+    }
+
+    @Override
+    public int getWinnerIndex() {
         if (winner == NOT_YET_ASSIGNED) return winner;
         else return participants[winner];
     }
 
     @Override
-    public int getRunnerUp() {
+    public int getRunnerUpIndex() {
         if (getWinner() == Match.NOT_YET_ASSIGNED) return Match.NOT_YET_ASSIGNED;
-        if (getWinner() == 0) return participants[1];
-        else return participants[0]; //TODO change to reflect participant number
+        if (getWinner() == 0) return 1;
+        else return 0; //TODO change to reflect participant number
+    }
+
+    @Override
+    public boolean hasWinner() {
+        return (winner != NOT_YET_ASSIGNED);
     }
 
     //Get one single stat for one participant
@@ -89,8 +99,8 @@ public class StandardMatch implements Match {
     }
 
     @Override
-    public void setParticipant(int participantNum, int index) {
-        if (checkParticipantNumIsValid(participantNum)) participants[participantNum] = index;
+    public void setParticipant(int participantNum, int id) {
+        if (checkParticipantNumIsValid(participantNum)) participants[participantNum] = id;
     }
 
     @Override

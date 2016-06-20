@@ -1,5 +1,7 @@
 package com.mattkormann.tournamentmanager.participants;
 
+import com.mattkormann.tournamentmanager.tournaments.Match;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,4 +37,5 @@ public class TeamParticipant implements Participant {
     public Map<Integer, String> getMembers() {
         return members;
     }
+
 }

@@ -34,6 +34,8 @@
             android:layout_height="wrap_content" />
         <Button
             android:layout_above="@+id/start_tournament"
+            android:id="@+id/fill_participants"
+            android:text="@string/fill_participants"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </RelativeLayout>

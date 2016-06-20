@@ -7,18 +7,20 @@
     import android.support.v4.app.FragmentManager;
     import android.support.v4.app.FragmentTransaction;
     import android.support.v7.app.AlertDialog;
+    import android.support.v7.app.AppCompatActivity;
+    import android.view.View;
+    import android.widget.LinearLayout;
 
     import com.mattkormann.tournamentmanager.participants.Participant;
-    import com.mattkormann.tournamentmanager.sql.DatabaseContract;
-    import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
     import com.mattkormann.tournamentmanager.tournaments.Match;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
     import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 
     import java.util.Map;
 
-    public class MainActivity extends FragmentActivity
-            implements MainMenuFragment.onMenuButtonPressedListener,
+    public class MainActivity extends AppCompatActivity
+            implements WelcomeFragment.WelcomeFragmentListener,
+            MainMenuFragment.onMenuButtonPressedListener,
             ParticipantsFragment.ParticipantInfoListener,
             TournamentSettingsFragment.TournamentSettingsListener,
             StatEntryFragment.StatEntryFragmentListener,
@@ -34,7 +36,7 @@
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+            setContentView(R.layout.activity_welcome);
 
             //Check if there is a fragment container
             if (findViewById(R.id.fragment_container) != null) {
@@ -44,11 +46,9 @@
                     return;
                 }
 
-                //Create and display fragment for the main menu
-                MainMenuFragment mainFragment = MainMenuFragment.newInstance();
-                mainFragment.setArguments(getIntent().getExtras());
+                WelcomeFragment wf = WelcomeFragment.newInstance();
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, mainFragment).commit();
+                        .add(R.id.fragment_container, wf).commit();
             }
 
         }
@@ -147,7 +147,7 @@
             }
         }
 
-        //Methods implemented from Tournament Settings fragment TODO
+        //Methods implemented from Tournament Settings fragment
         @Override
         public void advanceFromSettings(boolean startTournament) {
             if (startTournament) {
@@ -192,6 +192,8 @@
             args.putStringArray(Tournament.STAT_CATEGORIES, currentTournament.getStatCategories());
             args.putString(Match.PARTICIPANT_ONE, currentTournament.getParticipant(match.getParticipantIndex(0)).getName());
             args.putString(Match.PARTICIPANT_TWO, currentTournament.getParticipant(match.getParticipantIndex(1)).getName());
+            System.out.println(match.getWinnerIndex());
+            args.putInt(Match.MATCH_WINNER, match.getWinner());
             MatchDisplayFragment mdf =
                     (MatchDisplayFragment)FragmentFactory.getFragment(FragmentFactory.MATCH_DISPLAY_FRAGMENT, args);
             mdf.show(fm, "fragment_match_display");
@@ -199,7 +201,15 @@
 
         @Override
         public void setWinner(int matchId, int winner) {
-            currentTournament.getMatch(matchId).setWinner(winner);
+            currentTournament.setMatchWinner(matchId, winner);
+            Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (f instanceof TournamentDisplayFragment) {
+                TournamentDisplayFragment tdf = (TournamentDisplayFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (tdf != null) {
+                    tdf.updateMatchInfo(matchId);
+                }
+            }
         }
 
         //Method implemented from Populate Fragment
@@ -244,10 +254,15 @@
         //Method from MatchDisplayFragment
         @Override
         public void setWinner(int matchId, int winner, double[] stats) {
-            Match match = currentTournament.getMatch(matchId);
-            match.setWinner(winner);
-            match.setStatistics(stats);
-            int nextId = match.getNextMatchId();
+            currentTournament.setMatchWinner(matchId, winner, stats);
+            Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+            if (f instanceof TournamentDisplayFragment) {
+                TournamentDisplayFragment tdf = (TournamentDisplayFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (tdf != null) {
+                    tdf.updateMatchInfo(matchId);
+                }
+            }
         }
 
     }

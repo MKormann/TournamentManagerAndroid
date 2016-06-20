@@ -1,5 +1,7 @@
 package com.mattkormann.tournamentmanager.participants;
 
+import com.mattkormann.tournamentmanager.tournaments.Match;
+
 /**
  * Created by Matt on 5/2/2016.
  */
@@ -27,4 +29,5 @@ public class SingleParticipant implements Participant {
     public String getName() {
         return name;
     }
+
 }

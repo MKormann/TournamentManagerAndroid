@@ -15,6 +15,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/enter_result_button"
+        android:text="@string/enter_result"
+        style="@android:style/Widget.Button">
+
+    </Button>
+
     <LinearLayout
         android:layout_below="@+id/match_no_title"
         android:layout_above="@+id/enter_result_button"

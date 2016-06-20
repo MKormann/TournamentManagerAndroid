@@ -8,6 +8,7 @@ import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.participants.ParticipantFactory;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
+import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,12 +38,17 @@ public class SqliteTournamentDAO implements TournamentDAO {
         int size = tournament.getSize();
 
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE, size);
-        values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID, tournament.isOver() ?
-                tournament.getMatch(tournament.getMatches().length - 1).getWinner() :
-                Match.NOT_YET_ASSIGNED);
-        values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_RUNNER_UP_ID, tournament.isOver() ?
-                tournament.getMatch(tournament.getMatches().length - 1).getRunnerUp() :
-                Match.NOT_YET_ASSIGNED);
+        int winnerId = Match.NOT_YET_ASSIGNED;
+        int runnerUpId = Match.NOT_YET_ASSIGNED;
+        if (tournament.isOver()) {
+            Match m = tournament.getMatch(tournament.getMatches().length - 1);
+            Participant winner = tournament.getParticipant(m.getWinnerIndex());
+            winnerId = winner.getID();
+            Participant runnerUp = tournament.getParticipant(m.getRunnerUpIndex());
+            runnerUpId = runnerUp.getID();
+        }
+        values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID, winnerId);
+        values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_RUNNER_UP_ID, runnerUpId);
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED, tournament.isOver() ? 1 : 0);
 
         tournament.setSaveTimeToCurrent();
@@ -234,6 +240,9 @@ public class SqliteTournamentDAO implements TournamentDAO {
         tournament.setSavedId(tournamentId);
         tournament.setMatches(matches);
         tournament.setSaveTime(saveTime);
+        SeedFactory sf = new SeedFactory(size);
+        sf.getSeedsInMatchOrder();
+        tournament.setNextMatchIds(sf.getPrelimNumber());
 
         return tournament;
     }
