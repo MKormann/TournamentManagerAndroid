@@ -21,9 +21,10 @@ public class SeedFactory {
 
     public SeedFactory(int size) {
         this.size = size;
+        setSeedsInMatchOrder();
     }
 
-    public int[] getSeedsInMatchOrder() {
+    public void setSeedsInMatchOrder() {
 
         //Determine # of matches of the initial rounds
         int higherNum = Integer.highestOneBit(size);
@@ -67,10 +68,11 @@ public class SeedFactory {
         //Method to subtract one from the seed numbers to refer to a zero-based array
         changeFromSeedToIndex(firstRoundSeeds);
         changeFromSeedToIndex(prelimSeeds);
-
-        return hasPrelimRound ? ArrayUtils.addAll(prelimSeeds, firstRoundSeeds) : firstRoundSeeds;
     }
 
+    public int[] getSeedsInMatchOrder() {
+        return hasPrelimRound ? ArrayUtils.addAll(prelimSeeds, firstRoundSeeds) : firstRoundSeeds;
+    }
 
     //Method takes an in-order array, length equalling a power of 2, and sorts it into seed order
     //for a tournament.

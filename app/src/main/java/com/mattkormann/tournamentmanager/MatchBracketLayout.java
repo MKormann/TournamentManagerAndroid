@@ -61,7 +61,7 @@ public class MatchBracketLayout extends LinearLayout {
             if (index == Match.BYE || index == Match.NOT_YET_ASSIGNED) seedViews[i].setText("-");
                 else seedViews[i].setText(String.valueOf(match.getParticipantIndex(i) + 1));
             nameViews[i].setText(participantNames[i]);
-            if (match.getStatistics().length == 0) statViews[i]
+            if (match.getStatistics().length != 0) statViews[i]
                     .setText(String.valueOf(match.getSingleStatistic(i)));
         }
         setWinner();

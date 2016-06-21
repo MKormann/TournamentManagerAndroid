@@ -145,7 +145,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             TextView seedNum = new TextView(getContext());
             seedNum.setText(String.valueOf(seed));
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    0,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.weight = .2f;
             lp.gravity = Gravity.CENTER;
@@ -154,7 +154,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             SeedView sv = new SeedView(getContext());
             sv.setSeed(seed);
             LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    0,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             lp2.weight = .8f;
             lp2.gravity = Gravity.LEFT;
@@ -169,8 +169,8 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-            lpRow.weight = 1.0f;
             row.setLayoutParams(lpRow);
+            row.setWeightSum(1f);
 
             participantsLayout.addView(row);
         }
@@ -187,19 +187,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                 .setTitle(getString(R.string.finalize_participants_title))
                 .setMessage(getString(R.string.finalize_participants_message))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (participants == null) fillParticipants();
-                        //Set the participants to the current tournament, save into history, and display
-                        Tournament tournament = mCallback.getCurrentTournament();
-                        tournament.setParticipants(participants);
-                        tournament.assignSeeds();
-                        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
-                        tDao.saveFullTournament(tournament);
-                        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
-                    }
-                })
+                .setPositiveButton(android.R.string.yes, null)
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -207,6 +195,15 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                     }
                 })
                 .show();
+        if(areAnyUnassigned()) fillParticipants();
+
+        //Set the participants to the current tournament, save into history, and display
+        Tournament tournament = mCallback.getCurrentTournament();
+        tournament.setParticipants(participants);
+        tournament.assignSeeds();
+        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
+        tDao.saveFullTournament(tournament);
+        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
     }
 
     //Create and populate array with participants from each SeedView
@@ -220,6 +217,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                 participants[i] = ParticipantFactory.getParticipant("single",
                         "Participant " + ++genCount,
                         genCount - Tournament.MAX_TOURNAMENT_SIZE - 1);
+                seedViews[i].setParticipant(participants[i]);
             }
         }
     }

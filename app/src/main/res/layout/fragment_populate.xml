@@ -3,25 +3,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
+    android:layout_margin="@dimen/generic_half_padding"
     tools:context="com.mattkormann.tournamentmanager.PopulateFragment">
 
-    <ScrollView
+    <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1">
-
-        <LinearLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/tournament_seeding"
+            android:id="@+id/tournament_seeding"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="@dimen/generic_half_padding"
+            android:layout_weight="1"
+            android:layout_centerHorizontal="true" />
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:id="@+id/choose_participants_layout">
-            <TextView
+            android:layout_below="@+id/tournament_seeding">
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/choose_participants_layout">
 
-        </LinearLayout>
-    </ScrollView>
-
+            </LinearLayout>
+        </ScrollView>
+    </RelativeLayout>
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"

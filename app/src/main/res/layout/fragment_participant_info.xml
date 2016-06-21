@@ -23,7 +23,8 @@
         android:layout_height="wrap_content"
         android:paddingRight="@dimen/generic_padding"
         android:paddingEnd="@dimen/generic_padding"
-        android:inputType="text"
+        android:inputType="textPersonName"
+        android:ems="10"
         android:imeOptions="actionDone"
         android:layout_toRightOf="@id/name_label"
         android:layout_centerVertical="true"/>

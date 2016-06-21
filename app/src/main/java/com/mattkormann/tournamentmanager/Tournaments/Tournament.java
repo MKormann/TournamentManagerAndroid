@@ -22,10 +22,12 @@ public class Tournament {
     private int teamSize;
     private int rounds;
     private int savedId;
+    private int matchesCompleted;
     private Participant[] participants;
     private Match[] matches;
     private String[] statCategories;
     private String saveTime;
+    private SeedFactory sf;
     private boolean isDoubleElim = false;
 
     public Tournament() {
@@ -48,6 +50,8 @@ public class Tournament {
         this.participants = participants;
         this.matches = new Match[size - 1];
         this.statCategories = statCategories;
+        sf = new SeedFactory(size);
+        matchesCompleted = 0 + sf.getByes();
     }
 
     public String getName() {
@@ -61,7 +65,7 @@ public class Tournament {
     //Compares the value of the last Match in the match array to the static Tournament value
     //for not having occurred.
     public boolean isOver() {
-        return (matches[matches.length - 1].hasWinner());
+        return (matchesCompleted == matches.length);
     }
 
     public String getSaveTime() {
@@ -164,7 +168,6 @@ public class Tournament {
 
     public void assignSeeds() {
 
-        SeedFactory sf = new SeedFactory(size);
         int[] seedsInMatchOrder = sf.getSeedsInMatchOrder();
 
         int byes = sf.getByes();
@@ -203,6 +206,7 @@ public class Tournament {
         //If winner hasn't changed, do nothing, else set winner
         if (m.getWinner() == winner) return;
         m.setWinner(winner);
+        matchesCompleted += (winner == Match.NOT_YET_ASSIGNED) ? -1 : 1;
 
         //If reaching this point, winner has changed.  Iterate through remaining rounds, set
         //participant in next to new winner, and check if previous winner had won future matches and
@@ -210,11 +214,14 @@ public class Tournament {
         int participantIndex = (winner != Match.NOT_YET_ASSIGNED) ? m.getParticipantIndex(winner) :
                 Match.NOT_YET_ASSIGNED;
         while (m.getNextMatchId() != Match.BYE) {
-            Match next = getMatch(m.getNextMatchId());
+            int nextMatchId = m.getNextMatchId();
+            Match next = getMatch(nextMatchId);
             int indexInNext = getParticipantNumInNextMatch(matchId);
             next.setParticipant(indexInNext, participantIndex);
             if (next.getWinner() == indexInNext) {
                 next.setWinner(Match.NOT_YET_ASSIGNED);
+                matchesCompleted--;
+                matchId = m.getNextMatchId();
                 m = next;
                 participantIndex = Match.NOT_YET_ASSIGNED;
             } else break;
@@ -228,6 +235,7 @@ public class Tournament {
     }
 
     public int getParticipantNumInNextMatch(int matchId) {
+        if (matchId < sf.getPrelimNumber()) return 1; //TODO more match participants
         int index = 0;
         Match match = getMatch(matchId);
         int prevMatchId = matchId - 1;

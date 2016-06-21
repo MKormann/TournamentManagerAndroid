@@ -1,8 +1,10 @@
 package com.mattkormann.tournamentmanager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
+import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
+import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 
@@ -104,26 +108,19 @@ public class TournamentDisplayFragment extends Fragment {
     public void updateMatchInfo(int matchId) {
         while (matchId != Match.BYE) {
             updateSingleMatchInfo(matchId);
-            int nextMatchId = tournament.getMatch(matchId).getNextMatchId();
-            int indexInNext = tournament.getParticipantNumInNextMatch(matchId);
-            //Check if the winner of the current match
-            //if (tournament.getMatch(matchId).getWinner() !=
-            //        tournament.getMatch(nextMatchId).getParticipantIndex(indexInNext)) {
-            //
-            //}
+            Match m = tournament.getMatch(matchId);
+            int nextMatchId = m.getNextMatchId();
             matchId = nextMatchId;
         }
+        checkIfTournamentIsOver();
     }
 
     private void updateSingleMatchInfo(int matchId) {
         MatchBracketLayout mbl = (MatchBracketLayout) matchBracketDisplays[matchId];
         Match m = tournament.getMatch(matchId);
         String[] names = getMatchParticipantNames(m);
-        for (String s : names) {
-            System.out.print(s + " ");
-        }
-        System.out.println();
         mbl.setMatchText(names);
+        mbl.setWinner();
     }
 
     private String[] getMatchParticipantNames(Match m) {
@@ -139,6 +136,30 @@ public class TournamentDisplayFragment extends Fragment {
                 names[i] = tournament.getParticipant(indices[i]).getName();
         }
         return names;
+    }
+
+    private void checkIfTournamentIsOver() {
+        if (tournament.isOver()) displayFinishDialog();
+    }
+
+    private void displayFinishDialog() {
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.over_title)
+                .setMessage(R.string.over_message)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCallback.saveAndExit();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        return;
+                    }
+                })
+                .show();
     }
 
     private LinearLayout createViewForRound(int round) {
@@ -213,5 +234,6 @@ public class TournamentDisplayFragment extends Fragment {
         Tournament getCurrentTournament();
         void displayMatch(int matchId);
         void setWinner(int matchId, int winner);
+        void saveAndExit();
     }
 }

@@ -16,6 +16,9 @@ import com.mattkormann.tournamentmanager.util.ParticipantsAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 public class ChooseParticipantFragment extends DialogFragment {
@@ -75,9 +78,14 @@ public class ChooseParticipantFragment extends DialogFragment {
             }
         });
 
-        Collection ps = participantMap.values();
-
         arrayOfParticipants.addAll(participantMap.values());
+        Collections.sort(arrayOfParticipants, new Comparator<Participant>() {
+            @Override
+            public int compare(Participant p1, Participant p2) {
+                if (p2.getID() < p1.getID()) return 1;
+                else return -1;
+            }
+        });
 
         //Add header view to list for creating a new participant
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

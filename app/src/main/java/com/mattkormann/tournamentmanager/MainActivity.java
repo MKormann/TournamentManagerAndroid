@@ -12,7 +12,9 @@
     import android.widget.LinearLayout;
 
     import com.mattkormann.tournamentmanager.participants.Participant;
+    import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
     import com.mattkormann.tournamentmanager.tournaments.Match;
+    import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
     import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 
@@ -192,7 +194,6 @@
             args.putStringArray(Tournament.STAT_CATEGORIES, currentTournament.getStatCategories());
             args.putString(Match.PARTICIPANT_ONE, currentTournament.getParticipant(match.getParticipantIndex(0)).getName());
             args.putString(Match.PARTICIPANT_TWO, currentTournament.getParticipant(match.getParticipantIndex(1)).getName());
-            System.out.println(match.getWinnerIndex());
             args.putInt(Match.MATCH_WINNER, match.getWinner());
             MatchDisplayFragment mdf =
                     (MatchDisplayFragment)FragmentFactory.getFragment(FragmentFactory.MATCH_DISPLAY_FRAGMENT, args);
@@ -265,4 +266,11 @@
             }
         }
 
+        public void saveAndExit() {
+            DatabaseHelper mDbHelper = new DatabaseHelper(this);
+            SqliteTournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
+            tDao.saveFullTournament(currentTournament);
+            swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
+            currentTournament = null;
+        }
     }

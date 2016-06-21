@@ -30,8 +30,7 @@ public class StandardMatch implements Match {
 
     @Override
     public void setWinner(int winner) {
-        if (checkParticipantNumIsValid(winner))
-            this.winner = winner;
+        this.winner = winner;
     }
 
     @Override
