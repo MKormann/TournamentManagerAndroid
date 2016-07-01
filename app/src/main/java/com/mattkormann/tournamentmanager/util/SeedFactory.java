@@ -64,10 +64,6 @@ public class SeedFactory {
 
         //Assign prelim seeds to the prelim array
         if (hasPrelimRound) assignPrelimSeeds();
-
-        //Method to subtract one from the seed numbers to refer to a zero-based array
-        changeFromSeedToIndex(firstRoundSeeds);
-        changeFromSeedToIndex(prelimSeeds);
     }
 
     public int[] getSeedsInMatchOrder() {
@@ -113,13 +109,6 @@ public class SeedFactory {
                 prelimSeeds[cnt++] = one;
                 prelimSeeds[cnt++] = two;
             }
-        }
-    }
-
-    private void changeFromSeedToIndex(int[] seeds) {
-        for (int i = 0; i < seeds.length; i++) {
-            if (seeds[i] == Match.NOT_YET_ASSIGNED || seeds[i] == Match.BYE) continue;
-            seeds[i] = seeds[i] - 1;
         }
     }
 

@@ -12,6 +12,7 @@
     <string name="title_participants">Roster</string>
     <string name="add_participant">Add Participant</string>
     <string name="edit_participant">Edit Participant</string>
+    <string name="enter_info">Enter Participant Info</string>
     <string name="add_team">Add Team</string>
     <string name="edit_team">Edit Team</string>
     <string name="individuals">Individuals</string>
@@ -21,11 +22,14 @@
     <string name="tournament_size">Tournament Size:</string>
     <string name="tournament_settings">Tournament Settings</string>
     <string name="tournament_name_label">Tournament Name:</string>
-    <string name="elimination_type_label">Elimination Type:</string>
+    <string name="elimination_type_label">Elimination Type</string>
+    <string name="elimination_type_description">Choose if tournament is single or double elimination</string>
     <string name="team_size_label">Team Size:</string>
     <string name="stat_tracking_label">Stat Tracking:</string>
+    <string name="stat_categories">Stat Categories</string>
     <string name="generate_tournament">Generate</string>
     <string name="fill_participants">Fill Remaining</string>
+    <string name="choose_participant">Choose Participant</string>
     <string name="buttonOK">OK</string>
     <string name="buttonCancel">Cancel</string>
     <string name="save_tournament_alert_dialog">Accept changes and save tournament?</string>
@@ -59,7 +63,6 @@
     <string name="no_tournaments_message">There were no tournaments found to load.</string>
     <string name="over_title">Tournament complete.</string>
     <string name="over_message">All matches are complete.  Finalize tournament and exit?</string>
-
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

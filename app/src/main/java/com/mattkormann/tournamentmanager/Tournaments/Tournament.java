@@ -6,7 +6,9 @@ import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by Matt on 5/2/2016.
@@ -23,7 +25,7 @@ public class Tournament {
     private int rounds;
     private int savedId;
     private int matchesCompleted;
-    private Participant[] participants;
+    private Map<Integer, Participant> participants;
     private Match[] matches;
     private String[] statCategories;
     private String saveTime;
@@ -35,12 +37,12 @@ public class Tournament {
     }
 
     public Tournament(String name, int size, int teamSize) {
-        this(name, size, teamSize, new String[] {}, new Participant[size]);
+        this(name, size, teamSize, new String[] {}, new HashMap<Integer, Participant>());
     }
 
 
     public Tournament(String name, int size, int teamSize, String[] statCategories,
-                                Participant[] participants) {
+                                Map<Integer, Participant> participants) {
         this.name = name;
         if (size < MIN_TOURNAMENT_SIZE)
             throw new IllegalArgumentException("Tournament is less than minimum allowed size.");
@@ -51,7 +53,6 @@ public class Tournament {
         this.matches = new Match[size - 1];
         this.statCategories = statCategories;
         sf = new SeedFactory(size);
-        matchesCompleted = 0 + sf.getByes();
     }
 
     public String getName() {
@@ -65,7 +66,10 @@ public class Tournament {
     //Compares the value of the last Match in the match array to the static Tournament value
     //for not having occurred.
     public boolean isOver() {
-        return (matchesCompleted == matches.length);
+        for (Match m : matches) {
+            if (m.getWinner() == Match.NOT_YET_ASSIGNED) return false;
+        }
+        return true;
     }
 
     public String getSaveTime() {
@@ -95,7 +99,7 @@ public class Tournament {
         return teamSize;
     }
 
-    public Participant[] getParticipants() {
+    public Map<Integer, Participant> getParticipants() {
         return participants;
     }
 
@@ -111,15 +115,15 @@ public class Tournament {
         this.matches = matches;
     }
 
-    public Participant getParticipant(int index) {
-        if (index < 0 || index >= participants.length)
-            throw new IndexOutOfBoundsException("Index " + index + " is out of bounds.");
-            return participants[index];
+    public Participant getParticipant(int seed) {
+        if (seed < 1 || seed > size)
+            throw new IndexOutOfBoundsException("" + seed + " is not a valid seed.");
+        return participants.get(seed);
     }
 
-    public void setParticipants(Participant[] participants) {
-        if (participants.length != size)
-            throw new IllegalArgumentException("Participant array does not equal tournament size.");
+    public void setParticipants(Map<Integer, Participant> participants) {
+        if (participants.size() != size)
+            throw new IllegalArgumentException("Participant map does not equal tournament size.");
         this.participants = participants;
     }
 
@@ -158,7 +162,7 @@ public class Tournament {
         if (prelimMatches > 0) {
             //Assign next match id for the preliminary round matches
             for (int i = 0, j = getRoundStartDelimiter(2); i <= getRoundEndDelimiter(1); j++) {
-                if (matches[j].getParticipantIndex(1) == Match.NOT_YET_ASSIGNED) {
+                if (matches[j].getParticipantSeed(1) == Match.NOT_YET_ASSIGNED) {
                     matches[i++].setNextMatchId(j);
                 }
             }
@@ -191,10 +195,10 @@ public class Tournament {
 
         //Set winner and advance those with byes
         for (int i = 0; i <= getRoundEndDelimiter(1); i++) {
-            if (matches[i].getParticipantIndex(1) == Match.BYE) {
+            if (matches[i].getParticipantSeed(1) == Match.BYE) {
                 matches[i].setWinner(0);
                 Match m = matches[matches[i].getNextMatchId()];
-                m.setParticipant(0, matches[i].getParticipantIndex(0));
+                m.setParticipant(0, matches[i].getParticipantSeed(0));
             }
         }
     }
@@ -206,12 +210,11 @@ public class Tournament {
         //If winner hasn't changed, do nothing, else set winner
         if (m.getWinner() == winner) return;
         m.setWinner(winner);
-        matchesCompleted += (winner == Match.NOT_YET_ASSIGNED) ? -1 : 1;
 
         //If reaching this point, winner has changed.  Iterate through remaining rounds, set
         //participant in next to new winner, and check if previous winner had won future matches and
         //remove
-        int participantIndex = (winner != Match.NOT_YET_ASSIGNED) ? m.getParticipantIndex(winner) :
+        int participantIndex = (winner != Match.NOT_YET_ASSIGNED) ? m.getParticipantSeed(winner) :
                 Match.NOT_YET_ASSIGNED;
         while (m.getNextMatchId() != Match.BYE) {
             int nextMatchId = m.getNextMatchId();
@@ -220,7 +223,6 @@ public class Tournament {
             next.setParticipant(indexInNext, participantIndex);
             if (next.getWinner() == indexInNext) {
                 next.setWinner(Match.NOT_YET_ASSIGNED);
-                matchesCompleted--;
                 matchId = m.getNextMatchId();
                 m = next;
                 participantIndex = Match.NOT_YET_ASSIGNED;

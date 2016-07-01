@@ -1,9 +1,11 @@
 package com.mattkormann.tournamentmanager;
 
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,31 +27,18 @@ public class MatchDisplayFragment extends DialogFragment {
     private int winner = Match.NOT_YET_ASSIGNED;
     private double[] stats;
 
-    public MatchDisplayFragment() {
-        // Required empty public constructor
-    }
-
-    public static MatchDisplayFragment newInstance() {
-        MatchDisplayFragment fragment = new MatchDisplayFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    public Dialog onCreateDialog(Bundle bundle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View matchDisplayFragment = getActivity().getLayoutInflater().inflate(
+                R.layout.fragment_match_display, null
+        );
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_match_display, container, false);
+        setMatchInformation(matchDisplayFragment);
 
-        setMatchInformation(view);
+        builder.setView(matchDisplayFragment);
 
-        return view;
+        return builder.create();
     }
 
     private void setMatchInformation(View view) {

@@ -22,16 +22,16 @@ public interface Match {
 
     int getWinner();
     void setWinner(int winner);
-    int getWinnerIndex();
-    int getRunnerUpIndex();
+    int getWinnerSeed();
+    int getRunnerUpSeed();
     boolean hasWinner();
     double[] getStatistics();
     double getSingleStatistic(int statIndex);
     double[] getSingleStatisticForAll(int statIndex);
-    int[] getParticipantIndices();
-    int getParticipantIndex(int participantNum);
-    void setParticipants(int[] indices);
-    void setParticipant(int participantNum, int index);
+    int[] getParticipantSeeds();
+    int getParticipantSeed(int participantNum);
+    void setParticipants(int[] seeds);
+    void setParticipant(int participantNum, int seed);
     void setStatistics(double[] statistics);
     void setNextMatchId(int nextMatchId);
     int getNextMatchId();

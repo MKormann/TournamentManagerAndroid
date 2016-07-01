@@ -9,12 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
-import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
-import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 import com.mattkormann.tournamentmanager.util.SeedFactory;
 
 
@@ -53,6 +50,7 @@ public class TournamentDisplayFragment extends Fragment {
         //Set tournament to the current tournament from Main Activity
         tournament = mCallback.getCurrentTournament();
 
+        //Retrieve seeds in match order
         SeedFactory sf = new SeedFactory(tournament.getSize());
         seedsInMatchOrder = sf.getSeedsInMatchOrder();
 
@@ -90,11 +88,15 @@ public class TournamentDisplayFragment extends Fragment {
     private MatchBracketLayout createSingleMatchBracket(Match m) {
         //Create layout to hold participants of a single match
         MatchBracketLayout layout = new MatchBracketLayout(getContext(), m);
+
+        //If tournament loaded is already over, do not set matches as clickable.
+        if (tournament.isOver()) return layout;
+
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MatchBracketLayout mbl = (MatchBracketLayout)v;
-                for (int i : mbl.getMatch().getParticipantIndices()) {
+                for (int i : mbl.getMatch().getParticipantSeeds()) {
                     if (i == Match.BYE || i == Match.NOT_YET_ASSIGNED)
                         return;
                 }
@@ -124,16 +126,16 @@ public class TournamentDisplayFragment extends Fragment {
     }
 
     private String[] getMatchParticipantNames(Match m) {
-        int[] indices = m.getParticipantIndices();
-        String[] names = new String[indices.length];
-        for (int i = 0; i < indices.length; i++) {
-            if (indices[i] == Match.NOT_YET_ASSIGNED) {
+        int[] seeds = m.getParticipantSeeds();
+        String[] names = new String[seeds.length];
+        for (int i = 0; i < seeds.length; i++) {
+            if (seeds[i] == Match.NOT_YET_ASSIGNED) {
                 names[i] = "_____";
             }
-            else if (indices[i] == Match.BYE) {
+            else if (seeds[i] == Match.BYE) {
                 names[i] = "BYE";
             } else
-                names[i] = tournament.getParticipant(indices[i]).getName();
+                names[i] = tournament.getParticipant(seeds[i]).getName();
         }
         return names;
     }

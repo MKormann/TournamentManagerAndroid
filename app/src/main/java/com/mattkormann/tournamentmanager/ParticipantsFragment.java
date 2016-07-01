@@ -22,7 +22,8 @@ public class ParticipantsFragment extends Fragment
 
     private ParticipantInfoListener mCallback;
     private DatabaseHelper mDbHelper;
-    private LinearLayout participantDisplay ;
+    private LinearLayout participantDisplayLeft;
+    private LinearLayout participantDisplayRight;
 
     public static final String TYPE_TO_DISPLAY = "TYPE_TO_DISPLAY";
     public static final int INDIVIDUALS = 0;
@@ -64,7 +65,8 @@ public class ParticipantsFragment extends Fragment
         mDbHelper = new DatabaseHelper(getContext());
 
         //Find table layout, and populate table with initial data
-        participantDisplay = (LinearLayout)view.findViewById(R.id.participant_table);
+        participantDisplayLeft = (LinearLayout)view.findViewById(R.id.participant_table_left);
+        participantDisplayRight = (LinearLayout)view.findViewById(R.id.participant_table_right);
         populateTable(getArguments().getInt(TYPE_TO_DISPLAY));
 
         return view;
@@ -90,15 +92,21 @@ public class ParticipantsFragment extends Fragment
         c.moveToFirst();
 
         //Erase any existing display
-        participantDisplay.removeAllViews();
+        participantDisplayLeft.removeAllViews();
+        participantDisplayRight.removeAllViews();
+
+        LinearLayout currentDisplay = participantDisplayLeft;
+        int count = c.getCount();
+        int switchOver = (count % 2 == 0) ? count / 2 - 1 : count / 2;
 
         //Create a row with count and name fields for each entry
         for (int i = 0; i < c.getCount(); i++) {
             LinearLayout row = getParticipantRow(
                     c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
                     c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
-            participantDisplay.addView(row);
+            currentDisplay.addView(row);
             c.moveToNext();
+            if (i == switchOver) currentDisplay = participantDisplayRight;
         }
     }
 
@@ -137,7 +145,7 @@ public class ParticipantsFragment extends Fragment
         TextView id = new TextView(getContext());
         id.setText(rowId);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.weight = .2f;
         lp.gravity = Gravity.CENTER;
@@ -146,7 +154,7 @@ public class ParticipantsFragment extends Fragment
         TextView name = new TextView(getContext());
         name.setText(rowName);
         LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         lp2.weight = .8f;
         lp2.gravity = Gravity.LEFT;
@@ -158,7 +166,7 @@ public class ParticipantsFragment extends Fragment
         LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        lpRow.weight = 1.0f;
+        row.setWeightSum(1f);
         row.setLayoutParams(lpRow);
 
         return row;

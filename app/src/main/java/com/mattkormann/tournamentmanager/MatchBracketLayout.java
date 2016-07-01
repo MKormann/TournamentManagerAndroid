@@ -33,7 +33,7 @@ public class MatchBracketLayout extends LinearLayout {
         setLayoutParams(lp);
 
         this.match = match;
-        this.numParticipants = match.getParticipantIndices().length;
+        this.numParticipants = match.getParticipantSeeds().length;
         seedViews = new TextView[numParticipants];
         nameViews = new TextView[numParticipants];
         statViews = new TextView[numParticipants];
@@ -57,9 +57,9 @@ public class MatchBracketLayout extends LinearLayout {
 
     public void setMatchText(String[] participantNames) {
         for (int i = 0; i < numParticipants; i++) {
-            int index = match.getParticipantIndex(i);
+            int index = match.getParticipantSeed(i);
             if (index == Match.BYE || index == Match.NOT_YET_ASSIGNED) seedViews[i].setText("-");
-                else seedViews[i].setText(String.valueOf(match.getParticipantIndex(i) + 1));
+                else seedViews[i].setText(String.valueOf(match.getParticipantSeed(i)));
             nameViews[i].setText(participantNames[i]);
             if (match.getStatistics().length != 0) statViews[i]
                     .setText(String.valueOf(match.getSingleStatistic(i)));

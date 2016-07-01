@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/participants_fragment"
+    android:id="@+id/participantsFragment"
     tools:context="com.mattkormann.tournamentmanager.ParticipantsFragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -62,8 +62,22 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:id="@+id/participant_table">
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5"
+                android:orientation="vertical"
+                android:id="@+id/participant_table_left">
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5"
+                android:orientation="vertical"
+                android:id="@+id/participant_table_right">
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

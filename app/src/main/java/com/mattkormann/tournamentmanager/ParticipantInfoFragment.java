@@ -1,7 +1,10 @@
 package com.mattkormann.tournamentmanager;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,37 +15,43 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-public class ParticipantInfoFragment extends DialogFragment implements TextView.OnEditorActionListener {
+public class ParticipantInfoFragment extends DialogFragment
+        implements TextView.OnEditorActionListener {
 
     private EditText mEditText;
 
-    public static final String SOURCE_ID = "SOURCE_ID";
+    @Override
+    public Dialog onCreateDialog(Bundle bundle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        View participantInfoFragment = getActivity().getLayoutInflater()
+                .inflate(R.layout.fragment_participant_info, null);
+        builder.setView(participantInfoFragment);
 
-    public ParticipantInfoFragment() {
-        // Required empty public constructor
-    }
+        builder.setTitle(getString(R.string.enter_info));
 
-    public static ParticipantInfoFragment newInstance() {
-        ParticipantInfoFragment fragment = new ParticipantInfoFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        mEditText = (EditText) participantInfoFragment.findViewById(R.id.name_text_box);
+        mEditText.requestFocus();
+        mEditText.setOnEditorActionListener(this);
+
+        return builder.create();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_participant_info, container, false);
-        mEditText = (EditText) view.findViewById(R.id.name_text_box);
-        getDialog().setTitle("Participant Info");
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
 
-        //Show keyboard
-        mEditText.requestFocus();
-        getDialog().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        mEditText.setOnEditorActionListener(this);
-        return view;
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        //Hide keyboard
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        );
     }
 
     @Override
@@ -52,6 +61,7 @@ public class ParticipantInfoFragment extends DialogFragment implements TextView.
             ParticipantsFragment.ParticipantInfoListener activity = (ParticipantsFragment.ParticipantInfoListener)getActivity();
             activity.onFinishParticipantInformationDialog(mEditText.getText().toString(),
                     getArguments().getInt(ParticipantsFragment.TYPE_TO_DISPLAY));
+
             this.dismiss();
             return true;
         }

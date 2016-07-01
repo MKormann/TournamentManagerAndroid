@@ -1,8 +1,10 @@
 package com.mattkormann.tournamentmanager;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,36 +30,23 @@ public class ChooseParticipantFragment extends DialogFragment {
     private Map<Integer, Participant> participantMap;
     private ListView listView;
 
-    public ChooseParticipantFragment() {
-        // Required empty public constructor
-    }
-
-    public static ChooseParticipantFragment newInstance(Map<Integer, Participant> participantMap) {
-        ChooseParticipantFragment fragment = new ChooseParticipantFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        fragment.participantMap = participantMap;
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+    public Dialog onCreateDialog(Bundle bundle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        View chooseParticipantFragment = getActivity().getLayoutInflater().inflate(
+                R.layout.fragment_choose_participant, null
+        );
 
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_choose_participant, container, false);
-
-        listView = (ListView)view.findViewById(R.id.choose_list);
+        listView = (ListView)chooseParticipantFragment.findViewById(R.id.choose_list);
         setListItems();
 
-        return view;
+        builder.setView(chooseParticipantFragment);
+
+        return builder.create();
+    }
+
+    public void setParticipantsMap(Map<Integer, Participant> participantsMap) {
+        this.participantMap = participantsMap;
     }
 
     public void setListItems() {
@@ -78,6 +67,7 @@ public class ChooseParticipantFragment extends DialogFragment {
             }
         });
 
+        //Sort in order of Participant ID
         arrayOfParticipants.addAll(participantMap.values());
         Collections.sort(arrayOfParticipants, new Comparator<Participant>() {
             @Override

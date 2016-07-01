@@ -1,11 +1,13 @@
 package com.mattkormann.tournamentmanager;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,36 +40,24 @@ public class ChooseTournamentFragment extends DialogFragment {
     public static final String TOURNAMENT_TYPE = "TOURNAMENT_TYPE";
     public static final String START_AFTER = "START_AFTER";
 
-    public ChooseTournamentFragment() {
-
-    }
-
-    public static ChooseTournamentFragment newInstance() {
-        ChooseTournamentFragment fragment = new ChooseTournamentFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public Dialog onCreateDialog(Bundle bundle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        View chooseTournamentFragment = getActivity().getLayoutInflater().inflate(
+                R.layout.fragment_choose_tournament, null
+        );
+
         if (getArguments() != null) {
             tournamentType = getArguments().getString(TOURNAMENT_TYPE);
             startAfter = getArguments().getBoolean(START_AFTER);
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choose_tournament, container, false);
-
-        listView = (ListView)view.findViewById(R.id.choose_tournament_list);
+        listView = (ListView)chooseTournamentFragment.findViewById(R.id.choose_tournament_list);
         mDbHelper = new DatabaseHelper(getContext());
         loadTournaments();
 
-        return view;
+        builder.setView(chooseTournamentFragment);
+        return builder.create();
     }
 
     private void loadTournaments() {

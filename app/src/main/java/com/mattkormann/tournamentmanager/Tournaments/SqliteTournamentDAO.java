@@ -42,9 +42,9 @@ public class SqliteTournamentDAO implements TournamentDAO {
         int runnerUpId = Match.NOT_YET_ASSIGNED;
         if (tournament.isOver()) {
             Match m = tournament.getMatch(tournament.getMatches().length - 1);
-            Participant winner = tournament.getParticipant(m.getWinnerIndex());
+            Participant winner = tournament.getParticipant(m.getWinnerSeed());
             winnerId = winner.getID();
-            Participant runnerUp = tournament.getParticipant(m.getRunnerUpIndex());
+            Participant runnerUp = tournament.getParticipant(m.getRunnerUpSeed());
             runnerUpId = runnerUp.getID();
         }
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID, winnerId);
@@ -57,19 +57,19 @@ public class SqliteTournamentDAO implements TournamentDAO {
         //Insert participant ids
         Integer[] ids = new Integer[size];
         for (int i = 0; i < size; i++) {
-            ids[i] = tournament.getParticipant(i).getID();
+            ids[i] = tournament.getParticipant(i + 1).getID();
         }
         values.put(DatabaseContract.TournamentHistory.COLUMN_NAME_PARTICIPANT_IDS, arrayToString(ids));
 
         //Insert match information
-        int numParticipants = tournament.getMatch(0).getParticipantIndices().length;
+        int numParticipants = tournament.getMatch(0).getParticipantSeeds().length;
 
         //Create integer array equal to the number of matches (size - 1) multiplied by the number
         //of participants + an extra spot for the winner id
         Integer[] matchesInfo = new Integer[(tournament.getMatches().length) * (numParticipants + 1)];
         int count = 0;
         for (Match m : tournament.getMatches()) {
-            for (int i: m.getParticipantIndices()) {
+            for (int i: m.getParticipantSeeds()) {
                 matchesInfo[count++] = i;
             }
             matchesInfo[count++] = m.getWinner();
@@ -209,15 +209,15 @@ public class SqliteTournamentDAO implements TournamentDAO {
         //Create map of saved participants to create new Participant objects
         Cursor pc = readParticipantsData(db);
         pc.moveToFirst();
-        Map<Integer, String> participantMap = new HashMap<>();
+        Map<Integer, String> loadedParticipants = new HashMap<>();
         for (int i = 0; i < pc.getCount(); i++) {
-            participantMap.put(pc.getInt(pc.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
+            loadedParticipants.put(pc.getInt(pc.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
                     pc.getString(pc.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
             pc.moveToNext();
         }
 
-        //Create participants array
-        Participant[] participants = new Participant[size];
+        //Create participants map
+        Map<Integer, Participant> participants = new HashMap<>();
 
         //Read participant info from database
         String participantsString = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_PARTICIPANT_IDS));
@@ -227,13 +227,15 @@ public class SqliteTournamentDAO implements TournamentDAO {
             participantIds[i] = Integer.valueOf(participantsArray[i]);
         }
 
-        //Assign participants to array
-        for (int i = 0; i < participants.length; i++) {
-            if (participantMap.containsKey(participantIds[i]))
-                participants[i] = ParticipantFactory.getParticipant("single", participantMap.get(participantIds[i]), participantIds[i]);
+        //Assign participants to map, either loads a saved participant, loads a numbered generic participant previously generated,
+        //or creates an unknown participant if neither is found
+        for (int i = 0; i < participantIds.length; i++) {
+            if (loadedParticipants.containsKey(participantIds[i]))
+                participants.put(i + 1, ParticipantFactory.getParticipant(
+                        "single", loadedParticipants.get(participantIds[i]), participantIds[i]));
             else if (participantIds[i] < 0 && participantIds[i] >= (0 - Tournament.MAX_TOURNAMENT_SIZE))
-                participants[i] = ParticipantFactory.getParticipant("generic single", "", participantIds[i]);
-            else participants[i] = ParticipantFactory.getParticipant("single", "Unknown Participant", Participant.GENERIC);
+                participants.put(i + 1, ParticipantFactory.getParticipant("generic single", "", participantIds[i]));
+            else participants.put(i + 1, ParticipantFactory.getParticipant("single", "Unknown Participant", Participant.GENERIC));
         }
 
         Tournament tournament = new SingleElimTournament(name, size, 1, statCategories, participants);

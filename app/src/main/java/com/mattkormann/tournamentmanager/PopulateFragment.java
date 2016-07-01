@@ -34,11 +34,11 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
 
     private PopulateFragmentListener mCallback;
 
-    private Map<Integer, Participant> participantMap;
     private LinearLayout participantsLayout;
     private DatabaseHelper mDbHelper;
     private SeedView[] seedViews;
-    private Participant[] participants;
+    private Map<Integer, Participant> participants;
+    private Map<Integer, Participant> loadedParticipants;
     private Button startButton;
     private Button fillButton;
     private int size;
@@ -71,7 +71,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_populate, container, false);
         participantsLayout = (LinearLayout) view.findViewById(R.id.choose_participants_layout);
 
-        participantMap = new HashMap<>();
+        loadedParticipants = new HashMap<>();
         seedViews = new SeedView[size];
         mDbHelper = new DatabaseHelper(getContext());
 
@@ -130,7 +130,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                     c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)),
                     c.getInt(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
 
-            participantMap.put(p.getID(), p);
+            loadedParticipants.put(p.getID(), p);
             c.moveToNext();
         }
     }
@@ -187,7 +187,20 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                 .setTitle(getString(R.string.finalize_participants_title))
                 .setMessage(getString(R.string.finalize_participants_message))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, null)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(participants == null || areAnyUnassigned()) fillParticipants();
+
+                        //Set the participants to the current tournament, save into history, and display
+                        Tournament tournament = mCallback.getCurrentTournament();
+                        tournament.setParticipants(participants);
+                        tournament.assignSeeds();
+                        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
+                        tDao.saveFullTournament(tournament);
+                        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
+                    }
+                })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
@@ -195,29 +208,20 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                     }
                 })
                 .show();
-        if(areAnyUnassigned()) fillParticipants();
-
-        //Set the participants to the current tournament, save into history, and display
-        Tournament tournament = mCallback.getCurrentTournament();
-        tournament.setParticipants(participants);
-        tournament.assignSeeds();
-        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
-        tDao.saveFullTournament(tournament);
-        mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
     }
 
     //Create and populate array with participants from each SeedView
     //If participant isn't present, a generic one is created and passed along
     private void fillParticipants() {
         int genCount = 0;
-        participants = new Participant[size];
+        participants = new HashMap<>();
         for (int i = 0; i < size; i++) {
-            if (seedViews[i].isAssigned()) participants[i] = seedViews[i].getParticipant();
+            if (seedViews[i].isAssigned()) participants.put(i + 1, seedViews[i].getParticipant());
             else {
-                participants[i] = ParticipantFactory.getParticipant("single",
+                participants.put(i + 1, ParticipantFactory.getParticipant("single",
                         "Participant " + ++genCount,
-                        genCount - Tournament.MAX_TOURNAMENT_SIZE - 1);
-                seedViews[i].setParticipant(participants[i]);
+                        genCount - Tournament.MAX_TOURNAMENT_SIZE - 1));
+                seedViews[i].setParticipant(participants.get(i + 1));
             }
         }
     }
@@ -248,9 +252,9 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     }
 
     public void assignSeed(int id, int seed) {
-        if (participantMap.containsKey(id)) {
-            seedViews[seed - 1].setParticipant(participantMap.get(id));
-            participantMap.remove(id);
+        if (loadedParticipants.containsKey(id)) {
+            seedViews[seed - 1].setParticipant(loadedParticipants.get(id));
+            loadedParticipants.remove(id);
         }
         if (!areAnyUnassigned()) startButton.setEnabled(true);
     }
@@ -279,7 +283,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         );
 
         Participant participant = ParticipantFactory.getParticipant("single", name, newRowId);
-        participantMap.put(newRowId, participant);
+        loadedParticipants.put(newRowId, participant);
 
         return newRowId;
     }
@@ -317,7 +321,7 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
             SeedView sv = (SeedView) v;
             if (!swapping) {
                 selectedSeed = sv.getSeed();
-                if (!sv.isAssigned()) mCallback.showChooseParticipantFragment(selectedSeed, participantMap);
+                if (!sv.isAssigned()) mCallback.showChooseParticipantFragment(selectedSeed, loadedParticipants);
                 else {
                     swapping = true;
                     //TODO Change style of seed to indicate swapping

@@ -2,6 +2,9 @@ package com.mattkormann.tournamentmanager.tournaments;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Matt on 5/2/2016.
  */
@@ -14,12 +17,12 @@ public class SingleElimTournament extends Tournament {
     }
 
     public SingleElimTournament(String name, int size, int teamSize) {
-        this(name, size, teamSize, new String[] {}, new Participant[size]);
+        this(name, size, teamSize, new String[] {}, new HashMap<Integer, Participant>());
     }
 
 
     public SingleElimTournament(String name, int size, int teamSize, String[] statCategories,
-                                Participant[] participants) {
+                                Map<Integer, Participant> participants) {
         super(name, size, teamSize, statCategories, participants);
     }
 

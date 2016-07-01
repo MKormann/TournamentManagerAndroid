@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:entries="@array/elimination_types"
+        android:entryValues="@array/elimination_types"
+        android:key="pref_eliminationType"
+        android:title="@string/elimination_type_label"
+        android:summary="@string/elimination_type_description"
+        android:persistent="true"
+        android:defaultValue="Single" />
+
+</PreferenceScreen>

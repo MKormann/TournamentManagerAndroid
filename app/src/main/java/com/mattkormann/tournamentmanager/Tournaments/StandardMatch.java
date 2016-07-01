@@ -39,16 +39,16 @@ public class StandardMatch implements Match {
     }
 
     @Override
-    public int getWinnerIndex() {
+    public int getWinnerSeed() {
         if (winner == NOT_YET_ASSIGNED) return winner;
         else return participants[winner];
     }
 
     @Override
-    public int getRunnerUpIndex() {
+    public int getRunnerUpSeed() {
         if (getWinner() == Match.NOT_YET_ASSIGNED) return Match.NOT_YET_ASSIGNED;
-        if (getWinner() == 0) return 1;
-        else return 0; //TODO change to reflect participant number
+        if (getWinner() == 0) return participants[1];
+        else return participants[0]; //TODO change to reflect participant number
     }
 
     @Override
@@ -80,26 +80,26 @@ public class StandardMatch implements Match {
     }
 
     @Override
-    public int[] getParticipantIndices() {
+    public int[] getParticipantSeeds() {
         return participants;
     }
 
     @Override
-    public int getParticipantIndex(int participantNum) {
+    public int getParticipantSeed(int participantNum) {
         checkParticipantNumIsValid(participantNum);
         return participants[participantNum];
     }
 
     @Override
-    public void setParticipants(int[] indices) {
-        if (indices != null && indices.length == numParticipants) {
-            this.participants = indices;
+    public void setParticipants(int[] seeds) {
+        if (seeds != null && seeds.length == numParticipants) {
+            this.participants = seeds;
         }
     }
 
     @Override
-    public void setParticipant(int participantNum, int id) {
-        if (checkParticipantNumIsValid(participantNum)) participants[participantNum] = id;
+    public void setParticipant(int participantNum, int seed) {
+        if (checkParticipantNumIsValid(participantNum)) participants[participantNum] = seed;
     }
 
     @Override

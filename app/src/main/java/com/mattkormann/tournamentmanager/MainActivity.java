@@ -1,15 +1,18 @@
     package com.mattkormann.tournamentmanager;
 
     import android.content.DialogInterface;
+    import android.content.pm.ActivityInfo;
+    import android.content.res.Configuration;
     import android.os.Bundle;
+    import android.preference.PreferenceManager;
+    import android.support.v4.app.DialogFragment;
     import android.support.v4.app.Fragment;
-    import android.support.v4.app.FragmentActivity;
     import android.support.v4.app.FragmentManager;
     import android.support.v4.app.FragmentTransaction;
     import android.support.v7.app.AlertDialog;
     import android.support.v7.app.AppCompatActivity;
-    import android.view.View;
-    import android.widget.LinearLayout;
+    import android.support.v7.widget.Toolbar;
+    import android.view.Menu;
 
     import com.mattkormann.tournamentmanager.participants.Participant;
     import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
@@ -34,11 +37,32 @@
             MatchDisplayFragment.MatchDisplayListener {
 
         private Tournament currentTournament;
+        private boolean phoneDevice = true;
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_welcome);
+            setContentView(R.layout.activity_main);
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(myToolbar);
+
+            PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+            /*
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .registerOnSharedPreferenceChangeListener(
+                            preferencesChangeListener
+                    );
+            */
+
+            int screenSize = getResources().getConfiguration().screenLayout &
+                    Configuration.SCREENLAYOUT_SIZE_MASK;
+
+            if (screenSize == Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                    screenSize == Configuration.SCREENLAYOUT_SIZE_XLARGE)
+                phoneDevice = false;
+
+            if (phoneDevice) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
             //Check if there is a fragment container
             if (findViewById(R.id.fragment_container) != null) {
@@ -55,6 +79,21 @@
 
         }
 
+        // show menu if app is running on a phone or a portrait-oriented tablet
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            // get the device's current orientation
+            int orientation = getResources().getConfiguration().orientation;
+
+            // display the app's menu only in portrait orientation
+            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                // inflate the menu
+                getMenuInflater().inflate(R.menu.menu_main, menu);
+                return true;
+            } else
+                return false;
+        }
+
         //Replace fragment in fragment_container with id of corresponding button passed.
         //Implementation of interface from MainMenuFragment.java
         @Override
@@ -63,6 +102,12 @@
         }
 
         public void swapFragment(Fragment fragment) {
+
+            if (fragment instanceof DialogFragment) {
+                DialogFragment dialog = (DialogFragment)fragment;
+                dialog.show(getSupportFragmentManager(), "choose dialog");
+                return;
+            }
 
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -121,12 +166,11 @@
         //Methods implemented from Participants fragment to show info editor and retrieve new data
         @Override
         public void showParticipantInfoDialog(int type) {
-            FragmentManager fm = getSupportFragmentManager();
-            ParticipantInfoFragment participantInfo = ParticipantInfoFragment.newInstance();
+            ParticipantInfoFragment participantInfo =  new ParticipantInfoFragment();
             Bundle args = new Bundle();
             args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, type);
             participantInfo.setArguments(args);
-            participantInfo.show(fm, "fragment_participant_info");
+            participantInfo.show(getSupportFragmentManager(), "participantInfoFragment");
         }
 
         @Override
@@ -163,14 +207,13 @@
 
         @Override
         public void displayStatEntry(String[] statCategories) {
-            FragmentManager fm = getSupportFragmentManager();
-            StatEntryFragment statEntryFragment = StatEntryFragment.newInstance();
+            StatEntryFragment statEntryFragment = new StatEntryFragment();
             Bundle args = new Bundle();
             if (statCategories != null) {
                 args.putStringArray(TournamentSettingsFragment.STAT_CATEGORIES, statCategories);
             }
             statEntryFragment.setArguments(args);
-            statEntryFragment.show(fm, "fragment_stat_entry");
+            statEntryFragment.show(getSupportFragmentManager(), "statEntryFragment");
         }
 
         //Method implemented from Stat Entry Fragment
@@ -192,8 +235,8 @@
             args.putInt(Match.MATCH_ID, matchId);
             args.putDoubleArray(Match.MATCH_STATS, match.getStatistics());
             args.putStringArray(Tournament.STAT_CATEGORIES, currentTournament.getStatCategories());
-            args.putString(Match.PARTICIPANT_ONE, currentTournament.getParticipant(match.getParticipantIndex(0)).getName());
-            args.putString(Match.PARTICIPANT_TWO, currentTournament.getParticipant(match.getParticipantIndex(1)).getName());
+            args.putString(Match.PARTICIPANT_ONE, currentTournament.getParticipant(match.getParticipantSeed(0)).getName());
+            args.putString(Match.PARTICIPANT_TWO, currentTournament.getParticipant(match.getParticipantSeed(1)).getName());
             args.putInt(Match.MATCH_WINNER, match.getWinner());
             MatchDisplayFragment mdf =
                     (MatchDisplayFragment)FragmentFactory.getFragment(FragmentFactory.MATCH_DISPLAY_FRAGMENT, args);
@@ -215,12 +258,12 @@
 
         //Method implemented from Populate Fragment
         public void showChooseParticipantFragment(int seed, Map<Integer, Participant> participantMap) {
-            FragmentManager fm = getSupportFragmentManager();
-            ChooseParticipantFragment cpf = ChooseParticipantFragment.newInstance(participantMap);
+            ChooseParticipantFragment cpf = new ChooseParticipantFragment();
             Bundle args = new Bundle();
             args.putInt(PopulateFragment.SEED_TO_ASSIGN, seed);
             cpf.setArguments(args);
-            cpf.show(fm, "fragment_choose_participant");
+            cpf.setParticipantsMap(participantMap);
+            cpf.show(getSupportFragmentManager(), "fragmentChooseParticipant");
         }
 
         //Methods implemented from Choose Participant Fragment

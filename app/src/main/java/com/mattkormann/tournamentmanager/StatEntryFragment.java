@@ -1,9 +1,11 @@
 package com.mattkormann.tournamentmanager;
 
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,29 +24,30 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
     private GridLayout layout;
     private EditText[] editTexts;
 
-    public StatEntryFragment() {
-        // Required empty public constructor
-    }
-
-    public static StatEntryFragment newInstance() {
-        StatEntryFragment fragment = new StatEntryFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_stat_entry, container, false);
+    public Dialog onCreateDialog(Bundle bundle) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View statEntryFragment = getActivity().getLayoutInflater().inflate(
+                R.layout.fragment_stat_entry, null
+        );
+
+        statEntryFragment.findViewById(R.id.stat_entry_1).requestFocus();
+        assignEditTexts(statEntryFragment);
+        addExistingStats(statEntryFragment);
+
+        Button okButton = (Button)statEntryFragment.findViewById(R.id.stat_OK_button);
+        okButton.setOnClickListener(this);
+
+        builder.setView(statEntryFragment);
+
+        Dialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        return dialog;
+    }
+
+    private void assignEditTexts(View view) {
 
         editTexts = new EditText[getResources().getInteger(R.integer.max_number_of_stats)];
-
-        getDialog().setTitle("Stat Categories");
-        getDialog().setCanceledOnTouchOutside(false);
-
-        view.findViewById(R.id.stat_entry_1).requestFocus();
-
         layout = (GridLayout)view.findViewById(R.id.stat_grid_layout);
 
         //Add EditTexts to an array and disable
@@ -57,7 +60,9 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
                 if (text.getId() != R.id.stat_entry_1) text.setEnabled(false);
             }
         }
+    }
 
+    private void addExistingStats(View view) {
         //Check for passed argument of entries
         Bundle args = getArguments();
         String[] statCategories;
@@ -74,10 +79,6 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
                 }
             }
         }
-        Button okButton = (Button)view.findViewById(R.id.stat_OK_button);
-        okButton.setOnClickListener(this);
-
-        return view;
     }
 
     @Override
@@ -97,7 +98,6 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
         this.dismiss();
     }
 
-
     //Collects all text entered into text boxes
     public String[] collectEntries() {
         String[] statCategories = new String[getResources().getInteger(R.integer.max_number_of_stats)];
@@ -110,11 +110,12 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
     @Override
     public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
+            View parent = (View)view.getParent();
             if (view.getId() == R.id.stat_entry_8) {
-                getView().findViewById(R.id.stat_OK_button).requestFocus();
+                parent.findViewById(R.id.stat_OK_button).requestFocus();
             }
             else {
-                EditText next = (EditText) getView().findViewById(view.getNextFocusForwardId());
+                EditText next = (EditText) parent.findViewById(view.getNextFocusForwardId());
                 next.setEnabled(true);
                 next.requestFocus();
             }
