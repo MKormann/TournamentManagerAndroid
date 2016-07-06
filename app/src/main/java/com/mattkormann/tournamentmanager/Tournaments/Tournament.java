@@ -237,7 +237,7 @@ public class Tournament {
     }
 
     public int getParticipantNumInNextMatch(int matchId) {
-        if (matchId < sf.getPrelimNumber()) return 1; //TODO more match participants
+        if (matchId < (sf.getPrelimNumber() / 2)) return 1; //TODO more match participants
         int index = 0;
         Match match = getMatch(matchId);
         int prevMatchId = matchId - 1;

@@ -8,7 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.GridLayout;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
@@ -20,10 +20,15 @@ public class TournamentDisplayFragment extends Fragment {
     private TournamentDisplayListener mCallback;
 
     private Tournament tournament;
+    private SeedFactory sf;
     private int[] seedsInMatchOrder;
-    private View[] matchBracketDisplays;
-    private LinearLayout grid;
+    private MatchBracketHolder[] matchBracketHolders;
+    private GridLayout grid;
     private int maxRoundSize;
+    private int participantsPerMatch;
+    private int width;
+    private int height;
+    private int margin;
 
     public TournamentDisplayFragment() {
         // Required empty public constructor
@@ -49,21 +54,27 @@ public class TournamentDisplayFragment extends Fragment {
 
         //Set tournament to the current tournament from Main Activity
         tournament = mCallback.getCurrentTournament();
+        participantsPerMatch = tournament.getMatch(0).getParticipantSeeds().length;
+
 
         //Retrieve seeds in match order
-        SeedFactory sf = new SeedFactory(tournament.getSize());
+        sf = new SeedFactory(tournament.getSize());
         seedsInMatchOrder = sf.getSeedsInMatchOrder();
+        int maxRoundSize = sf.getMaxRoundSize();
 
-        grid = (LinearLayout)view.findViewById(R.id.tournament_grid);
-        grid.setWeightSum(1f);
+        //Obtain reference to grid layout and set rows and columns
+        grid = (GridLayout) view.findViewById(R.id.tournament_grid);
+        grid.setColumnCount(tournament.getNumberOfRounds());
+        grid.setRowCount(maxRoundSize * participantsPerMatch);
+
+        width = (int)getResources().getDimension(R.dimen.match_bracket_display_width);
+        height = (int)getResources().getDimension(R.dimen.match_bracket_display_height);
+        margin = (int)getResources().getDimension(R.dimen.grid_spacing);
 
         //Create a view for each match
         createMatchBracketViews();
 
-        //Create a layout for each round and add corresponding views
-        for (int i = 1; i <= tournament.getNumberOfRounds(); i++) {
-            grid.addView(createViewForRound(i));
-        }
+        addMatchBracketViewsToGrid();
 
         return view;
     }
@@ -73,38 +84,90 @@ public class TournamentDisplayFragment extends Fragment {
 
         int numMatches = tournament.getMatches().length;
 
-        matchBracketDisplays = new View[numMatches];
+        matchBracketHolders = new MatchBracketHolder[numMatches];
 
         for (int cnt = 0; cnt < numMatches; cnt++) {
 
             Match m = tournament.getMatch(cnt);
-            MatchBracketLayout mbl = createSingleMatchBracket(m);
+            MatchBracketHolder mbl = createSingleMatchBracket(m);
             mbl.setMatchId(cnt);
-            matchBracketDisplays[cnt] = mbl;
+            matchBracketHolders[cnt] = mbl;
             updateSingleMatchInfo(mbl.getMatchId());
         }
     }
 
-    private MatchBracketLayout createSingleMatchBracket(Match m) {
+    private MatchBracketHolder createSingleMatchBracket(Match m) {
         //Create layout to hold participants of a single match
-        MatchBracketLayout layout = new MatchBracketLayout(getContext(), m);
+        final MatchBracketHolder layout = new MatchBracketHolder(getContext(), m);
 
-        //If tournament loaded is already over, do not set matches as clickable.
+        //If tournament loaded is already over, or match is not populated, do not set match as clickable.
         if (tournament.isOver()) return layout;
 
-        layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MatchBracketLayout mbl = (MatchBracketLayout)v;
-                for (int i : mbl.getMatch().getParticipantSeeds()) {
-                    if (i == Match.BYE || i == Match.NOT_YET_ASSIGNED)
-                        return;
+        // Set each bracket view as clickable to display MatchDisplayFragment
+        for (View v : layout.getParticipantViews()) {
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    for (int i : layout.getMatch().getParticipantSeeds()) {
+                        if (i == Match.BYE || i == Match.NOT_YET_ASSIGNED)
+                            return;
+                    }
+                    mCallback.displayMatch(layout.getMatchId());
                 }
-                mCallback.displayMatch(mbl.getMatchId());
-            }
-        });
+            });
+        }
 
         return layout;
+    }
+
+    private void addMatchBracketViewsToGrid() {
+        int round = 1;
+
+        //Modifier for the row and gap values below if the first "full" round is round 2 instead of 1.
+        int prelimMod = 0;
+
+        //Check if tournament has a preliminary round, which will have a different layout
+        if (sf.hasPrelimRound()) {
+            prelimMod = -1;
+            int roundTwoStart = tournament.getRoundStartDelimiter(2);
+            for (int index = 0; index <= tournament.getRoundEndDelimiter(1); index++) {
+                MatchBracketHolder mbh = matchBracketHolders[index];
+                int nextMatchId = mbh.getMatch().getNextMatchId();
+                int row = (nextMatchId - roundTwoStart) * participantsPerMatch;
+                for (View v: mbh.getParticipantViews()) {
+                    addViewToSpecificCell(v, row++, 0);
+                }
+            }
+            //Resume normal layout from round 2
+            round = 2;
+        }
+
+        for (int i = round; i <= tournament.getNumberOfRounds(); i++) {
+            int roundStart = tournament.getRoundStartDelimiter(i);
+            int roundEnd = tournament.getRoundEndDelimiter(i);
+            int row = (int)Math.pow(participantsPerMatch, i + prelimMod - 1) - 1;
+            int gap = row * 2;
+            for (int index = roundStart; index <= roundEnd; index++) {
+                MatchBracketHolder mbh = matchBracketHolders[index];
+                for (View v : mbh.getParticipantViews()) {
+                    addViewToSpecificCell(v, row++, i - 1);
+                }
+                row += gap;
+            }
+        }
+    }
+
+    //Add given view to the Grid Layout at the row and column provided
+    private void addViewToSpecificCell(View view, int row, int col) {
+        GridLayout.LayoutParams cell = new GridLayout.LayoutParams(
+                GridLayout.spec(row),
+                GridLayout.spec(col)
+        );
+        cell.width = width;
+        cell.height = height;
+        cell.leftMargin = margin;
+        cell.rightMargin = margin;
+        grid.addView(view, cell);
     }
 
     public void updateMatchInfo(int matchId) {
@@ -118,7 +181,7 @@ public class TournamentDisplayFragment extends Fragment {
     }
 
     private void updateSingleMatchInfo(int matchId) {
-        MatchBracketLayout mbl = (MatchBracketLayout) matchBracketDisplays[matchId];
+        MatchBracketHolder mbl = matchBracketHolders[matchId];
         Match m = tournament.getMatch(matchId);
         String[] names = getMatchParticipantNames(m);
         mbl.setMatchText(names);
@@ -164,57 +227,6 @@ public class TournamentDisplayFragment extends Fragment {
                 .show();
     }
 
-    private LinearLayout createViewForRound(int round) {
-
-        int roundStart = tournament.getRoundStartDelimiter(round);
-        int roundEnd = tournament.getRoundEndDelimiter(round);
-        int roundSize = roundEnd - roundStart + 1;
-
-        LinearLayout roundLayout = new LinearLayout(getContext());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT);
-        roundLayout.setOrientation(LinearLayout.VERTICAL);
-        Float roundWeight = 1f / tournament.getNumberOfRounds();
-        lp.weight = roundWeight;
-        roundLayout.setLayoutParams(lp);
-
-        //Create new layout parameters to assign each view a height of 0, and a weight equivalent
-        LinearLayout.LayoutParams matchLayout = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0
-        );
-        matchLayout.weight = .1f;
-
-        //Add views to Round Layout
-        //Gap and getSpace method used to space out display appropriately
-        int gap = (int)Math.pow(2, round - 1) - 1;
-        for (int i = roundStart; i <= roundEnd; i++) {
-
-            if (round > 1 && i == roundStart) {
-                roundLayout.addView(getSpace(gap / 2));
-            }
-            matchBracketDisplays[i].setLayoutParams(matchLayout);
-            roundLayout.addView(matchBracketDisplays[i]);
-            if (round > 1 && i == roundEnd) {
-                getSpace(gap / 2);
-            } else if (round > 1) {
-                getSpace(gap);
-            }
-        }
-
-        return roundLayout;
-    }
-
-    //
-    private LinearLayout getSpace(float weight) {
-        LinearLayout space = new LinearLayout(getContext());
-        LinearLayout.LayoutParams lpSpace = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0
-        );
-        lpSpace.weight = weight;
-        space.setLayoutParams(lpSpace);
-        return space;
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -238,4 +250,5 @@ public class TournamentDisplayFragment extends Fragment {
         void setWinner(int matchId, int winner);
         void saveAndExit();
     }
+
 }

@@ -13,36 +13,31 @@ import com.mattkormann.tournamentmanager.tournaments.Match;
  * Simple extension of LinearLayout to hold an int variable
  * Created by Matt on 5/18/2016.
  */
-public class MatchBracketLayout extends LinearLayout {
+public class MatchBracketHolder {
 
     private Match match;
     private int matchId;
+    private View[] participantViews;
     private TextView[] seedViews;
     private TextView[] nameViews;
     private TextView[] statViews;
     private int numParticipants;
 
-    public static final LayoutParams lp = new LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT);
-
-    public MatchBracketLayout(Context context, Match match) {
-        super(context);
-
-        setOrientation(LinearLayout.VERTICAL);
-        setLayoutParams(lp);
+    public MatchBracketHolder(Context context, Match match) {
 
         this.match = match;
         this.numParticipants = match.getParticipantSeeds().length;
+
+        participantViews = new View[numParticipants];
         seedViews = new TextView[numParticipants];
         nameViews = new TextView[numParticipants];
         statViews = new TextView[numParticipants];
 
-        createBracketView();
+        createBracketView(context);
     }
 
-    private void createBracketView() {
-        LayoutInflater li = LayoutInflater.from(getContext());
+    private void createBracketView(Context context) {
+        LayoutInflater li = LayoutInflater.from(context);
         for (int i = 0; i < numParticipants; i++) {
             View v = li.inflate(R.layout.single_participant_bracket_display, null);
             TextView seed = (TextView) v.findViewById(R.id.display_seed);
@@ -51,7 +46,7 @@ public class MatchBracketLayout extends LinearLayout {
             seedViews[i] = seed;
             nameViews[i] = name;
             statViews[i] = stat;
-            addView(v);
+            participantViews[i] = v;
         }
     };
 
@@ -78,6 +73,10 @@ public class MatchBracketLayout extends LinearLayout {
         seedViews[index].setTypeface(null, style);
         nameViews[index].setTypeface(null, style);
         statViews[index].setTypeface(null, style);
+    }
+
+    public View[] getParticipantViews() {
+        return participantViews;
     }
 
     public Match getMatch() {

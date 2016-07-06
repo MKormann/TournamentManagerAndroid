@@ -123,4 +123,6 @@ public class SeedFactory {
     public int getPrelimNumber() {
         return prelimSeeds.length;
     }
+
+    public int getMaxRoundSize() { return firstRoundSeeds.length;}
 }

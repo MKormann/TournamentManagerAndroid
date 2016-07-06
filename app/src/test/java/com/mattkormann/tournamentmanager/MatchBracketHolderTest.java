@@ -18,14 +18,14 @@ import static org.junit.Assert.*;
  * Created by Matt on 6/27/2016.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MatchBracketLayoutTest {
+public class MatchBracketHolderTest {
 
     @Mock
     Context mContext;
 
     TextView mTextView;
 
-    public MatchBracketLayoutTest() {
+    public MatchBracketHolderTest() {
         mTextView = new TextView(mContext);
     }
 

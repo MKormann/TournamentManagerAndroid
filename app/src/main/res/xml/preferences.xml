@@ -9,4 +9,8 @@
         android:persistent="true"
         android:defaultValue="Single" />
 
+    <SeekBarPreference
+
+        />
+
 </PreferenceScreen>
