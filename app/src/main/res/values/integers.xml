@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="max_number_of_stats" type="int">8</integer>
+    <integer name="min_tournament_size" type="int">4</integer>
+    <integer name="max_tournament_size" type="int">256</integer>
 </resources>

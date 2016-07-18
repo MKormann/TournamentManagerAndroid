@@ -23,6 +23,7 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
     private StatEntryFragmentListener mCallback;
     private GridLayout layout;
     private EditText[] editTexts;
+    private final String strSeparator = "_,____";
 
     @Override
     public Dialog onCreateDialog(Bundle bundle) {
@@ -126,6 +127,23 @@ public class StatEntryFragment extends DialogFragment implements TextView.OnEdit
         }
 
         return true;
+    }
+
+    //Converts array into a string to store in database
+    private String arrayToString(String[] array) {
+        String str = "";
+        for (int i = 0; i < array.length; i++) {
+            str += array[i].toString();
+            if (i < array.length - 1) {
+                str += strSeparator;
+            }
+        }
+        return str;
+    }
+
+    //Converts database string into array object
+    private String[] stringToArray(String databaseString) {
+        return databaseString.split(strSeparator);
     }
 
     //Interface to be implemented by MainActivity

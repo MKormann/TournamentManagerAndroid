@@ -4,6 +4,7 @@
     import android.content.pm.ActivityInfo;
     import android.content.res.Configuration;
     import android.os.Bundle;
+    import android.preference.PreferenceFragment;
     import android.preference.PreferenceManager;
     import android.support.v4.app.DialogFragment;
     import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@
     import android.support.v7.app.AppCompatActivity;
     import android.support.v7.widget.Toolbar;
     import android.view.Menu;
+    import android.view.MenuItem;
 
     import com.mattkormann.tournamentmanager.participants.Participant;
     import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
@@ -37,6 +39,7 @@
             MatchDisplayFragment.MatchDisplayListener {
 
         private Tournament currentTournament;
+
         private boolean phoneDevice = true;
 
         @Override
@@ -92,6 +95,12 @@
                 return true;
             } else
                 return false;
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            swapFragment(new TournamentSettingsFrag());
+            return super.onOptionsItemSelected(item);
         }
 
         //Replace fragment in fragment_container with id of corresponding button passed.

@@ -44,8 +44,6 @@ public class Tournament {
     public Tournament(String name, int size, int teamSize, String[] statCategories,
                                 Map<Integer, Participant> participants) {
         this.name = name;
-        if (size < MIN_TOURNAMENT_SIZE)
-            throw new IllegalArgumentException("Tournament is less than minimum allowed size.");
         this.size = size;
         this.teamSize = teamSize;
         this.rounds = Integer.toBinaryString(size - 1).length();

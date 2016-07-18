@@ -37,6 +37,8 @@ public class ChooseParticipantFragment extends DialogFragment {
                 R.layout.fragment_choose_participant, null
         );
 
+        builder.setTitle(R.string.select_participant);
+
         listView = (ListView)chooseParticipantFragment.findViewById(R.id.choose_list);
         setListItems();
 

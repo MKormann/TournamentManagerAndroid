@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.mattkormann.tournamentmanager.util.SeekBarPreference
+        android:key="pref_tournamentSize"
+        android:title="@string/tournament_size"
+        android:summary="@string/tournament_size_summary"
+        android:persistent="true"
+        android:defaultValue="@integer/min_tournament_size"
+        />
+
+    <SwitchPreferenceCompat
+        android:key="pref_useStats"
+        android:title="@string/stat_tracking_label"
+        android:summary="@string/stat_tracking_summary"
+        android:persistent="true"
+        android:defaultValue="false"
+        />
+
+    <com.mattkormann.tournamentmanager.util.StatEntryPreference
+        android:key="pref_statCategories"
+        android:title="@string/stat_categories"
+        android:summary="@string/stat_categories_summary"
+        android:persistent="true"
+        />
+
     <ListPreference
         android:entries="@array/elimination_types"
         android:entryValues="@array/elimination_types"
@@ -9,8 +33,14 @@
         android:persistent="true"
         android:defaultValue="Single" />
 
-    <SeekBarPreference
-
+    <ListPreference
+        android:entries="@array/team_size_options"
+        android:entryValues="@array/team_size_options"
+        android:key="pref_teamSize"
+        android:title="@string/team_size_label"
+        android:summary="@string/team_size_summary"
+        android:persistent="true"
+        android:defaultValue="1"
         />
 
-</PreferenceScreen>
+</android.support.v7.preference.PreferenceScreen>

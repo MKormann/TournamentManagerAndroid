@@ -47,6 +47,8 @@ public class ChooseTournamentFragment extends DialogFragment {
                 R.layout.fragment_choose_tournament, null
         );
 
+        builder.setTitle(R.string.select_tournament);
+
         if (getArguments() != null) {
             tournamentType = getArguments().getString(TOURNAMENT_TYPE);
             startAfter = getArguments().getBoolean(START_AFTER);
