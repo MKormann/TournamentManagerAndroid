@@ -116,7 +116,9 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
 
             StatEntryPreference preference = (StatEntryPreference)getPreference();
             String statCategories = arrayToString(statCategoriesArray);
-            preference.persistStringValue(statCategories);
+
+            preference.statCategoriesString = statCategories;
+            preference.persistStringValue(preference.statCategoriesString);
         }
     }
 
