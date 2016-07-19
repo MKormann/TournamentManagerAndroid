@@ -17,6 +17,8 @@ public class SeekBarPreferenceDialogFragmentCompat extends PreferenceDialogFragm
 
     private SeekBar seekBar;
     private TextView sizeDisplay;
+    private int seekBarSize = Tournament.MAX_TOURNAMENT_SIZE - Tournament.MIN_TOURNAMENT_SIZE;
+    private int seekBarQuarter = seekBarSize / 4;
 
     @Override
     public View onCreateDialogView(Context context) {
@@ -24,11 +26,11 @@ public class SeekBarPreferenceDialogFragmentCompat extends PreferenceDialogFragm
         View view = inflater.inflate(R.layout.seekbar_preference, null);
         sizeDisplay = (TextView)view.findViewById(R.id.sizeDisplay);
         seekBar = (SeekBar)view.findViewById(R.id.seekBar);
-        seekBar.setMax(Tournament.MAX_TOURNAMENT_SIZE - Tournament.MIN_TOURNAMENT_SIZE);
+        seekBar.setMax(seekBarSize + seekBarQuarter);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int size = seekBar.getProgress() + Tournament.MIN_TOURNAMENT_SIZE;
+                int size = getProportionalSeekBarSize(seekBar.getProgress()) + Tournament.MIN_TOURNAMENT_SIZE;
                 displaySize(size);
             }
 
@@ -56,16 +58,32 @@ public class SeekBarPreferenceDialogFragmentCompat extends PreferenceDialogFragm
         SeekBarPreference preference = (SeekBarPreference)getPreference();
         int size = preference.size;
         sizeDisplay.setText(String.valueOf(size));
-        seekBar.setProgress(size - Tournament.MIN_TOURNAMENT_SIZE);
+        seekBar.setProgress(getSeekBarProgressFromSize(size - Tournament.MIN_TOURNAMENT_SIZE));
     }
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             SeekBarPreference preference = (SeekBarPreference)getPreference();
-            preference.size = seekBar.getProgress() + Tournament.MIN_TOURNAMENT_SIZE;
+            preference.size = getProportionalSeekBarSize(seekBar.getProgress()) + Tournament.MIN_TOURNAMENT_SIZE;
 
             preference.persistIntValue(preference.size);
         }
+    }
+
+    //Returns a value so that the first 1/4 of size options scroll twice as slow as the other 3/4
+    //Improvement in GUI that assumes users will much more frequently choose tournaments on the smaller end of allowable range
+    private int getProportionalSeekBarSize(int progress) {
+        if (progress <= (seekBarQuarter * 2)) {
+            return progress / 2;
+        } else {
+            return progress - seekBarQuarter;
+        }
+    }
+
+    private int getSeekBarProgressFromSize(int size) {
+        if (size < seekBarQuarter) {
+            return size * 2;
+        } else return seekBarQuarter + size;
     }
 }

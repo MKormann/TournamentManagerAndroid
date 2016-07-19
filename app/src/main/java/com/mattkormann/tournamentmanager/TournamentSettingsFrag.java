@@ -1,9 +1,12 @@
 package com.mattkormann.tournamentmanager;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.SwitchPreferenceCompat;
 
 import com.mattkormann.tournamentmanager.util.SeekBarPreference;
 import com.mattkormann.tournamentmanager.util.SeekBarPreferenceDialogFragmentCompat;
@@ -15,6 +18,9 @@ import com.mattkormann.tournamentmanager.util.StatEntryPreferenceDialogFragmentC
  */
 public class TournamentSettingsFrag extends PreferenceFragmentCompat {
 
+    Preference switchPref;
+    Preference statEntryPref;
+
     public TournamentSettingsFrag() {
 
     }
@@ -23,6 +29,14 @@ public class TournamentSettingsFrag extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle bundle, String s) {
 
         addPreferencesFromResource(R.xml.preferences);
+
+        statEntryPref = findPreference("pref_statCategories");
+        switchPref = findPreference("pref_useStats");
+        switchPref.setOnPreferenceChangeListener(switchListener);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        boolean stats = prefs.getBoolean("pref_useStats", false);
+        if (!stats) statEntryPref.setEnabled(false);
     }
 
     @Override
@@ -47,4 +61,13 @@ public class TournamentSettingsFrag extends PreferenceFragmentCompat {
             super.onDisplayPreferenceDialog(preference);
         }
     }
+
+    private Preference.OnPreferenceChangeListener switchListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if ((boolean)newValue) statEntryPref.setEnabled(true);
+            else statEntryPref.setEnabled(false);
+            return true;
+        }
+    };
 }
