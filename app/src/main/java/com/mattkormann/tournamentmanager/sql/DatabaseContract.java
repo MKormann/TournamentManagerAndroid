@@ -59,6 +59,10 @@ public class DatabaseContract {
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
 
+        public static Uri buildTeamPairingUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
         public static final String COLUMN_NAME_PART_ID = "participantID";
         public static final String COLUMN_NAME_TEAM_ID = "teamID";
 
@@ -140,12 +144,16 @@ public class DatabaseContract {
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    //Table of each inidividual performance in previously run tournaments
+    //Table of each individual performance in previously run tournaments
     public static abstract class IndividualHistory implements BaseColumns {
         public static final String TABLE_NAME = "individualHistory";
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
+
+        public static Uri buildIndividualUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
 
         public static final String COLUMN_NAME_PART_ID = "participantID";
         public static final String COLUMN_NAME_FINISHED_TOURNAMENT_ID = "tournamentNumber";
