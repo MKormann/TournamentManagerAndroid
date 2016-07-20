@@ -4,7 +4,6 @@
     import android.content.pm.ActivityInfo;
     import android.content.res.Configuration;
     import android.os.Bundle;
-    import android.preference.PreferenceFragment;
     import android.preference.PreferenceManager;
     import android.support.v4.app.DialogFragment;
     import android.support.v4.app.Fragment;
@@ -39,8 +38,9 @@
             MatchDisplayFragment.MatchDisplayListener {
 
         private Tournament currentTournament;
-
         private boolean phoneDevice = true;
+
+        public static final String CURRENT_PREFS = "CURRENT_PREFS";
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +51,10 @@
 
             PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-            /*
-            PreferenceManager.getDefaultSharedPreferences(this)
-                    .registerOnSharedPreferenceChangeListener(
-                            preferencesChangeListener
-                    );
-            */
+            String prefKey = PreferenceManager.getDefaultSharedPreferences(this).getString(CURRENT_PREFS, null);
+            if (prefKey != null) {
+                getSharedPreferences(prefKey, MODE_PRIVATE);
+            }
 
             int screenSize = getResources().getConfiguration().screenLayout &
                     Configuration.SCREENLAYOUT_SIZE_MASK;

@@ -7,7 +7,7 @@
     <fragment
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:name="com.mattkormann.tournamentmanager.TournamentSettingsFrag"
+        android:name="com.mattkormann.tournamentmanager.TournamentSettingsFragment"
         android:id="@+id/fragmentLeft"
         android:layout_gravity="center_vertical"
         tools:layout="@layout/fragment_tournament_settings"

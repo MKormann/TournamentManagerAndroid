@@ -2,6 +2,7 @@ package com.mattkormann.tournamentmanager;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,10 +30,14 @@ public class WelcomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
 
+        final AppBarLayout appBarLayout = (AppBarLayout)getActivity().findViewById(R.id.appBar);
+        appBarLayout.setExpanded(false, true);
+
         LinearLayout welcomeLayout = (LinearLayout)view.findViewById(R.id.welcomeFragment);
         welcomeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                appBarLayout.setExpanded(true, true);
                 mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
             }
         });

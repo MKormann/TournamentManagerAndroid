@@ -27,13 +27,17 @@ public class TournamentSettingsFrag extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String currentPrefFilename = prefs.getString(MainActivity.CURRENT_PREFS, null);
+        if (currentPrefFilename != null)
+            getPreferenceManager().setSharedPreferencesName(currentPrefFilename);
+
         addPreferencesFromResource(R.xml.preferences);
 
         statEntryPref = findPreference("pref_statCategories");
         switchPref = findPreference("pref_useStats");
         switchPref.setOnPreferenceChangeListener(switchListener);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         boolean stats = prefs.getBoolean("pref_useStats", false);
         if (!stats) statEntryPref.setEnabled(false);
     }
