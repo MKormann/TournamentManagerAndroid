@@ -1,5 +1,7 @@
 package com.mattkormann.tournamentmanager.sql;
 
+import android.content.ContentUris;
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -7,6 +9,12 @@ import android.provider.BaseColumns;
  * Schema for all databases used in the Tournament Manager app
  */
 public class DatabaseContract {
+
+    public static final String AUTHORITY =
+            "com.mattkormann.tournamentmanager.sql";
+
+    private static final Uri BASE_CONTENT_URI =
+            Uri.parse("content://" + AUTHORITY);
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
@@ -21,13 +29,17 @@ public class DatabaseContract {
             TournamentHistory.CREATE_TABLE
     };
 
-    public DatabaseContract() {
-        //Empty constructor
-    }
-
     //Table of saved participants
     public static abstract class ParticipantTable implements BaseColumns {
         public static final String TABLE_NAME = "participantList";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
+
+        public static Uri buildParticipantUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
         public static final String COLUMN_NAME_NAME = "name";
         public static final String COLUMN_NAME_IS_TEAM = "isTeam";
 
@@ -43,6 +55,10 @@ public class DatabaseContract {
     //Table of participant ID to team ID pairings
     public static abstract class TeamPairings implements BaseColumns {
         public static final String TABLE_NAME = "teamMembers";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
+
         public static final String COLUMN_NAME_PART_ID = "participantID";
         public static final String COLUMN_NAME_TEAM_ID = "teamID";
 
@@ -57,6 +73,14 @@ public class DatabaseContract {
     //Table of saved tournament templates
     public static abstract class SavedTournaments implements BaseColumns {
         public static final String TABLE_NAME = "savedTournaments";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
+
+        public static Uri buildTemplateUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
         public static final String COLUMN_NAME_NAME = "tournamentName";
         public static final String COLUMN_NAME_SIZE = "size";
         public static final String COLUMN_NAME_DOUBLE_ELIM = "doubleElim";
@@ -80,6 +104,14 @@ public class DatabaseContract {
     //Table of previously run tournaments
     public static abstract class TournamentHistory implements BaseColumns {
         public static final String TABLE_NAME = "tournamentHistory";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
+
+        public static Uri buildSavedTournamentUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
         public static final String COLUMN_NAME_TOURNAMENT_NAME = "tournamentName";
         public static final String COLUMN_NAME_SIZE = "size";
         public static final String COLUMN_NAME_WINNER_ID = "winnerID";
@@ -111,6 +143,10 @@ public class DatabaseContract {
     //Table of each inidividual performance in previously run tournaments
     public static abstract class IndividualHistory implements BaseColumns {
         public static final String TABLE_NAME = "individualHistory";
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
+
         public static final String COLUMN_NAME_PART_ID = "participantID";
         public static final String COLUMN_NAME_FINISHED_TOURNAMENT_ID = "tournamentNumber";
         public static final String COLUMN_NAME_PLACE = "place";
