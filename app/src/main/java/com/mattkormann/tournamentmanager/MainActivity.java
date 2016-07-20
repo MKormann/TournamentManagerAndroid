@@ -41,6 +41,7 @@
         private boolean phoneDevice = true;
 
         public static final String CURRENT_PREFS = "CURRENT_PREFS";
+        public static final String URI_ARG = "URI_ARG";
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {

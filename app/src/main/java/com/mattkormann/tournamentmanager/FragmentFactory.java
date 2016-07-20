@@ -1,5 +1,6 @@
 package com.mattkormann.tournamentmanager;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -22,6 +23,17 @@ public class FragmentFactory {
 
     public static Fragment getFragment(String fragmentClass) {
         return getFragment(fragmentClass, new Bundle());
+    }
+
+    public static Fragment getFragment(String fragmentClass, Uri uri) {
+        Bundle args = new Bundle();
+        args.putParcelable(MainActivity.URI_ARG, uri);
+        return getFragment(fragmentClass, args);
+    }
+
+    public static Fragment getFragment(String fragmentClass, Bundle args, Uri uri) {
+        args.putParcelable(MainActivity.URI_ARG, uri);
+        return getFragment(fragmentClass, args);
     }
 
     public static Fragment getFragment(String fragmentClass, Bundle args) {
