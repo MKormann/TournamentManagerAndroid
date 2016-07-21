@@ -230,22 +230,4 @@ public class TournamentContentProvider extends ContentProvider {
 
         return numberOfRowsDeleted;
     }
-/*
-
-            case SINGLE_PARTICIPANT:
-                break;
-            case PARTICIPANTS:
-                break;
-            case TEAM_PAIRINGS:
-                break;
-            case SINGLE_TEMPLATE:
-                break;
-            case TEMPLATES:
-                break;
-            case SINGLE_TOURNAMENT:
-                break;
-            case TOURNAMENTS:
-                break;
-            case INDIVIDUAL_HISTORY:
-                break;*/
 }

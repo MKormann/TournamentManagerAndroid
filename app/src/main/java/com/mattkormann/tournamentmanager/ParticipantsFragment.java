@@ -4,8 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,59 +21,54 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
-import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
+import com.mattkormann.tournamentmanager.util.ParticipantsAdapter;
 
 public class ParticipantsFragment extends Fragment
-        implements View.OnClickListener{
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ParticipantInfoListener mCallback;
-    private DatabaseHelper mDbHelper;
-    private LinearLayout participantDisplayLeft;
-    private LinearLayout participantDisplayRight;
+    private RecyclerView recyclerView;
+    private ParticipantsAdapter participantsAdapter;
+    private boolean addingNew = true;
 
     public static final String TYPE_TO_DISPLAY = "TYPE_TO_DISPLAY";
     public static final int INDIVIDUALS = 0;
     public static final int TEAMS = 1;
+    private static final int PARTICIPANT_LOADER = 0;
 
     //Empty constructor
     public ParticipantsFragment() {
 
     }
 
-    //Static method to retrieve instance
-    public static ParticipantsFragment newInstance() {
-        ParticipantsFragment fragment = new ParticipantsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(PARTICIPANT_LOADER, null, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        super.onCreateView(inflater, container, savedInstanceState);
+
         //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_participants, container, false);
-
         setLabels(view);
 
-        //Set button listeners
-        Button addButton = (Button)view.findViewById(R.id.add_participant);
-        addButton.setOnClickListener(this);
-        Button editButton = (Button)view.findViewById(R.id.edit_participant);
-        editButton.setOnClickListener(this);
+        recyclerView = (RecyclerView)view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
 
-        //Initialize database helper
-        mDbHelper = new DatabaseHelper(getContext());
+        participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
+            @Override
+            public void onClick(Uri participantUri) {
+                mCallback.showParticipantInfoDialog(participantUri);
+            }
+        });
+        recyclerView.setAdapter(participantsAdapter);
 
-        //Find table layout, and populate table with initial data
-        participantDisplayLeft = (LinearLayout)view.findViewById(R.id.participant_table_left);
-        participantDisplayRight = (LinearLayout)view.findViewById(R.id.participant_table_right);
-        populateTable(getArguments().getInt(TYPE_TO_DISPLAY));
+        recyclerView.setHasFixedSize(true);
 
         return view;
     }
@@ -83,115 +84,23 @@ public class ParticipantsFragment extends Fragment
         }
     }
 
-    //Fill table with participant information
-    //@param refers to value of isTeam column, returning individuals or teams
-    private void populateTable(int type) {
-
-        //Retrieve participant information from database
-        Cursor c = retrieveParticipantData(type);
-        c.moveToFirst();
-
-        //Erase any existing display
-        participantDisplayLeft.removeAllViews();
-        participantDisplayRight.removeAllViews();
-
-        LinearLayout currentDisplay = participantDisplayLeft;
-        int count = c.getCount();
-        int switchOver = (count % 2 == 0) ? count / 2 - 1 : count / 2;
-
-        //Create a row with count and name fields for each entry
-        for (int i = 0; i < c.getCount(); i++) {
-            LinearLayout row = getParticipantRow(
-                    c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)),
-                    c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
-            currentDisplay.addView(row);
-            c.moveToNext();
-            if (i == switchOver) currentDisplay = participantDisplayRight;
-        }
+    public void updateList() {
+        participantsAdapter.notifyDataSetChanged();
     }
 
-    //Executes the SQL statement to retrieve participant data from table
-    //@param type refers to value of isTeam column, returning individuals or teams
-    private Cursor retrieveParticipantData(int type) {
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        String[] projection = {
-                DatabaseContract.ParticipantTable._ID,
-                DatabaseContract.ParticipantTable.COLUMN_NAME_NAME,
-                DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM
-        };
-
-        String selection = DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?";
-
-        String[] selectionArgs = {String.valueOf(type)};
-
-        String sortOrder = DatabaseContract.ParticipantTable._ID + " ASC";
-
-        return db.query(
-                DatabaseContract.ParticipantTable.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
-                );
-    }
-
-    private LinearLayout getParticipantRow(String rowId, String rowName) {
-        LinearLayout row = new LinearLayout(getContext());
-        row.setOrientation(LinearLayout.HORIZONTAL);
-
-        TextView id = new TextView(getContext());
-        id.setText(rowId);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.weight = .2f;
-        lp.gravity = Gravity.CENTER;
-        id.setLayoutParams(lp);
-
-        TextView name = new TextView(getContext());
-        name.setText(rowName);
-        LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp2.weight = .8f;
-        lp2.gravity = Gravity.LEFT;
-        name.setLayoutParams(lp2);
-
-        row.addView(id);
-        row.addView(name);
-
-        LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        row.setWeightSum(1f);
-        row.setLayoutParams(lpRow);
-
-        return row;
-    }
-
-    int saveInformation(String name, int type) {
-
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+    public void saveParticipant(String name, int type) {
 
         ContentValues values = new ContentValues();
         values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME, name);
         values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, type);
 
-        long newRowId;
-        newRowId = db.insert(
-                DatabaseContract.ParticipantTable.TABLE_NAME,
-                null,
-                values
-        );
+        if (addingNew) {
+            Uri newUri = getActivity().getContentResolver().insert(DatabaseContract.ParticipantTable.CONTENT_URI,
+                    values);
+            updateList();
+        } else {
 
-
-        //Display updated participant list
-        populateTable(getArguments().getInt(TYPE_TO_DISPLAY));
-
-        return (int)newRowId;
+        }
     }
 
     // Set subtitle and button labels based on what type is being displayed
@@ -219,18 +128,37 @@ public class ParticipantsFragment extends Fragment
     public void onDetach() {
         super.onDetach();
         mCallback = null;
-        mDbHelper = null;
     }
 
     @Override
-    public void onClick(View view) {
-        mCallback.showParticipantInfoDialog(getArguments().getInt(TYPE_TO_DISPLAY));
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case PARTICIPANT_LOADER:
+                return new CursorLoader(getActivity(),
+                        DatabaseContract.ParticipantTable.CONTENT_URI,
+                        null,
+                        DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?",
+                        new String[]{"0"}, //TODO teams
+                        DatabaseContract.ParticipantTable._ID + " ASC");
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        participantsAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        participantsAdapter.swapCursor(null);
     }
 
     //Interface to be implemented by MainActivity class
     //Methods to show Add/Edit Dialog and receive information entered
     public interface ParticipantInfoListener {
-        void showParticipantInfoDialog(int type);
+        void showParticipantInfoDialog(Uri uri);
         void onFinishParticipantInformationDialog(String name, int type);
     }
 }
