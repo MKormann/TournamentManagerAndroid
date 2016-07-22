@@ -1,22 +1,15 @@
 package com.mattkormann.tournamentmanager.util;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
-import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
-
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 
 /**
  * Created by Matt on 5/26/2016.
@@ -24,13 +17,13 @@ import java.util.ArrayList;
 public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.ViewHolder> {
 
     public interface ParticipantClickListener {
-        void onClick(Uri participantUri);
+        void onClick(String name, int participantId);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView idView;
         public final TextView nameView;
-        private int rowId;
+        private int participantId;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -40,14 +33,14 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    clickListener.onClick(DatabaseContract.ParticipantTable.buildParticipantUri(rowId));
+                    clickListener.onClick(nameView.getText().toString(), participantId);
                 }
             });
         }
 
-        public void setRowId(int rowId) {
-            this.rowId = rowId;
-            idView.setText(String.valueOf(rowId));
+        public void setParticipantId(int participantId) {
+            this.participantId = participantId;
+            idView.setText(String.valueOf(participantId));
         }
     }
 
@@ -68,7 +61,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         cursor.moveToPosition(position);
-        holder.setRowId(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
+        holder.setParticipantId(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
         holder.nameView.setText(cursor.getString(cursor.getColumnIndex(
                 DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
     }

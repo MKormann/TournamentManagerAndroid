@@ -62,8 +62,8 @@ public class ParticipantsFragment extends Fragment
 
         participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
             @Override
-            public void onClick(Uri participantUri) {
-                mCallback.showParticipantInfoDialog(participantUri);
+            public void onClick(String name, int id) {
+                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.buildParticipantUri(id));
             }
         });
         recyclerView.setAdapter(participantsAdapter);

@@ -3,53 +3,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
+    android:weightSum="2"
     android:layout_margin="@dimen/fab_margin"
     android:id="@+id/populateFragment"
     tools:context="com.mattkormann.tournamentmanager.PopulateFragment">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:layout_weight="1">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/tournament_seeding"
             android:id="@+id/tournament_seeding"
             android:layout_gravity="center_horizontal"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="@dimen/fab_margin"
-            android:layout_weight="1"
-            android:layout_centerHorizontal="true" />
-        <ScrollView
+            android:layout_marginBottom="@dimen/fab_margin" />
+        <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/tournament_seeding">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:id="@+id/choose_participants_layout">
-
-            </LinearLayout>
-        </ScrollView>
-    </RelativeLayout>
-    <RelativeLayout
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/seedRecyclerView">
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1">
-        <Button
-            android:layout_alignParentBottom="true"
-            android:id="@+id/start_tournament"
-            android:text="@string/start_tournament"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/savedRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="0dp"
+            android:layout_weight="1">
+        </android.support.v7.widget.RecyclerView>
         <Button
-            android:layout_above="@+id/start_tournament"
             android:id="@+id/fill_participants"
             android:text="@string/fill_participants"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    </RelativeLayout>
+        <Button
+            android:id="@+id/start_tournament"
+            android:text="@string/start_tournament"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </LinearLayout>

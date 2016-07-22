@@ -4,56 +4,58 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
-import android.view.Gravity;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.participants.ParticipantFactory;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
-import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
-import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
+import com.mattkormann.tournamentmanager.util.ParticipantsAdapter;
+import com.mattkormann.tournamentmanager.util.ParticipantsSeedAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class PopulateFragment extends Fragment implements View.OnClickListener {
+public class PopulateFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TOURNAMENT_SIZE = "TOURNAMENT_SIZE";
     public static final String SEED_TO_ASSIGN = "SEED_TO_ASSIGN";
+    private static final int PARTICIPANT_LOADER = 0;
 
     private PopulateFragmentListener mCallback;
+    private ParticipantsAdapter participantsAdapter;
+    private ParticipantsSeedAdapter seedAdapter;
 
-    private LinearLayout participantsLayout;
-    private DatabaseHelper mDbHelper;
-    private SeedView[] seedViews;
     private Map<Integer, Participant> participants;
-    private Map<Integer, Participant> loadedParticipants;
     private Button startButton;
     private Button fillButton;
     private int size;
-    private boolean swapping = false;
+    private boolean isSeedSelected = false;
     private int selectedSeed;
+    private boolean isSavedParticipantSelected = false;
+    private String selectedParticipantName;
+    private int selectedParticipantId;
 
     public PopulateFragment() {
         // Required empty public constructor
     }
 
-    public static PopulateFragment newInstance() {
-        PopulateFragment fragment = new PopulateFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(PARTICIPANT_LOADER, null, this);
     }
 
     @Override
@@ -67,16 +69,39 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        super.onCreateView(inflater, container, savedInstanceState);
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_populate, container, false);
-        participantsLayout = (LinearLayout) view.findViewById(R.id.choose_participants_layout);
 
-        loadedParticipants = new HashMap<>();
-        seedViews = new SeedView[size];
-        mDbHelper = new DatabaseHelper(getContext());
+        RecyclerView seedRecyclerView = (RecyclerView) view.findViewById(R.id.seedRecyclerView);
+        RecyclerView savedRecyclerView = (RecyclerView) view.findViewById(R.id.savedRecyclerView);
 
-        loadSavedParticipants();
-        populateParticipantLayout();
+        participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
+            @Override
+            public void onClick(String name, int participantId) {
+                onParticipantClicked(name, participantId);
+            }
+        });
+
+        savedRecyclerView.setAdapter(participantsAdapter);
+        savedRecyclerView.setHasFixedSize(true);
+
+        seedAdapter = new ParticipantsSeedAdapter(new ParticipantsSeedAdapter.SeedClickListener() {
+            @Override
+            public void onClick(int seed, Participant participant) {
+                onSeedClicked(seed, participant);
+            }
+        });
+
+        seedRecyclerView.setAdapter(seedAdapter);
+        seedRecyclerView.setHasFixedSize(true);
+
+        participants = new HashMap<>();
+        for (int i = 1; i <= size; i++) {
+            participants.put(i, null);
+        }
 
         startButton = (Button) view.findViewById(R.id.start_tournament);
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -98,88 +123,6 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    private void loadSavedParticipants() {
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-        String[] projection = {
-                DatabaseContract.ParticipantTable._ID,
-                DatabaseContract.ParticipantTable.COLUMN_NAME_NAME,
-                DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM
-        };
-
-        String selection = DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?";
-
-        String[] selectionArgs = {"0"}; //TODO teams
-
-        String sortOrder = DatabaseContract.ParticipantTable._ID + " ASC";
-
-        Cursor c = db.query(
-                DatabaseContract.ParticipantTable.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
-        );
-        c.moveToFirst();
-
-        for (int i = 0; i < c.getCount(); i++) { //TODO "single" argument for factory method
-
-            Participant p = ParticipantFactory.getParticipant("single",
-                    c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)),
-                    c.getInt(c.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
-
-            loadedParticipants.put(p.getID(), p);
-            c.moveToNext();
-        }
-    }
-
-    private void populateParticipantLayout() {
-
-        for (int i = 0; i < size; i++) {
-            LinearLayout row = new LinearLayout(getContext());
-            row.setOrientation(LinearLayout.HORIZONTAL);
-
-            int seed = i + 1;
-            TextView seedNum = new TextView(getContext());
-            seedNum.setText(String.valueOf(seed));
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.weight = .2f;
-            lp.gravity = Gravity.CENTER;
-            seedNum.setLayoutParams(lp);
-
-            SeedView sv = new SeedView(getContext());
-            sv.setSeed(seed);
-            LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp2.weight = .8f;
-            lp2.gravity = Gravity.LEFT;
-            sv.setLayoutParams(lp2);
-            //Add to views array
-            sv.setOnClickListener(new ParticipantClickListener());
-            seedViews[i] = sv;
-
-            row.addView(seedNum);
-            row.addView(sv);
-
-            LinearLayout.LayoutParams lpRow = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            row.setLayoutParams(lpRow);
-            row.setWeightSum(1f);
-
-            participantsLayout.addView(row);
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-    }
-
     private void setTournamentParticipants() {
 
         //Confirmation dialog
@@ -196,15 +139,25 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
                         Tournament tournament = mCallback.getCurrentTournament();
                         tournament.setParticipants(participants);
                         tournament.assignSeeds();
-                        TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
-                        tDao.saveFullTournament(tournament);
+
+                        ContentValues contentValues = TournamentDAO.getFullTournamentContentValues(tournament);
+                        int id = tournament.getSavedId();
+                        if (id == TournamentDAO.NOT_YET_SAVED) {
+                            Uri newUri = getActivity().getContentResolver().insert(
+                                    DatabaseContract.TournamentHistory.CONTENT_URI, contentValues);
+                        } else {
+                            int updatedRows = getActivity().getContentResolver().update(
+                                    DatabaseContract.TournamentHistory.buildSavedTournamentUri(id),
+                                    contentValues, null, null);
+                        }
+
                         mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        return;
+
                     }
                 })
                 .show();
@@ -214,82 +167,117 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
     //If participant isn't present, a generic one is created and passed along
     private void fillParticipants() {
         int genCount = 0;
-        participants = new HashMap<>();
-        for (int i = 0; i < size; i++) {
-            if (seedViews[i].isAssigned()) participants.put(i + 1, seedViews[i].getParticipant());
-            else {
-                participants.put(i + 1, ParticipantFactory.getParticipant("single",
+        for (int i = 1; i <= size; i++) {
+            if (participants.get(i) == null) {
+                participants.put(i, ParticipantFactory.getParticipant("single",
                         "Participant " + ++genCount,
                         genCount - Tournament.MAX_TOURNAMENT_SIZE - 1));
-                seedViews[i].setParticipant(participants.get(i + 1));
+                        // 3rd argument assigns a generic "id" so that a tournament loaded in progress
+                        // keeps the correct name for each generic participant
             }
         }
+        seedAdapter.notifyDataSetChanged();
+    }
+
+    private void onSeedClicked(int clickedSeed, Participant participant) {
+        if (isSeedSelected) {
+            // Seed is clicked after another is currently selected
+            swapSeeds(selectedSeed, clickedSeed);
+        } else if (isSavedParticipantSelected) {
+            // Seed is clicked after a saved participant is currently selected
+            assignSeed();
+        } else {
+            // Seed is only thing currently selected
+            selectedSeed = clickedSeed;
+            isSeedSelected = true;
+            highlightSelectedSeed(clickedSeed, true);
+        }
+    }
+
+    public void onParticipantClicked(String name, int participantId) {
+        if (isSavedParticipantSelected && participantId == selectedParticipantId) {
+            //Clicked the participant already selected
+            isSavedParticipantSelected = false;
+            selectedParticipantName = "";
+            selectedParticipantId = -1;
+        } else {
+            //Clicked any other participant
+            isSavedParticipantSelected= true;
+            selectedParticipantName = name;
+            selectedParticipantId = participantId;
+            if (isSeedSelected) {
+                //Swap if seed selected
+                assignSeed();
+            }
+            //highlightSelectedParticipant(int participantId,boolean highlight) //TODO ***************
+        }
+    }
+
+    public void assignSeed() {
+        Participant p = ParticipantFactory.getParticipant("single",
+                selectedParticipantName, selectedParticipantId);
+        participants.put(selectedSeed, p);
+        isSeedSelected = false;
+        selectedSeed = -1;
+        isSavedParticipantSelected = false;
+        selectedParticipantName = "";
+        selectedParticipantId = -1;
+
+        updateSeedList();
+
+        if (!areAnyUnassigned()) startButton.setEnabled(true);
+    }
+
+    private void highlightSelectedSeed(int clickedSeed, boolean highlight) {
+        //TODO STYLE CHANGES WHEN SELECTED  ********
+    }
+
+    private void highlightSelectedParticipant(int clickedParticipant, boolean highlight) {
+        //TODO STYLE CHANGES WHEN SELECTED  ********
     }
 
     //Swap participants assigned to the two given seeds
     private void swapSeeds(int seed1, int seed2) {
-        if (!checkValidSeed(seed1) || !checkValidSeed(seed2)) return;
-        if (seed1 == seed2) return;
-        SeedView one = seedViews[seed1 - 1];
-        SeedView two = seedViews[seed2 - 1];
-        if (!one.isAssigned() && !two.isAssigned()) return;
-        else if (!one.isAssigned()) {
-            one.setParticipant(two.getParticipant());
-            two.setParticipant(null);
+        if (seed1 == seed2) {
+            highlightSelectedSeed(seed1, false);
+            return;
         }
-        else if (!two.isAssigned()) {
-            two.setParticipant(one.getParticipant());
-            one.setParticipant(null);
-        } else {
-            Participant temp = one.getParticipant();
-            one.setParticipant(two.getParticipant());
-            two.setParticipant(temp);
-        }
-    }
+        Participant participantOne = participants.get(seed1);
+        Participant participantTwo = participants.put(seed2, participantOne);
+        participants.put(seed1, participantTwo);
 
-    private boolean checkValidSeed(int seed) {
-        return (seed > 0 && seed <= size);
-    }
+        isSeedSelected = false;
+        selectedSeed = -1;
 
-    public void assignSeed(int id, int seed) {
-        if (loadedParticipants.containsKey(id)) {
-            seedViews[seed - 1].setParticipant(loadedParticipants.get(id));
-            loadedParticipants.remove(id);
-        }
-        if (!areAnyUnassigned()) startButton.setEnabled(true);
+        updateSeedList();
     }
 
     //Check if any seeds have been left unassigned.
     private boolean areAnyUnassigned() {
-        for (SeedView sv : seedViews) {
-            if (!sv.isAssigned()) return true;
+        for (Integer i : participants.keySet()) {
+            if (participants.get(i) == null) return true;
         }
         return false;
     }
 
     public int saveNewParticipant(String name, int type) {
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
         ContentValues values = new ContentValues();
         values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME, name);
         values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, type);
 
-        int newRowId;
-        newRowId = (int)db.insert(
-                DatabaseContract.ParticipantTable.TABLE_NAME,
-                null,
-                values
-        );
-
-        Participant participant = ParticipantFactory.getParticipant("single", name, newRowId);
-        loadedParticipants.put(newRowId, participant);
-
-        return newRowId;
+        Uri newUri = getActivity().getContentResolver().insert(DatabaseContract.ParticipantTable.CONTENT_URI,
+                values);
+        updateSavedList();
+        return Integer.valueOf(newUri.getLastPathSegment());
     }
 
-    public int getSelectedSeed() {
-        return selectedSeed;
+    public void updateSavedList() {
+        participantsAdapter.notifyDataSetChanged();
+    }
+
+    public void updateSeedList() {
+        seedAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -309,29 +297,35 @@ public class PopulateFragment extends Fragment implements View.OnClickListener {
         mCallback = null;
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case PARTICIPANT_LOADER:
+                return new CursorLoader(getActivity(),
+                        DatabaseContract.ParticipantTable.CONTENT_URI,
+                        null,
+                        DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?",
+                        new String[]{"0"}, //TODO teams
+                        DatabaseContract.ParticipantTable._ID + " ASC");
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        participantsAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        participantsAdapter.swapCursor(null);
+    }
+
     public interface PopulateFragmentListener {
         Tournament getCurrentTournament();
         void swapFragment(Fragment fragment);
         void showChooseParticipantFragment(int seed, Map<Integer, Participant> participantMap);
     }
 
-    class ParticipantClickListener implements View.OnClickListener {
-
-        public void onClick(View v) {
-            SeedView sv = (SeedView) v;
-            if (!swapping) {
-                selectedSeed = sv.getSeed();
-                if (!sv.isAssigned()) mCallback.showChooseParticipantFragment(selectedSeed, loadedParticipants);
-                else {
-                    swapping = true;
-                    //TODO Change style of seed to indicate swapping
-                }
-            }
-            else {
-                swapSeeds(selectedSeed, sv.getSeed());
-                swapping = false;
-                selectedSeed = -1;
-            }
-        }
-    }
 }
