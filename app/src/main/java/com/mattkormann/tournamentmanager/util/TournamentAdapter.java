@@ -1,6 +1,9 @@
 package com.mattkormann.tournamentmanager.util;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.ContactsContract;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
+import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.tournaments.SimpleTournamentInfo;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
@@ -16,31 +20,73 @@ import java.util.ArrayList;
 /**
  * Created by Matt on 6/1/2016.
  */
-public class TournamentAdapter extends ArrayAdapter<SimpleTournamentInfo> {
+public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.ViewHolder> {
 
-    public TournamentAdapter(Context context, ArrayList<SimpleTournamentInfo> tournaments) {
-        super(context, 0, tournaments);
+    public interface TournamentClickListener {
+        void onClick(int tournamentId);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        public final TextView idView;
+        public final TextView nameView;
+        public final TextView sizeView;
+        public final TextView dateView;
+        private int tournamentId;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            idView = (TextView)itemView.findViewById(R.id.list_tournament_id);
+            nameView = (TextView)itemView.findViewById(R.id.list_tournament_name);
+            sizeView = (TextView)itemView.findViewById(R.id.list_tournament_size);
+            dateView = (TextView)itemView.findViewById(R.id.list_tournament_date);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clickListener.onClick(tournamentId);
+                }
+            });
+        }
+
+        public void setTournamentId(int tournamentId) {
+            this.tournamentId = tournamentId;
+            idView.setText(String.valueOf(tournamentId));
+        }
+    }
+
+    private Cursor cursor = null;
+    private final TournamentClickListener clickListener;
+
+    public TournamentAdapter(TournamentClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        SimpleTournamentInfo tournament = getItem(position);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(
+                R.layout.choose_list_tournament_view, parent, false);
+        return new ViewHolder(view);
+    }
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.choose_list_tournament_view,
-                    parent, false);
-        }
+    @Override
+    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        cursor.moveToPosition(position);
+        viewHolder.setTournamentId(cursor.getInt(cursor.getColumnIndex(DatabaseContract.TournamentHistory._ID)));
+        viewHolder.nameView.setText(cursor.getString(cursor.getColumnIndex(
+                DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME)));
+        viewHolder.sizeView.setText("Size: " + cursor.getInt(cursor.getColumnIndex(
+                DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE)));
+        viewHolder.dateView.setText(cursor.getString(cursor.getColumnIndex(
+                DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME)));
+    }
 
-        TextView idView = (TextView) convertView.findViewById(R.id.list_tournament_id);
-        TextView nameView = (TextView) convertView.findViewById(R.id.list_tournament_name);
-        TextView sizeView = (TextView) convertView.findViewById(R.id.list_tournament_size);
-        TextView dateView = (TextView) convertView.findViewById(R.id.list_tournament_date);
+    @Override
+    public int getItemCount() {
+        return (cursor != null) ? cursor.getCount() : 0;
+    }
 
-        idView.setText(String.valueOf(tournament.getId()));
-        nameView.setText(tournament.getName());
-        sizeView.setText("Size: " + tournament.getSize());
-        dateView.setText(tournament.getDate());
-
-        return convertView;
+    public void swapCursor(Cursor cursor) {
+        this.cursor = cursor;
+        notifyDataSetChanged();
     }
 }

@@ -4,15 +4,18 @@ import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
@@ -25,18 +28,17 @@ import com.mattkormann.tournamentmanager.util.TournamentAdapter;
 
 import java.util.ArrayList;
 
-public class ChooseTournamentFragment extends DialogFragment {
+public class ChooseTournamentFragment extends DialogFragment
+        implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private ChooseTournamentListener mCallback;
     private TournamentAdapter tournamentAdapter;
-    private ListView listView;
-    private DatabaseHelper mDbHelper;
-    private String tournamentType;
+    private RecyclerView recyclerView;
+    private boolean inProgressOnly = false;
     private boolean startAfter = false;
 
-    public static final String TEMPLATES = "TEMPLATES";
-    public static final String HISTORY = "HISTORY";
-    public static final String IN_PROGRESS = "IN_PROGRESS";
+    private static final int TOURNAMENT_LOADER = 0;
+
     public static final String TOURNAMENT_TYPE = "TOURNAMENT_TYPE";
     public static final String START_AFTER = "START_AFTER";
 
@@ -50,96 +52,25 @@ public class ChooseTournamentFragment extends DialogFragment {
         builder.setTitle(R.string.select_tournament);
 
         if (getArguments() != null) {
-            tournamentType = getArguments().getString(TOURNAMENT_TYPE);
+            inProgressOnly = getArguments().getBoolean(TOURNAMENT_TYPE);
             startAfter = getArguments().getBoolean(START_AFTER);
         }
 
-        listView = (ListView)chooseTournamentFragment.findViewById(R.id.choose_tournament_list);
-        mDbHelper = new DatabaseHelper(getContext());
-        loadTournaments();
-
-        builder.setView(chooseTournamentFragment);
-        return builder.create();
-    }
-
-    private void loadTournaments() {
-
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-        String[] projection = {};
-        String tableName = "";
-        String selection = "";
-        String[] selectionArgs = {};
-
-        switch (tournamentType) {
-            case (TEMPLATES) :
-                projection = new String[] {
-                        DatabaseContract.SavedTournaments._ID,
-                        DatabaseContract.SavedTournaments.COLUMN_NAME_NAME,
-                        DatabaseContract.SavedTournaments.COLUMN_NAME_SIZE
-                };
-                tableName = DatabaseContract.SavedTournaments.TABLE_NAME;
-                break;
-            case (IN_PROGRESS) :
-                selection = DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED + "=?";
-                selectionArgs = new String[]{"0"};
-            case (HISTORY) :
-                projection = new String[] {
-                        DatabaseContract.TournamentHistory._ID,
-                        DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME,
-                        DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE,
-                        DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME
-                };
-                tableName = DatabaseContract.TournamentHistory.TABLE_NAME;
-                break;
-        }
-
-        Cursor c = db.query(tableName, projection, selection, selectionArgs, null, null, null);
-        setListItems(c);
-    }
-
-    private void setListItems(Cursor c) {
-        c.moveToFirst();
-
-        if (c.getCount() == 0) {
-            mCallback.displayNoTournamentMessage();
-            dismiss();
-        }
-
-        ArrayList<SimpleTournamentInfo> tournaments = new ArrayList<>();
-        tournamentAdapter = new TournamentAdapter(getContext(), tournaments);
-        listView.setAdapter(tournamentAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recyclerView = (RecyclerView) chooseTournamentFragment.findViewById(R.id.chooseTournamentRecyclerView);
+        tournamentAdapter = new TournamentAdapter(new TournamentAdapter.TournamentClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView idView = (TextView)view.findViewById(R.id.list_tournament_id);
-                int clickedId = Integer.valueOf(idView.getText().toString());
-                loadSelectedTournament(clickedId);
+            public void onClick(int tournamentId) {
+                Uri tournamentUri = DatabaseContract.TournamentHistory.buildSavedTournamentUri(tournamentId);
+                if (startAfter) mCallback.setCurrentTournamentAndDisplay(tournamentUri);
+                else mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
                 dismiss();
             }
         });
+        recyclerView.setAdapter(tournamentAdapter);
+        recyclerView.setHasFixedSize(true);
 
-        for (int i = 0; i < c.getCount(); i++) {
-
-            SimpleTournamentInfo sti;
-            switch(tournamentType) {
-                case (TEMPLATES):
-                    int tempId = c.getInt(c.getColumnIndex(DatabaseContract.SavedTournaments._ID));
-                    String tempName = c.getString(c.getColumnIndex(DatabaseContract.SavedTournaments.COLUMN_NAME_NAME));
-                    int tempSize = c.getInt(c.getColumnIndex(DatabaseContract.SavedTournaments.COLUMN_NAME_SIZE));
-                    sti = new SimpleTournamentInfo(tempId, tempName, tempSize, "");
-                    tournaments.add(sti);
-                    break;
-                case (IN_PROGRESS):
-                case (HISTORY):
-                    int histId = c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory._ID));
-                    String histName = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME));
-                    int histSize = c.getInt(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE));
-                    String histDate = c.getString(c.getColumnIndex(DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME));
-                    sti = new SimpleTournamentInfo(histId, histName, histSize, histDate);
-                    tournaments.add(sti);
-            }
-            c.moveToNext();
-        }
+        builder.setView(chooseTournamentFragment);
+        return builder.create();
     }
 
     @Override
@@ -159,25 +90,47 @@ public class ChooseTournamentFragment extends DialogFragment {
         mCallback = null;
     }
 
-    private void loadSelectedTournament(int tournamentId) {
-        switch(tournamentType) {
-            case (IN_PROGRESS) :
-                TournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
-                Tournament tournament = tDao.loadFullTournament(tournamentId);
-                mCallback.setCurrentTournament(tournament);
-                mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
-                break;
-            case (TEMPLATES) :
-                Bundle args = new Bundle();
-                args.putInt(TournamentSettingsFragment.TEMPLATE_ID, tournamentId);
-                args.putBoolean(TournamentSettingsFragment.START_TOURNAMENT_AFTER, startAfter);
-                mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args));
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case TOURNAMENT_LOADER:
+                //Sets arguments to load all tournaments
+                String selection = null;
+                String[] selectionArgs = null;
+                String sortOrder = DatabaseContract.TournamentHistory._ID + " ASC";
+                //Checks if looking for in progress tournaments, and loads accordingly
+                if (inProgressOnly) {
+                    selection = DatabaseContract.TournamentHistory.COLUMN_NAME_FINISHED + "=?";
+                    selectionArgs = new String[]{"0"};
+                    sortOrder = DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME + " DESC";
+                }
+                return new CursorLoader(getActivity(),
+                        DatabaseContract.TournamentHistory.CONTENT_URI,
+                        null,
+                        selection,
+                        selectionArgs,
+                        sortOrder);
+            default:
+                return null;
         }
     }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data.getCount() == 0) mCallback.displayNoTournamentMessage();
+        tournamentAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        tournamentAdapter.swapCursor(null);
+    }
+
 
     public interface ChooseTournamentListener {
         void displayNoTournamentMessage();
         void swapFragment(Fragment fragment);
+        void setCurrentTournamentAndDisplay(Uri uri);
         void setCurrentTournament(Tournament tournament);
     }
 }

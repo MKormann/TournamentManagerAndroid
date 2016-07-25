@@ -5,10 +5,10 @@
     android:id="@+id/chooseTournamentFragment"
     tools:context="com.mattkormann.tournamentmanager.ChooseTournamentFragment">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/choose_tournament_list"
+        android:id="@+id/chooseTournamentRecyclerView"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>
 
