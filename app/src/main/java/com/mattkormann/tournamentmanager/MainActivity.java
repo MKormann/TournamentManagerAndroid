@@ -4,6 +4,7 @@
     import android.content.DialogInterface;
     import android.content.pm.ActivityInfo;
     import android.content.res.Configuration;
+    import android.database.Cursor;
     import android.net.Uri;
     import android.os.Bundle;
     import android.preference.PreferenceManager;
@@ -169,8 +170,12 @@
 
         @Override
         public void setCurrentTournamentAndDisplay(Uri uri) {
+            Cursor tournamentCursor = getContentResolver().query(uri, null, null, null, null);
+            Cursor participantCursor = getContentResolver().query(
+                    DatabaseContract.ParticipantTable.CONTENT_URI, null, null, null, null);
             Tournament tournament = TournamentDAO.loadFullTournamentFromCursor(
-                    getContentResolver().query(uri, null, null, null, null));
+                    tournamentCursor, participantCursor);
+            tournament.setSavedId(Integer.parseInt(uri.getLastPathSegment()));
             setCurrentTournament(tournament);
             swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
         }
@@ -215,17 +220,6 @@
             } else {
                 swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
             }
-        }
-
-        @Override
-        public void displayStatEntry(String[] statCategories) {
-            StatEntryFragment statEntryFragment = new StatEntryFragment();
-            Bundle args = new Bundle();
-            if (statCategories != null) {
-                args.putStringArray(TournamentSettingsFragment.STAT_CATEGORIES, statCategories);
-            }
-            statEntryFragment.setArguments(args);
-            statEntryFragment.show(getSupportFragmentManager(), "statEntryFragment");
         }
 
         //Method implemented from Stat Entry Fragment
