@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 style="@android:style/Widget.Button"
-                android:textOn="@string/winner"
+                android:textOn="@string/winnerCaps"
                 android:textOff="">
             </ToggleButton>
 
@@ -109,7 +109,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 style="@android:style/Widget.Button"
-                android:textOn="@string/winner"
+                android:textOn="@string/winnerCaps"
                 android:textOff="">
             </ToggleButton>
 

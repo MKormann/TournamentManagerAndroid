@@ -11,6 +11,9 @@ import android.provider.Telephony;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Matt on 7/20/2016.
  */
@@ -29,6 +32,7 @@ public class TournamentContentProvider extends ContentProvider {
     private static final int TEMPLATES = 6;
     private static final int SINGLE_TOURNAMENT = 7;
     private static final int TOURNAMENTS = 8;
+    private static final int TOURNAMENT_HISTORY = 9;
     private static final int INDIVIDUAL_HISTORY = 10;
 
     //Add uri matchers for all of the databases tables
@@ -53,6 +57,9 @@ public class TournamentContentProvider extends ContentProvider {
 
         uriMatcher.addURI(DatabaseContract.AUTHORITY,
                 DatabaseContract.TournamentHistory.TABLE_NAME, TOURNAMENTS);
+
+        uriMatcher.addURI(DatabaseContract.AUTHORITY,
+                DatabaseContract.TournamentHistory.TABLE_NAME + "/history", TOURNAMENT_HISTORY);
 
         uriMatcher.addURI(DatabaseContract.AUTHORITY,
                 DatabaseContract.IndividualHistory.TABLE_NAME, INDIVIDUAL_HISTORY);
@@ -102,6 +109,17 @@ public class TournamentContentProvider extends ContentProvider {
                 break;
             case TOURNAMENTS:
                 queryBuilder.setTables(DatabaseContract.TournamentHistory.TABLE_NAME);
+                break;
+            case TOURNAMENT_HISTORY:
+                String t = DatabaseContract.TournamentHistory.TABLE_NAME;
+                String p = DatabaseContract.ParticipantTable.TABLE_NAME;
+
+                queryBuilder.setTables(t + " LEFT OUTER JOIN " +
+                        p + " ON " +
+                        t + "." + DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID + "=" +
+                        p + "." + DatabaseContract.ParticipantTable._ID
+                );
+                
                 break;
             case INDIVIDUAL_HISTORY:
                 queryBuilder.setTables(DatabaseContract.IndividualHistory.TABLE_NAME);
