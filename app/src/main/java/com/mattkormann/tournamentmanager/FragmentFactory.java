@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 public class FragmentFactory {
 
     public final static String MAIN_MENU_FRAGMENT = "MAIN_MENU_FRAGMENT";
-    public final static String CHOOSE_PARTICIPANT_FRAGMENT = "CHOOSE_PARTICIPANT_FRAGMENT";
     public final static String CHOOOSE_TOURNAMENT_FRAGMENT = "CHOOSE_TOURNAMENT_FRAGMENT";
     public final static String HISTORY_FRAGMENT = "HISTORY_FRAGMENT";
     public final static String MATCH_DISPLAY_FRAGMENT = "MATCH_DISPLAY_FRAGMENT";
@@ -41,9 +40,6 @@ public class FragmentFactory {
         switch (fragmentClass) {
             case (MAIN_MENU_FRAGMENT):
                 fragment = new MainMenuFragment();
-                break;
-            case (CHOOSE_PARTICIPANT_FRAGMENT):
-                fragment = new ChooseParticipantFragment();
                 break;
             case (CHOOOSE_TOURNAMENT_FRAGMENT):
                 fragment = new ChooseTournamentFragment();

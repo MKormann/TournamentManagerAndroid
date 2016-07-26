@@ -34,7 +34,7 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     public static final String SEED_TO_ASSIGN = "SEED_TO_ASSIGN";
     private static final int PARTICIPANT_LOADER = 0;
 
-    private PopulateFragmentListener mCallback;
+    private MainActivity mCallback;
     private ParticipantsAdapter participantsAdapter;
     private ParticipantsSeedAdapter seedAdapter;
 
@@ -278,12 +278,7 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof PopulateFragmentListener) {
-            mCallback = (PopulateFragmentListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement PopulateFragmentListener");
-        }
+        mCallback = (MainActivity)getActivity();
     }
 
     @Override
@@ -315,12 +310,6 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         participantsAdapter.swapCursor(null);
-    }
-
-    public interface PopulateFragmentListener {
-        Tournament getCurrentTournament();
-        void swapFragment(Fragment fragment);
-        void showChooseParticipantFragment(int seed, Map<Integer, Participant> participantMap);
     }
 
 }

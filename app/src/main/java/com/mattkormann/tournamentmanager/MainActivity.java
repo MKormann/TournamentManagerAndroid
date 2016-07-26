@@ -1,8 +1,10 @@
     package com.mattkormann.tournamentmanager;
 
+    import android.content.ContentValues;
     import android.content.DialogInterface;
     import android.content.pm.ActivityInfo;
     import android.content.res.Configuration;
+    import android.net.Uri;
     import android.os.Bundle;
     import android.preference.PreferenceManager;
     import android.support.v4.app.DialogFragment;
@@ -15,14 +17,10 @@
     import android.view.Menu;
     import android.view.MenuItem;
 
-    import com.mattkormann.tournamentmanager.participants.Participant;
-    import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
+    import com.mattkormann.tournamentmanager.sql.DatabaseContract;
     import com.mattkormann.tournamentmanager.tournaments.Match;
-    import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
     import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
-
-    import java.util.Map;
 
     public class MainActivity extends AppCompatActivity
             implements WelcomeFragment.WelcomeFragmentListener,
@@ -31,8 +29,6 @@
             TournamentSettingsFragment.TournamentSettingsListener,
             StatEntryFragment.StatEntryFragmentListener,
             TournamentDisplayFragment.TournamentDisplayListener,
-            PopulateFragment.PopulateFragmentListener,
-            ChooseParticipantFragment.ChooseParticipantListener,
             ChooseTournamentFragment.ChooseTournamentListener,
             HistoryFragment.HistoryFragmentListener,
             MatchDisplayFragment.MatchDisplayListener {
@@ -135,11 +131,11 @@
                     return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
                 case (R.id.start_tournament_load_saved):
                     args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
-                    args.putString(ChooseTournamentFragment.TOURNAMENT_TYPE, ChooseTournamentFragment.TEMPLATES);
+                    args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, false);
                     return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.start_tournament_load_in_progress):
                     args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
-                    args.putString(ChooseTournamentFragment.TOURNAMENT_TYPE, ChooseTournamentFragment.IN_PROGRESS);
+                    args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, true);
                     return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.create_tournament_new_menu):
                     args.putBoolean(TournamentSettingsFragment.START_TOURNAMENT_AFTER, false);
@@ -147,7 +143,7 @@
                     return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
                 case (R.id.create_tournament_load_menu):
                     args.putBoolean(ChooseTournamentFragment.START_AFTER, false);
-                    args.putString(ChooseTournamentFragment.TOURNAMENT_TYPE, ChooseTournamentFragment.TEMPLATES);
+                    args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, false);
                     return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.button_participants):
                     args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.INDIVIDUALS);
@@ -171,32 +167,40 @@
             this.currentTournament = tournament;
         }
 
-        //Methods implemented from Participants fragment to show info editor and retrieve new data
         @Override
-        public void showParticipantInfoDialog(int type) {
+        public void setCurrentTournamentAndDisplay(Uri uri) {
+            Tournament tournament = TournamentDAO.loadFullTournamentFromCursor(
+                    getContentResolver().query(uri, null, null, null, null));
+            setCurrentTournament(tournament);
+            swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
+        }
+
+        //Methods implemented from Participants fragment
+        @Override
+        public void showParticipantInfoDialog(Uri uri) {
             ParticipantInfoFragment participantInfo =  new ParticipantInfoFragment();
             Bundle args = new Bundle();
-            args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, type);
+            args.putParcelable(ParticipantsFragment.PARTICIPANT_URI, uri);
             participantInfo.setArguments(args);
             participantInfo.show(getSupportFragmentManager(), "participantInfoFragment");
         }
 
         @Override
-        public void onFinishParticipantInformationDialog(String name, int type) {
+        public void onFinishParticipantInformationDialog(Uri uri, ContentValues values) {
 
             Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (f instanceof PopulateFragment) {
                 PopulateFragment pf = (PopulateFragment)
                         getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (pf != null) {
-                    assignChosenParticipant(pf.saveNewParticipant(name, type), pf.getSelectedSeed());
+                    pf.saveNewParticipant(values);
                 }
             }
             else if (f instanceof ParticipantsFragment) {
                 ParticipantsFragment pf = (ParticipantsFragment)
                         getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (pf != null) {
-                    pf.saveInformation(name, type);
+                    pf.saveParticipant(uri, values);
                 }
             }
         }
@@ -264,31 +268,6 @@
             }
         }
 
-        //Method implemented from Populate Fragment
-        public void showChooseParticipantFragment(int seed, Map<Integer, Participant> participantMap) {
-            ChooseParticipantFragment cpf = new ChooseParticipantFragment();
-            Bundle args = new Bundle();
-            args.putInt(PopulateFragment.SEED_TO_ASSIGN, seed);
-            cpf.setArguments(args);
-            cpf.setParticipantsMap(participantMap);
-            cpf.show(getSupportFragmentManager(), "fragmentChooseParticipant");
-        }
-
-        //Methods implemented from Choose Participant Fragment
-        @Override
-        public void addAndAssignNewParticipant(int seed) {
-            showParticipantInfoDialog(ParticipantsFragment.INDIVIDUALS); //TODO type
-        }
-
-        @Override
-        public void assignChosenParticipant(int id, int seed) {
-            PopulateFragment pf = (PopulateFragment)getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_container);
-            if (pf != null) {
-                pf.assignSeed(id, seed);
-            }
-        }
-
         @Override
         public void displayNoTournamentMessage() {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -313,14 +292,16 @@
                         getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (tdf != null) {
                     tdf.updateMatchInfo(matchId);
+
                 }
             }
         }
 
         public void saveAndExit() {
-            DatabaseHelper mDbHelper = new DatabaseHelper(this);
-            SqliteTournamentDAO tDao = new SqliteTournamentDAO(mDbHelper);
-            tDao.saveFullTournament(currentTournament);
+            ContentValues values = TournamentDAO.getFullTournamentContentValues(currentTournament);
+            Uri uri = DatabaseContract.TournamentHistory.buildSavedTournamentUri(currentTournament.getSavedId());
+            int updatedRows = getContentResolver().update(uri, values, null, null);
+            //if (updatedRows < 1) throw new //TODO exception if can't save
             swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
             currentTournament = null;
         }
