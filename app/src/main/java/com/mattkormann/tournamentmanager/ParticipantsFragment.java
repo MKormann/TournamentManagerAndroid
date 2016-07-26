@@ -27,11 +27,13 @@ public class ParticipantsFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ParticipantInfoListener mCallback;
+    private Button addButton;
     private RecyclerView recyclerView;
     private ParticipantsAdapter participantsAdapter;
     private boolean addingNew = true;
 
     public static final String TYPE_TO_DISPLAY = "TYPE_TO_DISPLAY";
+    public static final String PARTICIPANT_URI = "PARTICIPANT_URI";
     public static final int INDIVIDUALS = 0;
     public static final int TEAMS = 1;
     private static final int PARTICIPANT_LOADER = 0;
@@ -57,12 +59,22 @@ public class ParticipantsFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_participants, container, false);
         setLabels(view);
 
+        addButton = (Button)view.findViewById(R.id.add_participant);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addingNew = true;
+                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.CONTENT_URI);
+            }
+        });
+
         recyclerView = (RecyclerView)view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
 
         participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
             @Override
             public void onClick(String name, int id) {
+                addingNew = false;
                 mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.buildParticipantUri(id));
             }
         });
@@ -88,18 +100,15 @@ public class ParticipantsFragment extends Fragment
         participantsAdapter.notifyDataSetChanged();
     }
 
-    public void saveParticipant(String name, int type) {
-
-        ContentValues values = new ContentValues();
-        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME, name);
-        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, type);
+    public void saveParticipant(Uri uri, ContentValues values) {
 
         if (addingNew) {
-            Uri newUri = getActivity().getContentResolver().insert(DatabaseContract.ParticipantTable.CONTENT_URI,
-                    values);
+            Uri newUri = getActivity().getContentResolver().insert(uri, values);
             updateList();
         } else {
-
+            int updatedRows = getActivity().getContentResolver().update(uri, values, null, null);
+            updateList();
+            addingNew = true;
         }
     }
 
@@ -159,6 +168,6 @@ public class ParticipantsFragment extends Fragment
     //Methods to show Add/Edit Dialog and receive information entered
     public interface ParticipantInfoListener {
         void showParticipantInfoDialog(Uri uri);
-        void onFinishParticipantInformationDialog(String name, int type);
+        void onFinishParticipantInformationDialog(Uri uri, ContentValues values);
     }
 }

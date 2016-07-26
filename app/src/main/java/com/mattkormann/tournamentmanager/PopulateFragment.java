@@ -260,12 +260,7 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         return false;
     }
 
-    public int saveNewParticipant(String name, int type) {
-
-        ContentValues values = new ContentValues();
-        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME, name);
-        values.put(DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM, type);
-
+    public int saveNewParticipant(ContentValues values) {
         Uri newUri = getActivity().getContentResolver().insert(DatabaseContract.ParticipantTable.CONTENT_URI,
                 values);
         updateSavedList();

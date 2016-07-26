@@ -3,10 +3,8 @@ package com.mattkormann.tournamentmanager;
 import android.app.Dialog;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -15,18 +13,10 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
-import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
-import com.mattkormann.tournamentmanager.tournaments.SimpleTournamentInfo;
-import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
-import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 import com.mattkormann.tournamentmanager.util.TournamentAdapter;
-
-import java.util.ArrayList;
 
 public class ChooseTournamentFragment extends DialogFragment
         implements LoaderManager.LoaderCallbacks<Cursor>{

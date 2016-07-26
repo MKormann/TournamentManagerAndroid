@@ -119,7 +119,7 @@ public class TournamentContentProvider extends ContentProvider {
                         t + "." + DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID + "=" +
                         p + "." + DatabaseContract.ParticipantTable._ID
                 );
-                
+
                 break;
             case INDIVIDUAL_HISTORY:
                 queryBuilder.setTables(DatabaseContract.IndividualHistory.TABLE_NAME);

@@ -74,5 +74,8 @@
     <string name="lastSaved">Last Saved</string>
     <string name="loadTournamentTitle">Load tournament</string>
     <string name="loadTournamentMessage">Load %s?</string>
+    <string name="type">Type:</string>
+    <string name="team">Team</string>
+    <string name="individual">Individual</string>
 
 </resources>
