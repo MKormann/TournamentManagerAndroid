@@ -117,17 +117,14 @@ public class ParticipantsFragment extends Fragment
         if (getArguments() != null) {
             TextView text = (TextView)view.findViewById(R.id.participant_type);
             Button addButton = (Button)view.findViewById(R.id.add_participant);
-            Button editButton = (Button)view.findViewById(R.id.edit_participant);
             switch(getArguments().getInt(TYPE_TO_DISPLAY)) {
                 case(TEAMS):
                     text.setText(getString(R.string.teams));
                     addButton.setText(R.string.add_team);
-                    editButton.setText(R.string.edit_team);
                     break;
                 case(INDIVIDUALS):
                     text.setText(R.string.individuals);
                     addButton.setText(R.string.add_participant);
-                    editButton.setText(R.string.edit_participant);
                     break;
             }
         }

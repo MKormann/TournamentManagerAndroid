@@ -2,6 +2,7 @@ package com.mattkormann.tournamentmanager.tournaments;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.participants.ParticipantFactory;
@@ -22,7 +23,9 @@ public class TournamentDAO {
     public static final int NEW_TOURNAMENT_TEMPLATE = -9;
     public static final int NOT_YET_SAVED = -7;
 
-    private final String strSeparator = "_,_";
+    private final static String strSeparator = "_,_";
+    private final static String prefSeparator = "_";
+    private final static String prefSuffix = "_tournament_prefs";
 
     //Creates an instance of ContentValues from a Tournament object containing all the information
     //needed to save to the Tournament History table
@@ -196,11 +199,14 @@ public class TournamentDAO {
         return databaseString.split(strSeparator);
     }
 
-    public static void saveTournamentPrefs(String name) {
-
+    public static String getTournamentPrefsName(Tournament tournament) {
+        String name = tournament.getName();
+        int id = tournament.getSavedId();
+        return getTournamentPrefsName(name, id);
     }
 
-    public static void loadTournamentPrefs(String name) {
-
+    public static String getTournamentPrefsName(String name, int id) {
+        String prefsName = name + prefSeparator + id + prefSuffix;
+        return prefsName;
     }
 }
