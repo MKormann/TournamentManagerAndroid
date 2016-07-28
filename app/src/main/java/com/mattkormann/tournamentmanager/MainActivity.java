@@ -2,6 +2,7 @@
 
     import android.content.ContentValues;
     import android.content.DialogInterface;
+    import android.content.SharedPreferences;
     import android.content.pm.ActivityInfo;
     import android.content.res.Configuration;
     import android.database.Cursor;
@@ -49,11 +50,6 @@
 
             PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-            String prefKey = PreferenceManager.getDefaultSharedPreferences(this).getString(CURRENT_PREFS, null);
-            if (prefKey != null) {
-                getSharedPreferences(prefKey, MODE_PRIVATE);
-            }
-
             int screenSize = getResources().getConfiguration().screenLayout &
                     Configuration.SCREENLAYOUT_SIZE_MASK;
 
@@ -97,6 +93,15 @@
         public boolean onOptionsItemSelected(MenuItem item) {
             swapFragment(new TournamentSettingsFrag());
             return super.onOptionsItemSelected(item);
+        }
+
+        public void switchDefaultPrefsToCurrentTournament() {
+            if (currentTournament != null) {
+                String prefName = TournamentDAO.getTournamentPrefsName(currentTournament);
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                editor.putString(CURRENT_PREFS, prefName);
+                editor.commit();
+            }
         }
 
         //Replace fragment in fragment_container with id of corresponding button passed.
