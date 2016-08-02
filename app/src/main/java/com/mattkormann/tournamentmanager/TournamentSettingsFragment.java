@@ -1,146 +1,92 @@
 package com.mattkormann.tournamentmanager;
 
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.NumberPicker;
-import android.widget.Spinner;
-import android.widget.ToggleButton;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
-import com.mattkormann.tournamentmanager.sql.DatabaseHelper;
-import com.mattkormann.tournamentmanager.tournaments.SqliteTournamentDAO;
-import com.mattkormann.tournamentmanager.tournaments.Tournament;
-import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
+import com.mattkormann.tournamentmanager.util.SeekBarPreference;
+import com.mattkormann.tournamentmanager.util.SeekBarPreferenceDialogFragmentCompat;
+import com.mattkormann.tournamentmanager.util.StatEntryPreference;
+import com.mattkormann.tournamentmanager.util.StatEntryPreferenceDialogFragmentCompat;
 
-public class TournamentSettingsFragment extends Fragment {
+/**
+ * Created by Matt on 6/22/2016.
+ */
+public class TournamentSettingsFragment extends PreferenceFragmentCompat {
 
+    Preference switchPref;
+    Preference statEntryPref;
     private TournamentSettingsListener mCallback;
-    private DatabaseHelper mDbHelper;
-    private Button generateButton;
-    private ToggleButton tButton;
-    private NumberPicker np;
-    private Spinner eSpinner;
-    private Spinner teamSpinner;
-    private EditText editName;
-    private String[] statCategories;
-
-    public static final String STAT_CATEGORIES = "STAT_CATEGORIES";
-    public static final String START_TOURNAMENT_AFTER = "START_TOURNAMENT_AFTER";
-    public static final String TEMPLATE_ID = "TEMPLATE_ID";
-
-    private int templateId;
-    private boolean startTournamentAfter;
-    private TournamentDAO tDao;
 
     public TournamentSettingsFragment() {
-        // Required empty public constructor
-    }
 
-    public static TournamentSettingsFragment newInstance() {
-        TournamentSettingsFragment fragment = new TournamentSettingsFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle bundle, String s) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String currentPrefFilename = prefs.getString(MainActivity.CURRENT_PREFS, null);
+        if (currentPrefFilename != null)
+            getPreferenceManager().setSharedPreferencesName(currentPrefFilename);
+
+        addPreferencesFromResource(R.xml.preferences);
+
+        statEntryPref = findPreference("pref_statCategories");
+        switchPref = findPreference("pref_useStats");
+        switchPref.setOnPreferenceChangeListener(switchListener);
+
+        boolean stats = prefs.getBoolean("pref_useStats", false);
+        if (!stats) statEntryPref.setEnabled(false);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_tournament_settings, container, false);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_settings, menu);
+    }
 
-        generateButton = (Button)view.findViewById(R.id.generate_tournament);
-        tButton = (ToggleButton)view.findViewById(R.id.stat_tracking_toggle);
-        eSpinner = (Spinner)view.findViewById(R.id.elimination_type_spinner);
-        teamSpinner = (Spinner)view.findViewById(R.id.team_size_spinner);
-        editName = (EditText)view.findViewById(R.id.tournament_name_text);
-        np = (NumberPicker)view.findViewById(R.id.tournament_size_picker);
-        statCategories = new String[getContext().getResources().getInteger(R.integer.max_number_of_stats)];
-
-        // Set listeners for buttons
-        generateButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                final View view = v;
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-                alertDialogBuilder.setTitle(getString(R.string.button_create_tournament));
-                alertDialogBuilder.setMessage(templateId == TournamentDAO.NEW_TOURNAMENT_TEMPLATE ?
-                        getString(R.string.save_tournament_alert_dialog) :
-                        getString(R.string.update_tournament_alert_dialog));
-                alertDialogBuilder.setPositiveButton(R.string.update, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        int savedId = saveTournamentTemplate(view);
-                        if (startTournamentAfter) {
-                            Tournament tournament = tDao.loadTournamentFromTemplate(savedId);
-                            mCallback.setCurrentTournament(tournament);
-                        };
-                        mCallback.advanceFromSettings(startTournamentAfter);
-                    }
-                });
-                if (templateId != TournamentDAO.NEW_TOURNAMENT_TEMPLATE) {
-                    alertDialogBuilder.setNegativeButton(R.string.save_new, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            templateId = TournamentDAO.NEW_TOURNAMENT_TEMPLATE;
-                            int savedId = saveTournamentTemplate(view);
-                            if (startTournamentAfter) {
-                                Tournament tournament = tDao.loadTournamentFromTemplate(savedId);
-                                mCallback.setCurrentTournament(tournament);
-                            }
-                            ;
-                            mCallback.advanceFromSettings(startTournamentAfter);
-                        }
-                    });
-                }
-                alertDialogBuilder.setNeutralButton(R.string.buttonCancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                alertDialogBuilder.show();
-
-            }
-        });
-        tButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (tButton.isChecked()) mCallback.displayStatEntry(statCategories);
-            }
-        });
-
-        mDbHelper = new DatabaseHelper(getContext());
-        tDao = new SqliteTournamentDAO(mDbHelper);
-
-        // Create a number picker for choosing tournament size
-        np.setMinValue(Tournament.MIN_TOURNAMENT_SIZE);
-        np.setMaxValue(Tournament.MAX_TOURNAMENT_SIZE);
-        np.setWrapSelectorWheel(false);
-        np.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-
-        Bundle args = getArguments();
-        if (args != null) {
-            templateId = args.getInt(TEMPLATE_ID);
-            if (templateId != TournamentDAO.NEW_TOURNAMENT_TEMPLATE)
-                loadTournamentSettings(templateId);
-            startTournamentAfter = args.getBoolean(START_TOURNAMENT_AFTER);
-            if (!startTournamentAfter) generateButton.setText(R.string.save);
-        } else {
-            templateId = TournamentDAO.NEW_TOURNAMENT_TEMPLATE;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case (R.id.accept_settings) :
+                mCallback.advanceFromSettings(getPreferenceManager().getSharedPreferences());
+                break;
         }
+        return super.onOptionsItemSelected(item);
+    }
 
-        return view;
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        DialogFragment dialogFragment = null;
+        if (preference instanceof SeekBarPreference) {
+            dialogFragment = new SeekBarPreferenceDialogFragmentCompat();
+            Bundle bundle = new Bundle(1);
+            bundle.putString("key", preference.getKey());
+            dialogFragment.setArguments(bundle);
+        }
+        if (preference instanceof StatEntryPreference) {
+            dialogFragment = new StatEntryPreferenceDialogFragmentCompat();
+            Bundle bundle = new Bundle(1);
+            bundle.putString("key", preference.getKey());
+            dialogFragment.setArguments(bundle);
+        }
+        if (dialogFragment != null) {
+            dialogFragment.setTargetFragment(this, 0);
+            dialogFragment.show(getFragmentManager(), "android.support.v7.preference.PreferenceFragment.DIALOG");
+        } else {
+            super.onDisplayPreferenceDialog(preference);
+        }
     }
 
     @Override
@@ -150,7 +96,7 @@ public class TournamentSettingsFragment extends Fragment {
             mCallback = (TournamentSettingsListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement TournamentSettingsListener");
+                    + " must implement ParticipantInfoListener");
         }
     }
 
@@ -160,41 +106,16 @@ public class TournamentSettingsFragment extends Fragment {
         mCallback = null;
     }
 
-    public void loadTournamentSettings(int tournamentId) {
-
-        if (tournamentId == TournamentDAO.NEW_TOURNAMENT_TEMPLATE) return;
-
-        Tournament tournament = tDao.loadTournamentFromTemplate(tournamentId);
-
-        editName.setText(tournament.getName());
-        np.setValue(tournament.getSize());
-        int spinnerIndex = tournament.isDoubleElimination() ? 1 : 0;
-        eSpinner.setSelection(spinnerIndex);
-        teamSpinner.setSelection(tournament.getTeamSize() - 1);
-        tButton.setChecked(tournament.isStatTrackingEnabled());
-        if (tButton.isChecked()) setStatCategories(tournament.getStatCategories());
-    }
-
-    private int saveTournamentTemplate(View view) {
-
-        //Collect values from fields
-        String name = editName.getText().toString();
-        int size = np.getValue();
-        String elimType = eSpinner.getSelectedItem().toString();
-        int doubleElim = elimType.equals("Double") ? 1 : 0;
-        int teamSize = Integer.valueOf(teamSpinner.getSelectedItem().toString());
-        int useStats = tButton.isChecked() ? 1 : 0;
-
-        return tDao.saveTournamentTemplate(templateId, name, size, teamSize, doubleElim, useStats, statCategories);
-    }
-
-    public void setStatCategories(String[] statCategories) {
-        this.statCategories = statCategories;
-    }
+    private Preference.OnPreferenceChangeListener switchListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if ((boolean)newValue) statEntryPref.setEnabled(true);
+            else statEntryPref.setEnabled(false);
+            return true;
+        }
+    };
 
     public interface TournamentSettingsListener {
-        void advanceFromSettings(boolean startTournament);
-        void displayStatEntry(String[] statCategories);
-        void setCurrentTournament(Tournament tournament);
+        void advanceFromSettings(SharedPreferences sp);
     }
 }

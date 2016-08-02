@@ -5,12 +5,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
 import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,7 +21,7 @@ import java.util.Map;
 public class ParticipantsSeedAdapter extends RecyclerView.Adapter<ParticipantsSeedAdapter.SeedViewHolder> {
 
     public interface SeedClickListener {
-        void onClick(int seed, Participant participant);
+        void onClick(int seed, LinearLayout row);
     }
 
     public class SeedViewHolder extends RecyclerView.ViewHolder {
@@ -36,7 +38,8 @@ public class ParticipantsSeedAdapter extends RecyclerView.Adapter<ParticipantsSe
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    clickListener.onClick(seed, participant);
+                    LinearLayout row = (LinearLayout)v.findViewById(R.id.chooseTextView);
+                    clickListener.onClick(seed, row);
                 }
             });
         }
@@ -56,11 +59,12 @@ public class ParticipantsSeedAdapter extends RecyclerView.Adapter<ParticipantsSe
         }
     }
 
-    private Map<Integer, Participant> participantsMap = null;
+    private Map<Integer, Participant> participantsMap;
     private final SeedClickListener clickListener;
 
-    public ParticipantsSeedAdapter(SeedClickListener clickListener) {
+    public ParticipantsSeedAdapter(SeedClickListener clickListener, Map<Integer, Participant> participantsMap) {
         this.clickListener = clickListener;
+        this.participantsMap = participantsMap;
     }
 
     @Override
@@ -72,8 +76,8 @@ public class ParticipantsSeedAdapter extends RecyclerView.Adapter<ParticipantsSe
 
     @Override
     public void onBindViewHolder(SeedViewHolder holder, int position) {
-        holder.setSeed(position);
-        holder.setParticipant(participantsMap.get(position));
+        holder.setSeed(position + 1);
+        holder.setParticipant(participantsMap.get(position + 1));
     }
 
     @Override

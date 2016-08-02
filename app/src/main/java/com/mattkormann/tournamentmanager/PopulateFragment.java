@@ -11,11 +11,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.mattkormann.tournamentmanager.participants.Participant;
 import com.mattkormann.tournamentmanager.participants.ParticipantFactory;
@@ -30,8 +32,6 @@ import java.util.Map;
 
 public class PopulateFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String TOURNAMENT_SIZE = "TOURNAMENT_SIZE";
-    public static final String SEED_TO_ASSIGN = "SEED_TO_ASSIGN";
     private static final int PARTICIPANT_LOADER = 0;
 
     private MainActivity mCallback;
@@ -47,6 +47,7 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     private boolean isSavedParticipantSelected = false;
     private String selectedParticipantName;
     private int selectedParticipantId;
+    private LinearLayout selectedRow;
 
     public PopulateFragment() {
         // Required empty public constructor
@@ -61,9 +62,6 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            size = getArguments().getInt(TOURNAMENT_SIZE);
-        }
     }
 
     @Override
@@ -75,33 +73,37 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_populate, container, false);
 
+        size = mCallback.getCurrentTournament().getSize();
+
         RecyclerView seedRecyclerView = (RecyclerView) view.findViewById(R.id.seedRecyclerView);
         RecyclerView savedRecyclerView = (RecyclerView) view.findViewById(R.id.savedRecyclerView);
+        seedRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
+        savedRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
 
         participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
             @Override
-            public void onClick(String name, int participantId) {
-                onParticipantClicked(name, participantId);
+            public void onClick(String name, int participantId, LinearLayout row) {
+                onParticipantClicked(name, participantId, row);
             }
         });
 
         savedRecyclerView.setAdapter(participantsAdapter);
         savedRecyclerView.setHasFixedSize(true);
 
-        seedAdapter = new ParticipantsSeedAdapter(new ParticipantsSeedAdapter.SeedClickListener() {
-            @Override
-            public void onClick(int seed, Participant participant) {
-                onSeedClicked(seed, participant);
-            }
-        });
-
-        seedRecyclerView.setAdapter(seedAdapter);
-        seedRecyclerView.setHasFixedSize(true);
-
         participants = new HashMap<>();
         for (int i = 1; i <= size; i++) {
             participants.put(i, null);
         }
+
+        seedAdapter = new ParticipantsSeedAdapter(new ParticipantsSeedAdapter.SeedClickListener() {
+            @Override
+            public void onClick(int seed, LinearLayout row) {
+                onSeedClicked(seed, row);
+            }
+        }, participants);
+
+        seedRecyclerView.setAdapter(seedAdapter);
+        seedRecyclerView.setHasFixedSize(true);
 
         startButton = (Button) view.findViewById(R.id.start_tournament);
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -145,12 +147,14 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
                         if (id == TournamentDAO.NOT_YET_SAVED) {
                             Uri newUri = getActivity().getContentResolver().insert(
                                     DatabaseContract.TournamentHistory.CONTENT_URI, contentValues);
+                            int newId = Integer.valueOf(newUri.getLastPathSegment());
+                            tournament.setSavedId(newId);
                         } else {
                             int updatedRows = getActivity().getContentResolver().update(
                                     DatabaseContract.TournamentHistory.buildSavedTournamentUri(id),
                                     contentValues, null, null);
                         }
-
+                        mCallback.switchDefaultPrefsToCurrentTournament();
                         mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
                     }
                 })
@@ -179,77 +183,85 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         seedAdapter.notifyDataSetChanged();
     }
 
-    private void onSeedClicked(int clickedSeed, Participant participant) {
-        if (isSeedSelected) {
-            // Seed is clicked after another is currently selected
-            swapSeeds(selectedSeed, clickedSeed);
-        } else if (isSavedParticipantSelected) {
-            // Seed is clicked after a saved participant is currently selected
-            assignSeed();
-        } else {
-            // Seed is only thing currently selected
+    private void onSeedClicked(int clickedSeed, LinearLayout row) {
+        if (isNothingSelected()) {
             selectedSeed = clickedSeed;
             isSeedSelected = true;
-            highlightSelectedSeed(clickedSeed, true);
+            selectedRow = row;
+            selectedRow.setSelected(true);
+        } else if (isSeedSelected) {
+            swapSeeds(selectedSeed, clickedSeed);
+        } else if (isSavedParticipantSelected) {
+            selectedSeed = clickedSeed;
+            isSeedSelected = true;
+            assignSeed();
         }
     }
 
-    public void onParticipantClicked(String name, int participantId) {
-        if (isSavedParticipantSelected && participantId == selectedParticipantId) {
-            //Clicked the participant already selected
-            isSavedParticipantSelected = false;
-            selectedParticipantName = "";
-            selectedParticipantId = -1;
-        } else {
-            //Clicked any other participant
-            isSavedParticipantSelected= true;
+    public void onParticipantClicked(String name, int participantId, LinearLayout row) {
+        if (participantId == selectedParticipantId) { //If clicked same participant
+            clearSelections();
+        } else if (!isSeedSelected) { //If participant is clicked before a seed
+            if (isSavedParticipantSelected) selectedRow.setSelected(false); //If participant was currently selected
+            isSavedParticipantSelected = true;
             selectedParticipantName = name;
             selectedParticipantId = participantId;
-            if (isSeedSelected) {
-                //Swap if seed selected
-                assignSeed();
-            }
-            //highlightSelectedParticipant(int participantId,boolean highlight) //TODO ***************
+            selectedRow = row;
+            selectedRow.setSelected(true);
+        } else if (isSeedSelected) { //If participant is clicked after a seed
+            isSavedParticipantSelected = true;
+            selectedParticipantName = name;
+            selectedParticipantId = participantId;
+            assignSeed();
         }
     }
 
     public void assignSeed() {
-        Participant p = ParticipantFactory.getParticipant("single",
-                selectedParticipantName, selectedParticipantId);
-        participants.put(selectedSeed, p);
-        isSeedSelected = false;
-        selectedSeed = -1;
-        isSavedParticipantSelected = false;
-        selectedParticipantName = "";
-        selectedParticipantId = -1;
-
-        updateSeedList();
-
-        if (!areAnyUnassigned()) startButton.setEnabled(true);
-    }
-
-    private void highlightSelectedSeed(int clickedSeed, boolean highlight) {
-        //TODO STYLE CHANGES WHEN SELECTED  ********
-    }
-
-    private void highlightSelectedParticipant(int clickedParticipant, boolean highlight) {
-        //TODO STYLE CHANGES WHEN SELECTED  ********
+        if (!areBothSelected() || selectedParticipantId == -1) { //Check selections are made
+            clearSelections();
+        } else {
+            Participant p = ParticipantFactory.getParticipant("single",
+                    selectedParticipantName, selectedParticipantId);
+            participants.put(selectedSeed, p);
+            System.out.println("Assigned participant " + selectedParticipantId + ": " + selectedParticipantName
+                    + " to seed " + selectedSeed);
+            clearSelections();
+            updateSeedList();
+            if (!areAnyUnassigned()) startButton.setEnabled(true);
+        }
     }
 
     //Swap participants assigned to the two given seeds
     private void swapSeeds(int seed1, int seed2) {
-        if (seed1 == seed2) {
-            highlightSelectedSeed(seed1, false);
-            return;
-        }
-        Participant participantOne = participants.get(seed1);
-        Participant participantTwo = participants.put(seed2, participantOne);
-        participants.put(seed1, participantTwo);
 
+        if (seed1 == seed2) {
+            clearSelections();
+        } else {
+            Participant participantOne = participants.get(seed1);
+            Participant participantTwo = participants.put(seed2, participantOne);
+            participants.put(seed1, participantTwo);
+
+            clearSelections();
+            updateSeedList();
+        }
+    }
+
+    public boolean isNothingSelected() {
+        return (!isSavedParticipantSelected && !isSeedSelected);
+    }
+
+    public boolean areBothSelected() {
+        return (isSavedParticipantSelected && isSeedSelected);
+    }
+
+    private void clearSelections() {
         isSeedSelected = false;
         selectedSeed = -1;
-
-        updateSeedList();
+        isSavedParticipantSelected = false;
+        selectedParticipantId = -1;
+        selectedParticipantName = "";
+        if (selectedRow != null) selectedRow.setSelected(false);
+        selectedRow = null;
     }
 
     //Check if any seeds have been left unassigned.

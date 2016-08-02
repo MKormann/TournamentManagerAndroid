@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
         <TextView
-            android:text="@string/tournament_name_label"
+            android:text="@string/tournament_name"
             android:gravity="right"
             android:id="@+id/tournament_name_label"
             android:layout_weight="1"

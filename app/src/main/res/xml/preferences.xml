@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <EditTextPreference
+        android:key="pref_tournamentName"
+        android:title="@string/tournament_name"
+        android:summary="@string/tournament_name_summary"
+        android:persistent="true"
+        />
+
     <com.mattkormann.tournamentmanager.util.SeekBarPreference
         android:key="pref_tournamentSize"
         android:title="@string/tournament_size"

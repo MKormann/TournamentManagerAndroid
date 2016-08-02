@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -34,6 +35,7 @@ public class ParticipantsFragment extends Fragment
 
     public static final String TYPE_TO_DISPLAY = "TYPE_TO_DISPLAY";
     public static final String PARTICIPANT_URI = "PARTICIPANT_URI";
+    public static final String ADDING_NEW = "ADDING_NEW";
     public static final int INDIVIDUALS = 0;
     public static final int TEAMS = 1;
     private static final int PARTICIPANT_LOADER = 0;
@@ -64,23 +66,25 @@ public class ParticipantsFragment extends Fragment
             @Override
             public void onClick(View v) {
                 addingNew = true;
-                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.CONTENT_URI);
+                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.CONTENT_URI, addingNew);
             }
         });
 
         recyclerView = (RecyclerView)view.findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
 
         participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
             @Override
-            public void onClick(String name, int id) {
+            public void onClick(String name, int id, LinearLayout row) {
                 addingNew = false;
-                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.buildParticipantUri(id));
+                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.buildParticipantUri(id), addingNew);
             }
         });
         recyclerView.setAdapter(participantsAdapter);
-
         recyclerView.setHasFixedSize(true);
+
+        GridLayoutManager glm = new GridLayoutManager(getContext(), 2);
+        recyclerView.setLayoutManager(glm);
+
 
         return view;
     }
@@ -164,7 +168,7 @@ public class ParticipantsFragment extends Fragment
     //Interface to be implemented by MainActivity class
     //Methods to show Add/Edit Dialog and receive information entered
     public interface ParticipantInfoListener {
-        void showParticipantInfoDialog(Uri uri);
+        void showParticipantInfoDialog(Uri uri, boolean addingNew);
         void onFinishParticipantInformationDialog(Uri uri, ContentValues values);
     }
 }

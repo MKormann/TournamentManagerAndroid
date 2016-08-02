@@ -20,6 +20,7 @@
             android:text="@string/tournament_seeding"
             android:id="@+id/tournament_seeding"
             android:layout_gravity="center_horizontal"
+            android:gravity="center"
             android:layout_marginBottom="@dimen/fab_margin" />
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
@@ -33,6 +34,15 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/saved_participants"
+            android:id="@+id/saved_participants"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/fab_margin" />
         <android.support.v7.widget.RecyclerView
             android:id="@+id/savedRecyclerView"
             android:layout_width="match_parent"

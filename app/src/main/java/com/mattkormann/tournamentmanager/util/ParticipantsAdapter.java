@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
@@ -17,7 +18,7 @@ import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.ViewHolder> {
 
     public interface ParticipantClickListener {
-        void onClick(String name, int participantId);
+        void onClick(String name, int participantId, LinearLayout row);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -33,7 +34,8 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    clickListener.onClick(nameView.getText().toString(), participantId);
+                    LinearLayout row = (LinearLayout)v.findViewById(R.id.chooseTextView);
+                    clickListener.onClick(nameView.getText().toString(), participantId, row);
                 }
             });
         }

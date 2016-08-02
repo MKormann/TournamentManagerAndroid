@@ -26,7 +26,7 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
     private EditText[] editTexts;
     private String[] statCategoriesArray;
     private int maxStats;
-    private final String strSeparator = "_,____";
+    private static final String strSeparator = "_,____";
 
     @Override
     public View onCreateDialogView(Context context) {
@@ -86,7 +86,7 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
     }
 
     //Converts array into a string to store in database
-    private String arrayToString(String[] array) {
+    public static String arrayToString(String[] array) {
         String str = "";
         for (int i = 0; i < array.length; i++) {
             str += array[i].toString();
@@ -98,7 +98,7 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
     }
 
     //Converts database string into array object
-    private String[] stringToArray(String statCategories) {
+    public static String[] stringToArray(String statCategories) {
         return statCategories.split(strSeparator);
     }
 

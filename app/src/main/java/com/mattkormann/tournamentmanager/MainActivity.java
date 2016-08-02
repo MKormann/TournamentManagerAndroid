@@ -21,22 +21,25 @@
 
     import com.mattkormann.tournamentmanager.sql.DatabaseContract;
     import com.mattkormann.tournamentmanager.tournaments.Match;
+    import com.mattkormann.tournamentmanager.tournaments.SingleElimTournament;
     import com.mattkormann.tournamentmanager.tournaments.Tournament;
     import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
+    import com.mattkormann.tournamentmanager.util.StatEntryPreferenceDialogFragmentCompat;
 
     public class MainActivity extends AppCompatActivity
             implements WelcomeFragment.WelcomeFragmentListener,
             MainMenuFragment.onMenuButtonPressedListener,
             ParticipantsFragment.ParticipantInfoListener,
             TournamentSettingsFragment.TournamentSettingsListener,
-            StatEntryFragment.StatEntryFragmentListener,
             TournamentDisplayFragment.TournamentDisplayListener,
             ChooseTournamentFragment.ChooseTournamentListener,
             HistoryFragment.HistoryFragmentListener,
             MatchDisplayFragment.MatchDisplayListener {
 
         private Tournament currentTournament;
+        private SharedPreferences sharedPreferences;
         private boolean phoneDevice = true;
+        private boolean startingNewTournament = false;
 
         public static final String CURRENT_PREFS = "CURRENT_PREFS";
         public static final String URI_ARG = "URI_ARG";
@@ -49,6 +52,10 @@
             setSupportActionBar(myToolbar);
 
             PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+            String currentPrefs = PreferenceManager.getDefaultSharedPreferences(this).getString(CURRENT_PREFS, null);
+            if (currentPrefs != null) {
+                sharedPreferences = getSharedPreferences(currentPrefs, MODE_PRIVATE);
+            }
 
             int screenSize = getResources().getConfiguration().screenLayout &
                     Configuration.SCREENLAYOUT_SIZE_MASK;
@@ -91,17 +98,15 @@
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            swapFragment(new TournamentSettingsFrag());
-            return super.onOptionsItemSelected(item);
-        }
-
-        public void switchDefaultPrefsToCurrentTournament() {
-            if (currentTournament != null) {
-                String prefName = TournamentDAO.getTournamentPrefsName(currentTournament);
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-                editor.putString(CURRENT_PREFS, prefName);
-                editor.commit();
+            int id = item.getItemId();
+            switch (id) {
+                case (R.id.tournament_settings) :
+                    if (item.getItemId() == R.id.tournament_settings) {
+                        swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT));
+                    }
+                    break;
             }
+            return super.onOptionsItemSelected(item);
         }
 
         //Replace fragment in fragment_container with id of corresponding button passed.
@@ -132,20 +137,19 @@
             Bundle args = new Bundle();
             switch (id) {
                 case (R.id.start_tournament_create_new):
-                    args.putBoolean(TournamentSettingsFragment.START_TOURNAMENT_AFTER, true);
-                    args.putInt(TournamentSettingsFragment.TEMPLATE_ID, TournamentDAO.NEW_TOURNAMENT_TEMPLATE);
+                    startingNewTournament = true;
                     return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
                 case (R.id.start_tournament_load_saved):
+                    startingNewTournament = true;
                     args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
                     args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, false);
                     return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.start_tournament_load_in_progress):
+                    startingNewTournament = true;
                     args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
                     args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, true);
                     return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.create_tournament_new_menu):
-                    args.putBoolean(TournamentSettingsFragment.START_TOURNAMENT_AFTER, false);
-                    args.putInt(TournamentSettingsFragment.TEMPLATE_ID, TournamentDAO.NEW_TOURNAMENT_TEMPLATE);
                     return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
                 case (R.id.create_tournament_load_menu):
                     args.putBoolean(ChooseTournamentFragment.START_AFTER, false);
@@ -174,6 +178,48 @@
         }
 
         @Override
+        public void advanceFromSettings(SharedPreferences sp) {
+            sharedPreferences = sp;
+            if (sharedPreferences == null) {
+                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            }
+            //Check if beginning new tournament, and if so proceed to choosing participants
+            //else return to main screen
+            if (startingNewTournament) {
+                createNewTournamentFromCurrentSettings();
+                swapFragment(FragmentFactory.getFragment(FragmentFactory.POPULATE_FRAGMENT));
+            } else swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
+        }
+
+        public void switchDefaultPrefsToCurrentTournament() {
+            if (currentTournament != null) {
+                String prefName = TournamentDAO.getTournamentPrefsName(currentTournament);
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                editor.putString(CURRENT_PREFS, prefName);
+                editor.apply();
+            }
+        }
+
+        public void createNewTournamentFromCurrentSettings() {
+            String name = sharedPreferences.getString("pref_tournamentName", "Tournament");
+            int size = sharedPreferences.getInt("pref_tournamentSize", Tournament.MIN_TOURNAMENT_SIZE);
+            boolean useStats = sharedPreferences.getBoolean("pref_useStats", false);
+            String statCategoriesString = sharedPreferences.getString("pref_statCategories", null);
+            String elimType = sharedPreferences.getString("pref_eliminationType", "Single");
+            int teamSize = Integer.valueOf(sharedPreferences.getString("pref_teamSize", "1"));
+
+            Tournament tournament = new SingleElimTournament(name, size, teamSize);
+            tournament.setSavedId(TournamentDAO.NOT_YET_SAVED);
+            if (useStats && statCategoriesString != null) {
+                String[] statCategories = StatEntryPreferenceDialogFragmentCompat
+                        .stringToArray(statCategoriesString);
+                tournament.setStatCategories(statCategories);
+            }
+
+            setCurrentTournament(tournament);
+        }
+
+        @Override
         public void setCurrentTournamentAndDisplay(Uri uri) {
             Cursor tournamentCursor = getContentResolver().query(uri, null, null, null, null);
             Cursor participantCursor = getContentResolver().query(
@@ -182,15 +228,17 @@
                     tournamentCursor, participantCursor);
             tournament.setSavedId(Integer.parseInt(uri.getLastPathSegment()));
             setCurrentTournament(tournament);
+            switchDefaultPrefsToCurrentTournament();
             swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
         }
 
         //Methods implemented from Participants fragment
         @Override
-        public void showParticipantInfoDialog(Uri uri) {
+        public void showParticipantInfoDialog(Uri uri, boolean addingNew) {
             ParticipantInfoFragment participantInfo =  new ParticipantInfoFragment();
             Bundle args = new Bundle();
             args.putParcelable(ParticipantsFragment.PARTICIPANT_URI, uri);
+            args.putBoolean(ParticipantsFragment.ADDING_NEW, addingNew);
             participantInfo.setArguments(args);
             participantInfo.show(getSupportFragmentManager(), "participantInfoFragment");
         }
@@ -212,28 +260,6 @@
                 if (pf != null) {
                     pf.saveParticipant(uri, values);
                 }
-            }
-        }
-
-        //Methods implemented from Tournament Settings fragment
-        @Override
-        public void advanceFromSettings(boolean startTournament) {
-            if (startTournament) {
-                Bundle args = new Bundle();
-                args.putInt(PopulateFragment.TOURNAMENT_SIZE, currentTournament.getSize());
-                swapFragment(FragmentFactory.getFragment(FragmentFactory.POPULATE_FRAGMENT, args));
-            } else {
-                swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
-            }
-        }
-
-        //Method implemented from Stat Entry Fragment
-        @Override
-        public void onOkButtonPressed(String[] statCategories) {
-            TournamentSettingsFragment tsf = (TournamentSettingsFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-            if (tsf != null) {
-                tsf.setStatCategories(statCategories);
             }
         }
 

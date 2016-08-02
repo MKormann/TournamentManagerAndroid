@@ -16,7 +16,6 @@ public class FragmentFactory {
     public final static String PARTICIPANT_INFO_FRAGMENT = "PARTICIPANT_INFO_FRAGMENT";
     public final static String PARTICIPANTS_FRAGMENT = "PARTICIPANTS_FRAGMENT";
     public final static String POPULATE_FRAGMENT = "POPULATE_FRAGMENT";
-    public final static String STAT_ENTRY_FRAGMENT = "STAT_ENTRY_FRAGMENT";
     public final static String TOURNAMENT_DISPLAY_FRAGMENT = "TOURNAMENT_DISPLAY_FRAGMENT";
     public final static String TOURNAMENT_SETTINGS_FRAGMENT = "TOURNAMENT_SETTINGS_FRAGMENT";
 
@@ -58,9 +57,6 @@ public class FragmentFactory {
                 break;
             case (POPULATE_FRAGMENT):
                 fragment = new PopulateFragment();
-                break;
-            case (STAT_ENTRY_FRAGMENT):
-                fragment = new StatEntryFragment();
                 break;
             case (TOURNAMENT_DISPLAY_FRAGMENT):
                 fragment = new TournamentDisplayFragment();

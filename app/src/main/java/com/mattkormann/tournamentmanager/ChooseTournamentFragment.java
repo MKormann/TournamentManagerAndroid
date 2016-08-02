@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
@@ -31,6 +32,12 @@ public class ChooseTournamentFragment extends DialogFragment
 
     public static final String TOURNAMENT_TYPE = "TOURNAMENT_TYPE";
     public static final String START_AFTER = "START_AFTER";
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(TOURNAMENT_LOADER, null, this);
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle bundle) {

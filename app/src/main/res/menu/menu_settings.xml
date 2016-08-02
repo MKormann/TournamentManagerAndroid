@@ -4,9 +4,8 @@
     tools:context="com.mattkormann.tournamentmanager.MainActivity"
     android:id="@+id/appBarMenu">
     <item
-        android:id="@+id/tournament_settings"
-        android:icon="@drawable/ic_settings_white_24dp"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:id="@+id/accept_settings"
+        android:icon="@drawable/ic_check_white_24dp"
+        android:title="@string/acceptSettings"
         app:showAsAction="always" />
 </menu>

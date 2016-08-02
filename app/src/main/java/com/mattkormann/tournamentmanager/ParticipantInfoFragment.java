@@ -49,9 +49,11 @@ public class ParticipantInfoFragment extends DialogFragment
 
         Bundle arguments = getArguments();
         participantUri = arguments.getParcelable(ParticipantsFragment.PARTICIPANT_URI);
+        boolean addingNew = arguments.getBoolean(ParticipantsFragment.ADDING_NEW);
 
-        if (participantUri != null) {
+        if (participantUri != null && !addingNew) {
             Cursor c = getActivity().getContentResolver().query(participantUri, null, null, null, null);
+            c.moveToFirst();
             name = c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME));
             mEditText.setText(name);
             isTeam = c.getInt(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)) == 1;
