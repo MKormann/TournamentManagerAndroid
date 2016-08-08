@@ -19,7 +19,7 @@ import android.view.ViewGroup;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.util.HistoryAdapter;
 
-public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {;
 
     private HistoryFragmentListener mCallback;
     private RecyclerView recyclerView;
@@ -35,7 +35,7 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(PARTICIPANT_LOADER, null, this);
+        getLoaderManager().initLoader(TOURNAMENT_LOADER, null, this);
     }
 
     @Override
@@ -72,11 +72,12 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
                 alertDialogBuilder.show();
             }
         });
+
         recyclerView.setAdapter(historyAdapter);
         recyclerView.setHasFixedSize(true);
 
         return view;
-    }
+    };
 
     @Override
     public void onAttach(Context context) {
@@ -111,7 +112,7 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
                         DatabaseContract.ParticipantTable._ID + " ASC");
             case TOURNAMENT_LOADER:
                 return new CursorLoader(getActivity(),
-                        DatabaseContract.TournamentHistory.CONTENT_URI,
+                        DatabaseContract.TournamentHistory.CONTENT_HISTORY_URI,
                         null,
                         null,
                         null,

@@ -112,9 +112,12 @@ public class DatabaseContract {
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
 
+        public static final Uri CONTENT_HISTORY_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).appendPath("history").build();
+
         public static Uri buildSavedTournamentUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
+    }
 
         public static final String COLUMN_NAME_TOURNAMENT_NAME = "tournamentName";
         public static final String COLUMN_NAME_SIZE = "size";

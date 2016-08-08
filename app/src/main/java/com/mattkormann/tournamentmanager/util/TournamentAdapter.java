@@ -16,7 +16,11 @@ import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.tournaments.SimpleTournamentInfo;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Matt on 6/1/2016.
@@ -57,6 +61,9 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
 
     private Cursor cursor = null;
     private final TournamentClickListener clickListener;
+    private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final DateFormat df2 = new SimpleDateFormat("MM/dd/yy HH:mm a");
+
 
     public TournamentAdapter(TournamentClickListener clickListener) {
         this.clickListener = clickListener;
@@ -77,8 +84,15 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
                 DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME)));
         viewHolder.sizeView.setText("Size: " + cursor.getInt(cursor.getColumnIndex(
                 DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE)));
-        viewHolder.dateView.setText(cursor.getString(cursor.getColumnIndex(
-                DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME)));
+        String dateString = cursor.getString(cursor.getColumnIndex(
+                DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME));
+        try {
+            Date date = df.parse(dateString);
+            String displayDate = df2.format(date);
+            viewHolder.dateView.setText(displayDate);
+        } catch (ParseException pe) {
+            viewHolder.dateView.setText("Unknown");
+        }
     }
 
     @Override
@@ -90,4 +104,6 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
         this.cursor = cursor;
         notifyDataSetChanged();
     }
+
+
 }

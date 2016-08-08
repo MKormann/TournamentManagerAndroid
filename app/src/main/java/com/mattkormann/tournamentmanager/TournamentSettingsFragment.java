@@ -7,6 +7,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,10 +20,12 @@ import com.mattkormann.tournamentmanager.util.StatEntryPreferenceDialogFragmentC
 /**
  * Created by Matt on 6/22/2016.
  */
-public class TournamentSettingsFragment extends PreferenceFragmentCompat {
+public class TournamentSettingsFragment extends PreferenceFragmentCompat
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     Preference switchPref;
     Preference statEntryPref;
+    SharedPreferences sharedPreferences;
     private TournamentSettingsListener mCallback;
 
     public TournamentSettingsFragment() {
@@ -31,11 +34,10 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String currentPrefFilename = prefs.getString(MainActivity.CURRENT_PREFS, null);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String currentPrefFilename = sharedPreferences.getString(MainActivity.CURRENT_PREFS, null);
         if (currentPrefFilename != null)
-            getPreferenceManager().setSharedPreferencesName(currentPrefFilename);
+            sharedPreferences = getContext().getSharedPreferences(currentPrefFilename, Context.MODE_PRIVATE);
 
         addPreferencesFromResource(R.xml.preferences);
 
@@ -43,10 +45,15 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
         switchPref = findPreference("pref_useStats");
         switchPref.setOnPreferenceChangeListener(switchListener);
 
-        boolean stats = prefs.getBoolean("pref_useStats", false);
-        if (!stats) statEntryPref.setEnabled(false);
+        boolean stats = sharedPreferences.getBoolean("pref_useStats", false);
+        statEntryPref.setEnabled(stats);
 
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Preference preference = findPreference(key);
     }
 
     @Override

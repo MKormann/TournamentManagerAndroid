@@ -10,6 +10,7 @@
     <string name="button_teams">Teams</string>
     <string name="button_history">History</string>
     <string name="button_exit">Exit</string>
+    <string name="title_history">Tournament History</string>
     <string name="title_participants">Roster</string>
     <string name="add_participant">Add Participant</string>
     <string name="edit_participant">Edit Participant</string>
@@ -80,5 +81,6 @@
     <string name="type">Type:</string>
     <string name="team">Team</string>
     <string name="individual">Individual</string>
+    <string name="tournamentSizeText">Size: %d</string>
 
 </resources>
