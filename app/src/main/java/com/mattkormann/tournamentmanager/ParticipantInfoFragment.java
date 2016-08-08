@@ -66,19 +66,11 @@ public class ParticipantInfoFragment extends DialogFragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-        getActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-
-        //Hide keyboard
-        getActivity().getWindow().setSoftInputMode(
-                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
-        );
     }
 
     @Override
