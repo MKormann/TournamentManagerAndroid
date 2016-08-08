@@ -37,11 +37,9 @@
             MatchDisplayFragment.MatchDisplayListener {
 
         private Tournament currentTournament;
-        private SharedPreferences sharedPreferences;
         private boolean phoneDevice = true;
         private boolean startingNewTournament = false;
 
-        public static final String CURRENT_PREFS = "CURRENT_PREFS";
         public static final String URI_ARG = "URI_ARG";
 
         @Override
@@ -52,10 +50,6 @@
             setSupportActionBar(myToolbar);
 
             PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-            String currentPrefs = PreferenceManager.getDefaultSharedPreferences(this).getString(CURRENT_PREFS, null);
-            if (currentPrefs != null) {
-                sharedPreferences = getSharedPreferences(currentPrefs, MODE_PRIVATE);
-            }
 
             int screenSize = getResources().getConfiguration().screenLayout &
                     Configuration.SCREENLAYOUT_SIZE_MASK;
@@ -178,11 +172,7 @@
         }
 
         @Override
-        public void advanceFromSettings(SharedPreferences sp) {
-            sharedPreferences = sp;
-            if (sharedPreferences == null) {
-                sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            }
+        public void advanceFromSettings() {
             //Check if beginning new tournament, and if so proceed to choosing participants
             //else return to main screen
             if (startingNewTournament) {
@@ -191,16 +181,8 @@
             } else swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
         }
 
-        public void switchDefaultPrefsToCurrentTournament() {
-            if (currentTournament != null) {
-                String prefName = TournamentDAO.getTournamentPrefsName(currentTournament);
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-                editor.putString(CURRENT_PREFS, prefName);
-                editor.apply();
-            }
-        }
-
         public void createNewTournamentFromCurrentSettings() {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             String name = sharedPreferences.getString("pref_tournamentName", "Tournament");
             int size = sharedPreferences.getInt("pref_tournamentSize", Tournament.MIN_TOURNAMENT_SIZE);
             boolean useStats = sharedPreferences.getBoolean("pref_useStats", false);
@@ -228,7 +210,6 @@
                     tournamentCursor, participantCursor);
             tournament.setSavedId(Integer.parseInt(uri.getLastPathSegment()));
             setCurrentTournament(tournament);
-            switchDefaultPrefsToCurrentTournament();
             swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
         }
 

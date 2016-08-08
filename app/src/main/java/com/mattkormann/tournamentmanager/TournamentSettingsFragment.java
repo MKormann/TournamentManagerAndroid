@@ -20,8 +20,7 @@ import com.mattkormann.tournamentmanager.util.StatEntryPreferenceDialogFragmentC
 /**
  * Created by Matt on 6/22/2016.
  */
-public class TournamentSettingsFragment extends PreferenceFragmentCompat
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class TournamentSettingsFragment extends PreferenceFragmentCompat {
 
     Preference switchPref;
     Preference statEntryPref;
@@ -35,9 +34,6 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String currentPrefFilename = sharedPreferences.getString(MainActivity.CURRENT_PREFS, null);
-        if (currentPrefFilename != null)
-            sharedPreferences = getContext().getSharedPreferences(currentPrefFilename, Context.MODE_PRIVATE);
 
         addPreferencesFromResource(R.xml.preferences);
 
@@ -52,11 +48,6 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Preference preference = findPreference(key);
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_settings, menu);
@@ -67,7 +58,7 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat
         int id = item.getItemId();
         switch (id) {
             case (R.id.accept_settings) :
-                mCallback.advanceFromSettings(getPreferenceManager().getSharedPreferences());
+                mCallback.advanceFromSettings();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -123,6 +114,6 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat
     };
 
     public interface TournamentSettingsListener {
-        void advanceFromSettings(SharedPreferences sp);
+        void advanceFromSettings();
     }
 }

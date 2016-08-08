@@ -154,7 +154,6 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
                                     DatabaseContract.TournamentHistory.buildSavedTournamentUri(id),
                                     contentValues, null, null);
                         }
-                        mCallback.switchDefaultPrefsToCurrentTournament();
                         mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_DISPLAY_FRAGMENT));
                     }
                 })
