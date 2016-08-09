@@ -160,7 +160,7 @@ public class Tournament {
         if (prelimMatches > 0) {
             //Assign next match id for the preliminary round matches
             for (int i = 0, j = getRoundStartDelimiter(2); i <= getRoundEndDelimiter(1); j++) {
-                if (matches[j].getParticipantSeed(1) == Match.NOT_YET_ASSIGNED) {
+                if (matches[j].getParticipantSeed(0) <= prelimMatches) {
                     matches[i++].setNextMatchId(j);
                 }
             }

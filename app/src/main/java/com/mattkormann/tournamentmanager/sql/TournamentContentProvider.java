@@ -114,6 +114,15 @@ public class TournamentContentProvider extends ContentProvider {
                 String t = DatabaseContract.TournamentHistory.TABLE_NAME;
                 String p = DatabaseContract.ParticipantTable.TABLE_NAME;
 
+                projection = new String[] {
+                        t + "." + DatabaseContract.TournamentHistory._ID,
+                        DatabaseContract.TournamentHistory.COLUMN_NAME_TOURNAMENT_NAME,
+                        DatabaseContract.TournamentHistory.COLUMN_NAME_SIZE,
+                        DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID,
+                        DatabaseContract.TournamentHistory.COLUMN_NAME_SAVE_TIME,
+                        DatabaseContract.ParticipantTable.COLUMN_NAME_NAME
+                };
+
                 queryBuilder.setTables(t + " LEFT OUTER JOIN " +
                         p + " ON " +
                         t + "." + DatabaseContract.TournamentHistory.COLUMN_NAME_WINNER_ID + "=" +

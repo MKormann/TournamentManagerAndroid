@@ -103,13 +103,6 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case PARTICIPANT_LOADER:
-                return new CursorLoader(getActivity(),
-                        DatabaseContract.ParticipantTable.CONTENT_URI,
-                        null,
-                        DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?",
-                        new String[]{"0"}, //TODO teams
-                        DatabaseContract.ParticipantTable._ID + " ASC");
             case TOURNAMENT_LOADER:
                 return new CursorLoader(getActivity(),
                         DatabaseContract.TournamentHistory.CONTENT_HISTORY_URI,

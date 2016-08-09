@@ -104,7 +104,7 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
 
     //Collects all text entered into text boxes
     public void collectEntries() {
-        for (int i = 0; i < editTexts.length; i++) {
+        for (int i = 0; i < statCategoriesArray.length; i++) {
             statCategoriesArray[i] = editTexts[i].getText().toString();
         }
     }

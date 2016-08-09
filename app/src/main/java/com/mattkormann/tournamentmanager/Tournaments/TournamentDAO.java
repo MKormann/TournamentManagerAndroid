@@ -122,7 +122,9 @@ public class TournamentDAO {
         //Read stat values from database, convert to double array
         int numStats = statCategories.length;
         String statValuesString = c.getString(c.getColumnIndex(TournamentHistory.COLUMN_NAME_STAT_VALUES));
-        String[] statValuesArray = stringToArray(statValuesString);
+        String[] statValuesArray;
+        if (statValuesString.equals("")) statValuesArray = new String[0];
+        else statValuesArray = stringToArray(statValuesString);
         double[] statistics = new double[statValuesArray.length];
         for (int i = 0; i < statistics.length; i++) {
             statistics[i] = Double.valueOf(statValuesArray[i]);
@@ -197,16 +199,5 @@ public class TournamentDAO {
     //Converts database string into array object
     private static String[] stringToArray(String databaseString) {
         return databaseString.split(strSeparator);
-    }
-
-    public static String getTournamentPrefsName(Tournament tournament) {
-        String name = tournament.getName();
-        int id = tournament.getSavedId();
-        return getTournamentPrefsName(name, id);
-    }
-
-    public static String getTournamentPrefsName(String name, int id) {
-        String prefsName = name + prefSeparator + id + prefSuffix;
-        return prefsName;
     }
 }
