@@ -222,8 +222,6 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
             Participant p = ParticipantFactory.getParticipant("single",
                     selectedParticipantName, selectedParticipantId);
             participants.put(selectedSeed, p);
-            System.out.println("Assigned participant " + selectedParticipantId + ": " + selectedParticipantName
-                    + " to seed " + selectedSeed);
             clearSelections();
             updateSeedList();
             if (!areAnyUnassigned()) startButton.setEnabled(true);

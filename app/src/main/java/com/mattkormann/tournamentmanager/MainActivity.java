@@ -75,21 +75,6 @@
 
         }
 
-        // show menu if app is running on a phone or a portrait-oriented tablet
-        @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-            // get the device's current orientation
-            int orientation = getResources().getConfiguration().orientation;
-
-            // display the app's menu only in portrait orientation
-            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                // inflate the menu
-                getMenuInflater().inflate(R.menu.menu_main, menu);
-                return true;
-            } else
-                return false;
-        }
-
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
@@ -303,11 +288,16 @@
             }
         }
 
-        public void saveAndExit() {
+        @Override
+        public void saveTournament() {
             ContentValues values = TournamentDAO.getFullTournamentContentValues(currentTournament);
             Uri uri = DatabaseContract.TournamentHistory.buildSavedTournamentUri(currentTournament.getSavedId());
             int updatedRows = getContentResolver().update(uri, values, null, null);
             //if (updatedRows < 1) throw new //TODO exception if can't save
+        }
+
+        @Override
+        public void exitToMain() {
             swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
             currentTournament = null;
         }

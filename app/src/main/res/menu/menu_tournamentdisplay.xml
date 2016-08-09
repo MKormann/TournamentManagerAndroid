@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.mattkormann.tournamentmanager.MainActivity"
+    android:id="@+id/appBarMenuTournamentDisplay">
+    <item
+        android:id="@+id/save_tournament"
+        android:icon="@drawable/ic_save_white_24dp"
+        android:title="@string/saveTournament"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/exit_tournament"
+        android:icon="@drawable/ic_cancel_white_24dp"
+        android:title="@string/exitTournament"
+        app:showAsAction="always" />
+</menu>

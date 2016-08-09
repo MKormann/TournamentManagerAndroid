@@ -82,5 +82,13 @@
     <string name="team">Team</string>
     <string name="individual">Individual</string>
     <string name="tournamentSizeText">Size: %d</string>
+    <string name="saveTournament">Save Tournament</string>
+    <string name="exitTournament">Exit Tournament</string>
+    <string name="createTournamentTitle">Create New Tournament?</string>
+    <string name="createTournamentMessage">Create new tournament from given settings?</string>
+    <string name="createTournamentMessageOverwrite">Create new tournament from given settings? (Any unsaved tournaments will be lost.)</string>
+    <string name="tournamentSaved">Tournament saved.</string>
+    <string name="exitTournamentTitle">Exit Without Saving</string>
+    <string name="exitTournamentMessage">Would you like to save the tournament before exiting?</string>
 
 </resources>

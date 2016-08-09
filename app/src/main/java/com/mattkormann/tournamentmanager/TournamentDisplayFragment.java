@@ -6,9 +6,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.Toast;
 
 import com.mattkormann.tournamentmanager.tournaments.Match;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
@@ -76,7 +80,50 @@ public class TournamentDisplayFragment extends Fragment {
 
         addMatchBracketViewsToGrid();
 
+        setHasOptionsMenu(true);
+
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_tournamentdisplay, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case (R.id.save_tournament) :
+                mCallback.saveTournament();
+                Toast.makeText(getContext(),
+                        getString(R.string.tournamentSaved), Toast.LENGTH_LONG).show();
+                break;
+            case (R.id.exit_tournament) :
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                alertDialogBuilder.setTitle(getString(R.string.exitTournamentTitle));
+                alertDialogBuilder.setMessage(getString(R.string.exitTournamentMessage));
+                alertDialogBuilder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCallback.saveTournament();
+                        Toast.makeText(getContext(),
+                                getString(R.string.tournamentSaved), Toast.LENGTH_LONG).show();
+                        mCallback.exitToMain();
+                    }
+                });
+                alertDialogBuilder.setNegativeButton(getString(R.string.button_exit), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCallback.exitToMain();
+                    }
+                });
+                alertDialogBuilder.show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //Create a bracket matchup for each match in tournament
@@ -215,7 +262,7 @@ public class TournamentDisplayFragment extends Fragment {
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mCallback.saveAndExit();
+                        mCallback.saveTournament();
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -248,7 +295,8 @@ public class TournamentDisplayFragment extends Fragment {
         Tournament getCurrentTournament();
         void displayMatch(int matchId);
         void setWinner(int matchId, int winner);
-        void saveAndExit();
+        void saveTournament();
+        void exitToMain();
     }
 
 }

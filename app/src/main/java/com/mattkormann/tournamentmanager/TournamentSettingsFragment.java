@@ -1,17 +1,19 @@
 package com.mattkormann.tournamentmanager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
-import android.support.v7.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.mattkormann.tournamentmanager.tournaments.Tournament;
 import com.mattkormann.tournamentmanager.util.SeekBarPreference;
 import com.mattkormann.tournamentmanager.util.SeekBarPreferenceDialogFragmentCompat;
 import com.mattkormann.tournamentmanager.util.StatEntryPreference;
@@ -25,6 +27,7 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
     Preference switchPref;
     Preference statEntryPref;
     SharedPreferences sharedPreferences;
+    boolean hasACurrentTournament;
     private TournamentSettingsListener mCallback;
 
     public TournamentSettingsFragment() {
@@ -49,8 +52,8 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_settings, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -58,7 +61,26 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
         int id = item.getItemId();
         switch (id) {
             case (R.id.accept_settings) :
-                mCallback.advanceFromSettings();
+                hasACurrentTournament = mCallback.getCurrentTournament() != null;
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                alertDialogBuilder.setTitle(getString(R.string.createTournamentTitle));
+                if (hasACurrentTournament)
+                    alertDialogBuilder.setMessage(getString(R.string.createTournamentMessageOverwrite));
+                else
+                    alertDialogBuilder.setMessage(getString(R.string.createTournamentMessage));
+                alertDialogBuilder.setPositiveButton(getString(R.string.buttonOK), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mCallback.advanceFromSettings();
+                    }
+                });
+                alertDialogBuilder.setNegativeButton(getString(R.string.buttonCancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialogBuilder.show();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -115,5 +137,6 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
 
     public interface TournamentSettingsListener {
         void advanceFromSettings();
+        Tournament getCurrentTournament();
     }
 }
