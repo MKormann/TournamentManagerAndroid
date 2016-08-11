@@ -4,7 +4,7 @@
     <string name="acceptSettings">Accept Settings</string>
     <string name="tap_start">Tap screen to start.</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="button_create_tournament">Create Tournament</string>
+    <string name="button_continue_tournament">Continue Tournament</string>
     <string name="button_start_tournament">Start Tournament</string>
     <string name="button_participants">Participants</string>
     <string name="button_teams">Teams</string>
@@ -50,7 +50,6 @@
     <string name="createNew">Create New</string>
     <string name="load">Edit Saved</string>
     <string name="start_tournament_create_new">New</string>
-    <string name="start_tournament_load_saved">Load Template</string>
     <string name="start_tournament_load_in_progress">Continue</string>
     <string name="stat_entry_title">Enter Stat Categories</string>
     <string name="matchNo">Match #</string>

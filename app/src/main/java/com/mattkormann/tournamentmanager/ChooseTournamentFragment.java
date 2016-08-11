@@ -11,6 +11,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -31,7 +32,6 @@ public class ChooseTournamentFragment extends DialogFragment
     private static final int TOURNAMENT_LOADER = 0;
 
     public static final String TOURNAMENT_TYPE = "TOURNAMENT_TYPE";
-    public static final String START_AFTER = "START_AFTER";
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -50,16 +50,15 @@ public class ChooseTournamentFragment extends DialogFragment
 
         if (getArguments() != null) {
             inProgressOnly = getArguments().getBoolean(TOURNAMENT_TYPE);
-            startAfter = getArguments().getBoolean(START_AFTER);
         }
 
         recyclerView = (RecyclerView) chooseTournamentFragment.findViewById(R.id.chooseTournamentRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
         tournamentAdapter = new TournamentAdapter(new TournamentAdapter.TournamentClickListener() {
             @Override
             public void onClick(int tournamentId) {
                 Uri tournamentUri = DatabaseContract.TournamentHistory.buildSavedTournamentUri(tournamentId);
-                if (startAfter) mCallback.setCurrentTournamentAndDisplay(tournamentUri);
-                else mCallback.swapFragment(FragmentFactory.getFragment(FragmentFactory.MAIN_MENU_FRAGMENT));
+                mCallback.setCurrentTournamentAndDisplay(tournamentUri);
                 dismiss();
             }
         });

@@ -25,7 +25,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(DatabaseContract.SavedTournaments.DELETE_TABLE);
         db.execSQL(DatabaseContract.TournamentHistory.DELETE_TABLE);
         onCreate(db);
     }

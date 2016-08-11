@@ -36,48 +36,19 @@ public class MainMenuFragment extends Fragment implements
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(getActivity(), startButton);
-                popup.getMenu().add(Menu.NONE, R.id.start_tournament_create_new,
-                        Menu.NONE, getString(R.string.start_tournament_create_new));
-                popup.getMenu().add(Menu.NONE, R.id.start_tournament_load_saved,
-                        Menu.NONE, getString(R.string.start_tournament_load_saved));
-                popup.getMenu().add(Menu.NONE, R.id.start_tournament_load_in_progress,
-                        Menu.NONE, getString(R.string.start_tournament_load_in_progress));
-
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        mCallback.swapFragment(item.getItemId());
-                        return true;
-                    }
-                });
-
-                popup.show();
+                mCallback.swapFragment(startButton.getId());
             }
         });
 
         //Listener for createButton includes a popup menu.
-        final Button createButton = (Button)view.findViewById(R.id.button_create_tournament);
-        createButton.setOnClickListener(new View.OnClickListener() {
+        final Button continueButton = (Button)view.findViewById(R.id.button_continue_tournament);
+        continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(getActivity(), createButton);
-                popup.getMenu().add(Menu.NONE, R.id.create_tournament_new_menu,
-                        Menu.NONE, getString(R.string.createNew));
-                popup.getMenu().add(Menu.NONE, R.id.create_tournament_load_menu,
-                        Menu.NONE, getString(R.string.load));
-
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                      mCallback.swapFragment(item.getItemId());
-                      return true;
-                    }
-                });
-
-                popup.show();
+                mCallback.swapFragment(continueButton.getId());
             }
         });
+
         Button participantsButton = (Button)view.findViewById(R.id.button_participants);
         participantsButton.setOnClickListener(this);
         Button teamsButton = (Button)view.findViewById(R.id.button_teams);

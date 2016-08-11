@@ -56,7 +56,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     private Cursor cursor = null;
     private final HistoryClickListener clickListener;
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final DateFormat df2 = new SimpleDateFormat("MM/dd/yy HH:mm a");
+    private final DateFormat df2 = new SimpleDateFormat("MM/dd/yy hh:mm a");
 
 
     public HistoryAdapter(HistoryClickListener clickListener) {

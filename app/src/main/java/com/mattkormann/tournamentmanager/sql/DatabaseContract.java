@@ -25,7 +25,6 @@ public class DatabaseContract {
     public static final String[] TABLE_CREATE_STATEMENTS = {
             ParticipantTable.CREATE_TABLE,
             TeamPairings.CREATE_TABLE,
-            SavedTournaments.CREATE_TABLE,
             TournamentHistory.CREATE_TABLE
     };
 
@@ -70,37 +69,6 @@ public class DatabaseContract {
                 TABLE_NAME + " (" +
                 COLUMN_NAME_PART_ID + INTEGER_TYPE + COMMA_SEP +
                 COLUMN_NAME_TEAM_ID + INTEGER_TYPE + " )";
-
-        public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-    }
-
-    //Table of saved tournament templates
-    public static abstract class SavedTournaments implements BaseColumns {
-        public static final String TABLE_NAME = "savedTournaments";
-
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(TABLE_NAME).build();
-
-        public static Uri buildTemplateUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-        public static final String COLUMN_NAME_NAME = "tournamentName";
-        public static final String COLUMN_NAME_SIZE = "size";
-        public static final String COLUMN_NAME_DOUBLE_ELIM = "doubleElim";
-        public static final String COLUMN_NAME_TEAM_SIZE = "teamSize";
-        public static final String COLUMN_NAME_USE_STATS = "useStats";
-        public static final String COLUMN_NAME_STATS_ARRAY = "statsArray";
-
-        public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
-                TABLE_NAME + " (" +
-                _ID + " INTEGER PRIMARY KEY," +
-                COLUMN_NAME_NAME + TEXT_TYPE + COMMA_SEP +
-                COLUMN_NAME_SIZE + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_DOUBLE_ELIM + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_TEAM_SIZE + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_USE_STATS + INTEGER_TYPE + COMMA_SEP +
-                COLUMN_NAME_STATS_ARRAY + TEXT_TYPE + " )";
 
         public static final String DELETE_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }

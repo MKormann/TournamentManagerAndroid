@@ -1,25 +1,18 @@
 package com.mattkormann.tournamentmanager.util;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
-import com.mattkormann.tournamentmanager.tournaments.SimpleTournamentInfo;
-import com.mattkormann.tournamentmanager.tournaments.Tournament;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -35,15 +28,16 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
         public final TextView idView;
         public final TextView nameView;
         public final TextView sizeView;
-        public final TextView dateView;
+        public final TextView lastSavedView;
         private int tournamentId;
 
         public ViewHolder(View itemView) {
             super(itemView);
+
             idView = (TextView)itemView.findViewById(R.id.list_tournament_id);
             nameView = (TextView)itemView.findViewById(R.id.list_tournament_name);
             sizeView = (TextView)itemView.findViewById(R.id.list_tournament_size);
-            dateView = (TextView)itemView.findViewById(R.id.list_tournament_date);
+            lastSavedView = (TextView)itemView.findViewById(R.id.list_tournament_date);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -62,7 +56,7 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
     private Cursor cursor = null;
     private final TournamentClickListener clickListener;
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final DateFormat df2 = new SimpleDateFormat("MM/dd/yy HH:mm a");
+    private final DateFormat df2 = new SimpleDateFormat("MM/dd/yy hh:mm a");
 
 
     public TournamentAdapter(TournamentClickListener clickListener) {
@@ -89,9 +83,9 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.Vi
         try {
             Date date = df.parse(dateString);
             String displayDate = df2.format(date);
-            viewHolder.dateView.setText(displayDate);
+            viewHolder.lastSavedView.setText(displayDate);
         } catch (ParseException pe) {
-            viewHolder.dateView.setText("Unknown");
+            viewHolder.lastSavedView.setText("Unknown");
         }
     }
 

@@ -28,8 +28,6 @@ public class TournamentContentProvider extends ContentProvider {
     private static final int SINGLE_PARTICIPANT = 1;
     private static final int PARTICIPANTS = 2;
     private static final int TEAM_PAIRINGS = 4;
-    private static final int SINGLE_TEMPLATE = 5;
-    private static final int TEMPLATES = 6;
     private static final int SINGLE_TOURNAMENT = 7;
     private static final int TOURNAMENTS = 8;
     private static final int TOURNAMENT_HISTORY = 9;
@@ -45,12 +43,6 @@ public class TournamentContentProvider extends ContentProvider {
 
         uriMatcher.addURI(DatabaseContract.AUTHORITY,
                 DatabaseContract.TeamPairings.TABLE_NAME, TEAM_PAIRINGS);
-
-        uriMatcher.addURI(DatabaseContract.AUTHORITY,
-                DatabaseContract.SavedTournaments.TABLE_NAME + "/#", SINGLE_TEMPLATE);
-
-        uriMatcher.addURI(DatabaseContract.AUTHORITY,
-                DatabaseContract.SavedTournaments.TABLE_NAME, TEMPLATES);
 
         uriMatcher.addURI(DatabaseContract.AUTHORITY,
                 DatabaseContract.TournamentHistory.TABLE_NAME + "/#", SINGLE_TOURNAMENT);
@@ -93,14 +85,6 @@ public class TournamentContentProvider extends ContentProvider {
                 break;
             case TEAM_PAIRINGS:
                 queryBuilder.setTables(DatabaseContract.TeamPairings.TABLE_NAME);
-                break;
-            case SINGLE_TEMPLATE:
-                queryBuilder.setTables(DatabaseContract.SavedTournaments.TABLE_NAME);
-                queryBuilder.appendWhere(DatabaseContract.SavedTournaments._ID + "=" +
-                        uri.getLastPathSegment());
-                break;
-            case TEMPLATES:
-                queryBuilder.setTables(DatabaseContract.SavedTournaments.TABLE_NAME);
                 break;
             case SINGLE_TOURNAMENT:
                 queryBuilder.setTables(DatabaseContract.TournamentHistory.TABLE_NAME);
@@ -161,11 +145,6 @@ public class TournamentContentProvider extends ContentProvider {
                         DatabaseContract.TeamPairings.TABLE_NAME, null, values);
                 if (rowId > 0) newUri = DatabaseContract.TeamPairings.buildTeamPairingUri(rowId);
                 break;
-            case TEMPLATES:
-                rowId = dbHelper.getWritableDatabase().insert(
-                        DatabaseContract.SavedTournaments.TABLE_NAME, null, values);
-                if (rowId > 0) newUri = DatabaseContract.SavedTournaments.buildTemplateUri(rowId);
-                break;
             case TOURNAMENTS:
                 rowId = dbHelper.getWritableDatabase().insert(
                         DatabaseContract.TournamentHistory.TABLE_NAME, null, values);
@@ -196,11 +175,6 @@ public class TournamentContentProvider extends ContentProvider {
                 id = uri.getLastPathSegment();
                 tableName= DatabaseContract.ParticipantTable.TABLE_NAME;
                 idCol = DatabaseContract.ParticipantTable._ID;
-                break;
-            case SINGLE_TEMPLATE:
-                id = uri.getLastPathSegment();
-                tableName= DatabaseContract.SavedTournaments.TABLE_NAME;
-                idCol = DatabaseContract.SavedTournaments._ID;
                 break;
             case SINGLE_TOURNAMENT:
                 id = uri.getLastPathSegment();
@@ -234,11 +208,6 @@ public class TournamentContentProvider extends ContentProvider {
                 id = uri.getLastPathSegment();
                 tableName = DatabaseContract.ParticipantTable.TABLE_NAME;
                 idCol = DatabaseContract.ParticipantTable._ID;
-                break;
-            case SINGLE_TEMPLATE:
-                id = uri.getLastPathSegment();
-                tableName = DatabaseContract.SavedTournaments.TABLE_NAME;
-                idCol = DatabaseContract.SavedTournaments._ID;
                 break;
             case SINGLE_TOURNAMENT:
                 id = uri.getLastPathSegment();

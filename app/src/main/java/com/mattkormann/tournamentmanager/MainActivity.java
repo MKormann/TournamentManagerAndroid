@@ -115,24 +115,12 @@
         private Fragment getFragmentFromButton(int id) {
             Bundle args = new Bundle();
             switch (id) {
-                case (R.id.start_tournament_create_new):
+                case (R.id.button_start_tournament):
                     startingNewTournament = true;
                     return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
-                case (R.id.start_tournament_load_saved):
+                case (R.id.button_continue_tournament):
                     startingNewTournament = true;
-                    args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
-                    args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, false);
-                    return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
-                case (R.id.start_tournament_load_in_progress):
-                    startingNewTournament = true;
-                    args.putBoolean(ChooseTournamentFragment.START_AFTER, true);
                     args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, true);
-                    return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
-                case (R.id.create_tournament_new_menu):
-                    return FragmentFactory.getFragment(FragmentFactory.TOURNAMENT_SETTINGS_FRAGMENT, args);
-                case (R.id.create_tournament_load_menu):
-                    args.putBoolean(ChooseTournamentFragment.START_AFTER, false);
-                    args.putBoolean(ChooseTournamentFragment.TOURNAMENT_TYPE, false);
                     return FragmentFactory.getFragment(FragmentFactory.CHOOOSE_TOURNAMENT_FRAGMENT, args);
                 case (R.id.button_participants):
                     args.putInt(ParticipantsFragment.TYPE_TO_DISPLAY, ParticipantsFragment.INDIVIDUALS);

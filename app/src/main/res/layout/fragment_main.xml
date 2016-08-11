@@ -31,8 +31,8 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_create_tournament"
-        android:id="@+id/button_create_tournament"
+        android:text="@string/button_continue_tournament"
+        android:id="@+id/button_continue_tournament"
         android:layout_below="@+id/button_start_tournament"
         android:layout_centerHorizontal="true"
         style="@android:style/Widget.Button" />
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:text="@string/button_participants"
         android:id="@+id/button_participants"
-        android:layout_below="@+id/button_create_tournament"
+        android:layout_below="@+id/button_continue_tournament"
         android:layout_centerHorizontal="true"
         style="@android:style/Widget.Button" />
 

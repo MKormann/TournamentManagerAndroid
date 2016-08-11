@@ -263,6 +263,7 @@ public class TournamentDisplayFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mCallback.saveTournament();
+                        mCallback.exitToMain();
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
