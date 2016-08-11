@@ -89,5 +89,7 @@
     <string name="tournamentSaved">Tournament saved.</string>
     <string name="exitTournamentTitle">Exit Without Saving</string>
     <string name="exitTournamentMessage">Would you like to save the tournament before exiting?</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
 
 </resources>

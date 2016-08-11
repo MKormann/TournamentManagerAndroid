@@ -89,7 +89,8 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
     public static String arrayToString(String[] array) {
         String str = "";
         for (int i = 0; i < array.length; i++) {
-            str += array[i].toString();
+            if (array[i] == null || array[i].equals("")) continue;
+            str += array[i];
             if (i < array.length - 1) {
                 str += strSeparator;
             }
@@ -104,6 +105,7 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
 
     //Collects all text entered into text boxes
     public void collectEntries() {
+        statCategoriesArray = new String[maxStats];
         for (int i = 0; i < statCategoriesArray.length; i++) {
             statCategoriesArray[i] = editTexts[i].getText().toString();
         }
@@ -126,10 +128,7 @@ public class StatEntryPreferenceDialogFragmentCompat extends PreferenceDialogFra
     public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
             View parent = (View)view.getParent();
-            if (view.getId() == R.id.stat_entry_8) {
-                parent.findViewById(R.id.stat_OK_button).requestFocus();
-            }
-            else {
+            if (!view.getText().toString().trim().equals("") && view.getId() != R.id.stat_entry_8) {
                 EditText next = (EditText) parent.findViewById(view.getNextFocusForwardId());
                 next.setEnabled(true);
                 next.requestFocus();

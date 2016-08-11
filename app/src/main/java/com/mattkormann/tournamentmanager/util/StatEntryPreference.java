@@ -16,7 +16,6 @@ public class StatEntryPreference extends DialogPreference {
 
     public StatEntryPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setPersistent(false);
         setPositiveButtonText(R.string.buttonOK);
         setNegativeButtonText(R.string.buttonCancel);
     }

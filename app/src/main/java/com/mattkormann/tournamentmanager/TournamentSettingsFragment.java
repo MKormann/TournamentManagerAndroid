@@ -6,9 +6,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.EditTextPreference;
+import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,10 +25,10 @@ import com.mattkormann.tournamentmanager.util.StatEntryPreferenceDialogFragmentC
 /**
  * Created by Matt on 6/22/2016.
  */
-public class TournamentSettingsFragment extends PreferenceFragmentCompat {
+public class TournamentSettingsFragment extends PreferenceFragmentCompat
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    Preference switchPref;
-    Preference statEntryPref;
+    StatEntryPreference statEntryPref;
     SharedPreferences sharedPreferences;
     boolean hasACurrentTournament;
     private TournamentSettingsListener mCallback;
@@ -40,12 +43,26 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
 
         addPreferencesFromResource(R.xml.preferences);
 
-        statEntryPref = findPreference("pref_statCategories");
-        switchPref = findPreference("pref_useStats");
-        switchPref.setOnPreferenceChangeListener(switchListener);
+        statEntryPref = (StatEntryPreference)findPreference("pref_statCategories");
 
-        boolean stats = sharedPreferences.getBoolean("pref_useStats", false);
-        statEntryPref.setEnabled(stats);
+        //Set summaries of preferences
+        EditTextPreference namePref = (EditTextPreference)findPreference("pref_tournamentName");
+        namePref.setSummary(namePref.getText());
+        SeekBarPreference sizePref = (SeekBarPreference)findPreference("pref_tournamentSize");
+        sizePref.setSummary(String.valueOf(sizePref.size));
+
+        SwitchPreferenceCompat statTrackPref = (SwitchPreferenceCompat)findPreference("pref_useStats");
+        boolean useStats = statTrackPref.isChecked();
+        statEntryPref.setEnabled(useStats);
+        if (useStats) {
+            statTrackPref.setSummary(getString(R.string.on));
+            setStatEntryPrefSummary();
+        } else statTrackPref.setSummary(getString(R.string.off));
+
+        ListPreference elimPref = (ListPreference)findPreference("pref_eliminationType");
+        elimPref.setSummary(elimPref.getValue());
+        ListPreference teamPref = (ListPreference)findPreference("pref_teamSize");
+        teamPref.setSummary(teamPref.getValue());
 
         setHasOptionsMenu(true);
     }
@@ -121,19 +138,66 @@ public class TournamentSettingsFragment extends PreferenceFragmentCompat {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mCallback = null;
     }
 
-    private Preference.OnPreferenceChangeListener switchListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if ((boolean)newValue) statEntryPref.setEnabled(true);
-            else statEntryPref.setEnabled(false);
-            return true;
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreference, String key) {
+        Preference pref = findPreference(key);
+        if (pref instanceof EditTextPreference) {
+            EditTextPreference etp = (EditTextPreference)pref;
+            etp.setSummary(etp.getText());
+        } else if (pref instanceof SeekBarPreference) {
+            SeekBarPreference sbp = (SeekBarPreference)pref;
+            sbp.setSummary(String.valueOf(sbp.size));
+        } else if (pref instanceof SwitchPreferenceCompat) {
+            SwitchPreferenceCompat spc = (SwitchPreferenceCompat)pref;
+            if (spc.isChecked()) {
+                statEntryPref.setEnabled(true);
+                spc.setSummary(getString(R.string.on));
+            } else {
+                statEntryPref.setEnabled(false);
+                spc.setSummary(getString(R.string.off));
+            }
+        } else if (pref instanceof StatEntryPreference) {
+            setStatEntryPrefSummary();
+        } else if (pref instanceof ListPreference) {
+            ListPreference lp = (ListPreference)pref;
+            lp.setSummary(lp.getValue());
         }
-    };
+    }
+
+    public void setStatEntryPrefSummary() {
+        //Convert categoriesString to array and back for readability
+        String statCategoriesString = statEntryPref.statCategoriesString;
+        if (statCategoriesString == null || statCategoriesString.equals("")) {
+            statEntryPref.setSummary(getString(R.string.stat_categories_summary));
+        } else {
+            String[] statCategories = StatEntryPreferenceDialogFragmentCompat.stringToArray(statCategoriesString);
+            String summary = "";
+            for (int i = 0; i < statCategories.length; i++) {
+                summary += statCategories[i];
+                if (i < statCategories.length - 1) summary += ", ";
+            }
+            statEntryPref.setSummary(summary);
+        }
+    }
 
     public interface TournamentSettingsListener {
         void advanceFromSettings();
