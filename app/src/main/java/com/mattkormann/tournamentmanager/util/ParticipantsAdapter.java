@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.mattkormann.tournamentmanager.R;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 
+import java.util.Arrays;
+
 /**
  * Created by Matt on 5/26/2016.
  */
@@ -24,10 +26,12 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView idView;
         public final TextView nameView;
+        public final View itemView;
         private int participantId;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            this.itemView = itemView;
             idView = (TextView)itemView.findViewById(R.id.list_view_id);
             nameView = (TextView)itemView.findViewById(R.id.list_view_name);
 
@@ -47,6 +51,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     }
 
     private Cursor cursor = null;
+    private boolean[] active;
     private final ParticipantClickListener clickListener;
 
     public ParticipantsAdapter(ParticipantClickListener clickListener) {
@@ -66,6 +71,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
         holder.setParticipantId(cursor.getInt(cursor.getColumnIndex(DatabaseContract.ParticipantTable._ID)));
         holder.nameView.setText(cursor.getString(cursor.getColumnIndex(
                 DatabaseContract.ParticipantTable.COLUMN_NAME_NAME)));
+        holder.itemView.setClickable(active[position]);
     }
 
     @Override
@@ -75,6 +81,8 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
 
     public void swapCursor(Cursor cursor) {
         this.cursor = cursor;
+        active = new boolean[getItemCount()];
+        Arrays.fill(active, true);
         notifyDataSetChanged();
     }
 }

@@ -91,5 +91,6 @@
     <string name="exitTournamentMessage">Would you like to save the tournament before exiting?</string>
     <string name="on">On</string>
     <string name="off">Off</string>
+    <string name="unassign_seed">Unassign seed</string>
 
 </resources>

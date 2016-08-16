@@ -25,7 +25,6 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     private RecyclerView recyclerView;
     private HistoryAdapter historyAdapter;
 
-    private static final int PARTICIPANT_LOADER = 0;
     private static final int TOURNAMENT_LOADER = 1;
 
     public HistoryFragment() {

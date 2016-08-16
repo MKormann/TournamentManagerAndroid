@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:weightSum="2"
-    android:layout_margin="@dimen/fab_margin"
     android:id="@+id/populateFragment"
     tools:context="com.mattkormann.tournamentmanager.PopulateFragment">
 
@@ -12,6 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:layout_margin="@dimen/fab_margin"
         android:layout_weight="1">
         <TextView
             android:layout_width="match_parent"
@@ -33,6 +33,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:layout_margin="@dimen/fab_margin"
         android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
@@ -49,6 +50,11 @@
             android:layout_height="0dp"
             android:layout_weight="1">
         </android.support.v7.widget.RecyclerView>
+        <Button
+            android:id="@+id/unassign_seed"
+            android:text="@string/unassign_seed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
         <Button
             android:id="@+id/fill_participants"
             android:text="@string/fill_participants"

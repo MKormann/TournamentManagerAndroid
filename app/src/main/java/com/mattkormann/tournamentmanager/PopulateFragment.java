@@ -7,9 +7,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,29 +21,30 @@ import com.mattkormann.tournamentmanager.participants.ParticipantFactory;
 import com.mattkormann.tournamentmanager.sql.DatabaseContract;
 import com.mattkormann.tournamentmanager.tournaments.Tournament;
 import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
-import com.mattkormann.tournamentmanager.util.ParticipantsAdapter;
+import com.mattkormann.tournamentmanager.util.ParticipantsPoolAdapter;
 import com.mattkormann.tournamentmanager.util.ParticipantsSeedAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-public class PopulateFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-
-    private static final int PARTICIPANT_LOADER = 0;
+public class PopulateFragment extends Fragment {
 
     private MainActivity mCallback;
-    private ParticipantsAdapter participantsAdapter;
+    private ParticipantsPoolAdapter poolAdapter;
     private ParticipantsSeedAdapter seedAdapter;
 
+    private SortedMap<Integer, Participant> participantPool;
     private Map<Integer, Participant> participants;
     private Button startButton;
     private Button fillButton;
+    private Button unassignButton;
     private int size;
     private boolean isSeedSelected = false;
     private int selectedSeed;
     private boolean isSavedParticipantSelected = false;
-    private String selectedParticipantName;
-    private int selectedParticipantId;
+    private Participant selectedParticipant;
     private LinearLayout selectedRow;
 
     public PopulateFragment() {
@@ -56,7 +54,6 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(PARTICIPANT_LOADER, null, this);
     }
 
     @Override
@@ -80,14 +77,17 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         seedRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
         savedRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getBaseContext()));
 
-        participantsAdapter = new ParticipantsAdapter(new ParticipantsAdapter.ParticipantClickListener() {
-            @Override
-            public void onClick(String name, int participantId, LinearLayout row) {
-                onParticipantClicked(name, participantId, row);
-            }
-        });
+        participantPool = new TreeMap<>();
+        createParticipantPool();
 
-        savedRecyclerView.setAdapter(participantsAdapter);
+        poolAdapter = new ParticipantsPoolAdapter(new ParticipantsPoolAdapter.PoolClickListener() {
+            @Override
+            public void onClick(Participant participant, LinearLayout row) {
+                onParticipantClicked(participant, row);
+            }
+        }, participantPool);
+
+        savedRecyclerView.setAdapter(poolAdapter);
         savedRecyclerView.setHasFixedSize(true);
 
         participants = new HashMap<>();
@@ -119,6 +119,13 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
             public void onClick(View v) {
                 fillParticipants();
                 startButton.setEnabled(true);
+            }
+        });
+        unassignButton = (Button) view.findViewById(R.id.unassign_seed);
+        unassignButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isSeedSelected) putSeedBackInPool(selectedSeed);
             }
         });
 
@@ -158,12 +165,28 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-
                     public void onClick(DialogInterface dialog, int whichButton) {
 
                     }
                 })
                 .show();
+    }
+
+    private void createParticipantPool() {
+        Cursor c = getActivity().getContentResolver().query(
+                DatabaseContract.ParticipantTable.CONTENT_URI,
+                null,
+                DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?",
+                new String[]{"0"}, //TODO teams
+                DatabaseContract.ParticipantTable._ID + " ASC");
+
+        //c.moveToFirst();
+        while (c.moveToNext()) {
+            String name = c.getString(c.getColumnIndex(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME));
+            int id = c.getInt(c.getColumnIndex(DatabaseContract.ParticipantTable._ID));
+            Participant p = ParticipantFactory.getParticipant("single", name, id);
+            participantPool.put(id, p);
+        }
     }
 
     //Create and populate array with participants from each SeedView
@@ -197,40 +220,40 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
 
-    public void onParticipantClicked(String name, int participantId, LinearLayout row) {
-        if (participantId == selectedParticipantId) { //If clicked same participant
+    public void onParticipantClicked(Participant participant, LinearLayout row) {
+        if (participant == selectedParticipant) { //If clicked same participant
             clearSelections();
-        } else if (!isSeedSelected) { //If participant is clicked before a seed
-            if (isSavedParticipantSelected) selectedRow.setSelected(false); //If participant was currently selected
+        } else if (!isSeedSelected) { //If participant is clicked before a seed slot
+            if (isSavedParticipantSelected) { //If participant was currently selected
+                selectedRow.setSelected(false);
+            }
             isSavedParticipantSelected = true;
-            selectedParticipantName = name;
-            selectedParticipantId = participantId;
+            selectedParticipant = participant;
             selectedRow = row;
             selectedRow.setSelected(true);
-        } else if (isSeedSelected) { //If participant is clicked after a seed
+        } else if (isSeedSelected) { //If participant is clicked after a seed slot
             isSavedParticipantSelected = true;
-            selectedParticipantName = name;
-            selectedParticipantId = participantId;
+            selectedParticipant = participant;
             assignSeed();
         }
     }
 
     public void assignSeed() {
-        if (!areBothSelected() || selectedParticipantId == -1) { //Check selections are made
+        if (!areBothSelected() || selectedParticipant == null) { //Check selections are made
             clearSelections();
         } else {
-            Participant p = ParticipantFactory.getParticipant("single",
-                    selectedParticipantName, selectedParticipantId);
-            participants.put(selectedSeed, p);
+            participantPool.remove(selectedParticipant.getID());
+            Participant p = participants.put(selectedSeed, selectedParticipant);
+            if (p != null) participantPool.put(p.getID(), p); //Checks if participant was replaced and if so, adds back to pool
             clearSelections();
             updateSeedList();
+            updateSavedList();
             if (!areAnyUnassigned()) startButton.setEnabled(true);
         }
     }
 
     //Swap participants assigned to the two given seeds
     private void swapSeeds(int seed1, int seed2) {
-
         if (seed1 == seed2) {
             clearSelections();
         } else {
@@ -241,6 +264,15 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
             clearSelections();
             updateSeedList();
         }
+    }
+
+    private void putSeedBackInPool(int seed) {
+        Participant p = participants.get(seed);
+        participants.put(seed, null);
+        participantPool.put(p.getID(), p);
+        clearSelections();
+        updateSavedList();
+        updateSeedList();
     }
 
     public boolean isNothingSelected() {
@@ -255,8 +287,7 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         isSeedSelected = false;
         selectedSeed = -1;
         isSavedParticipantSelected = false;
-        selectedParticipantId = -1;
-        selectedParticipantName = "";
+        selectedParticipant = null;
         if (selectedRow != null) selectedRow.setSelected(false);
         selectedRow = null;
     }
@@ -277,7 +308,7 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     public void updateSavedList() {
-        participantsAdapter.notifyDataSetChanged();
+        poolAdapter.notifyDataSetChanged();
     }
 
     public void updateSeedList() {
@@ -295,30 +326,4 @@ public class PopulateFragment extends Fragment implements LoaderManager.LoaderCa
         super.onDetach();
         mCallback = null;
     }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case PARTICIPANT_LOADER:
-                return new CursorLoader(getActivity(),
-                        DatabaseContract.ParticipantTable.CONTENT_URI,
-                        null,
-                        DatabaseContract.ParticipantTable.COLUMN_NAME_IS_TEAM + "=?",
-                        new String[]{"0"}, //TODO teams
-                        DatabaseContract.ParticipantTable._ID + " ASC");
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        participantsAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        participantsAdapter.swapCursor(null);
-    }
-
 }
