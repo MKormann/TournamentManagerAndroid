@@ -1,10 +1,13 @@
 package com.mattkormann.tournamentmanager.util;
 
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mattkormann.tournamentmanager.R;
@@ -29,6 +32,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         public final TextView sizeView;
         public final TextView winnerView;
         public final TextView lastSavedView;
+        public final LinearLayout layout;
         private int tournamentId;
 
         public ViewHolder(View itemView) {
@@ -38,6 +42,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             sizeView = (TextView)itemView.findViewById(R.id.sizeView);
             winnerView = (TextView)itemView.findViewById(R.id.winnerView);
             lastSavedView = (TextView)itemView.findViewById(R.id.savedView);
+            layout = (LinearLayout)itemView.findViewById(R.id.singleLayout);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -45,6 +50,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                     clickListener.onClick(tournamentId, nameView.getText().toString());
                 }
             });
+        }
+
+        public void setBackground(boolean even) {
+            if (even) layout.setBackgroundColor(Color.LTGRAY);
+            else layout.setBackgroundColor(Color.WHITE);
         }
 
         public void setTournamentId(int tournamentId) {
@@ -72,6 +82,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.setBackground(position % 2 == 0);
         cursor.moveToPosition(position);
         holder.setTournamentId(cursor.getInt(cursor.getColumnIndex(DatabaseContract.TournamentHistory._ID)));
         holder.nameView.setText(cursor.getString(cursor.getColumnIndex(

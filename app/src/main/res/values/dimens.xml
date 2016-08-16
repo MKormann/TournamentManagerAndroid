@@ -9,6 +9,7 @@
     <dimen name="generic_padding">30dp</dimen>
     <dimen name="generic_half_padding">15dp</dimen>
     <dimen name="table_font_size">20sp</dimen>
+    <dimen name="last_saved_font_size">12sp</dimen>
     <dimen name="match_bracket_display_height">30dp</dimen>
     <dimen name="match_bracket_display_width">120dp</dimen>
     <dimen name="grid_spacing">5dp</dimen>

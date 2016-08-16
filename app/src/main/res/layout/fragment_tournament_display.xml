@@ -5,19 +5,11 @@
     android:id="@+id/tournamentDisplayFragment"
     tools:context="com.mattkormann.tournamentmanager.TournamentDisplayFragment">
 
-         <ScrollView
-            android:id="@+id/tournament_scroll_view"
-            android:layout_margin="@dimen/fab_margin"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <GridLayout
-                android:id="@+id/tournament_grid"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </GridLayout>
-
-        </ScrollView>
+     <GridLayout
+        android:id="@+id/tournament_grid"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+     </GridLayout>
 
 </com.mattkormann.tournamentmanager.util.ZoomableView>

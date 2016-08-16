@@ -75,6 +75,8 @@
     <string name="size">Size</string>
     <string name="winner">Winner</string>
     <string name="lastSaved">Last Saved</string>
+    <string name="seed">Seed</string>
+    <string name="id">ID</string>
     <string name="loadTournamentTitle">Load tournament</string>
     <string name="loadTournamentMessage">Load %s?</string>
     <string name="type">Type:</string>
@@ -92,5 +94,7 @@
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="unassign_seed">Unassign seed</string>
+    <string name="tooManyGenerics">Too many generic participants created. Returning to settings to try again.</string>
+    <string name="tooManyGenericsTitle">Max number of generic participants reached.</string>
 
 </resources>

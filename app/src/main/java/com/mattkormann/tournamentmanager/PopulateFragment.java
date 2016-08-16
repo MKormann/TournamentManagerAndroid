@@ -24,6 +24,7 @@ import com.mattkormann.tournamentmanager.tournaments.TournamentDAO;
 import com.mattkormann.tournamentmanager.util.ParticipantsPoolAdapter;
 import com.mattkormann.tournamentmanager.util.ParticipantsSeedAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -37,10 +38,12 @@ public class PopulateFragment extends Fragment {
 
     private SortedMap<Integer, Participant> participantPool;
     private Map<Integer, Participant> participants;
+    private ArrayList<Participant> removedGenerics;
     private Button startButton;
     private Button fillButton;
     private Button unassignButton;
     private int size;
+    private int genCount = 0;
     private boolean isSeedSelected = false;
     private int selectedSeed;
     private boolean isSavedParticipantSelected = false;
@@ -104,6 +107,8 @@ public class PopulateFragment extends Fragment {
 
         seedRecyclerView.setAdapter(seedAdapter);
         seedRecyclerView.setHasFixedSize(true);
+
+        removedGenerics = new ArrayList<>();
 
         startButton = (Button) view.findViewById(R.id.start_tournament);
         startButton.setOnClickListener(new View.OnClickListener() {
@@ -192,14 +197,17 @@ public class PopulateFragment extends Fragment {
     //Create and populate array with participants from each SeedView
     //If participant isn't present, a generic one is created and passed along
     private void fillParticipants() {
-        int genCount = 0;
         for (int i = 1; i <= size; i++) {
             if (participants.get(i) == null) {
-                participants.put(i, ParticipantFactory.getParticipant("single",
-                        "Participant " + ++genCount,
-                        genCount - Tournament.MAX_TOURNAMENT_SIZE - 1));
-                        // 3rd argument assigns a generic "id" so that a tournament loaded in progress
-                        // keeps the correct name for each generic participant
+                if (!removedGenerics.isEmpty()) {
+                    participants.put(i, removedGenerics.remove(0));
+                } else {
+                    participants.put(i, ParticipantFactory.getParticipant("single",
+                            "Participant " + ++genCount,
+                            genCount - Tournament.MAX_TOURNAMENT_SIZE - 1));
+                    // 3rd argument assigns a generic "id" so that a tournament loaded in progress
+                    // keeps the correct name for each generic participant
+                }
             }
         }
         seedAdapter.notifyDataSetChanged();
@@ -244,7 +252,11 @@ public class PopulateFragment extends Fragment {
         } else {
             participantPool.remove(selectedParticipant.getID());
             Participant p = participants.put(selectedSeed, selectedParticipant);
-            if (p != null) participantPool.put(p.getID(), p); //Checks if participant was replaced and if so, adds back to pool
+            //Checks if participant was replaced and isn't a generic participant, and if so adds back to pool
+            if (p != null) {
+                if (p.getID() <= 0) removedGenerics.add(p);
+                else participantPool.put(p.getID(), p);
+            }
             clearSelections();
             updateSeedList();
             updateSavedList();
@@ -269,7 +281,10 @@ public class PopulateFragment extends Fragment {
     private void putSeedBackInPool(int seed) {
         Participant p = participants.get(seed);
         participants.put(seed, null);
-        participantPool.put(p.getID(), p);
+        if (p != null) {
+            if (p.getID() <= 0) removedGenerics.add(p);
+            else participantPool.put(p.getID(), p);
+        }
         clearSelections();
         updateSavedList();
         updateSeedList();
