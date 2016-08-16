@@ -42,6 +42,7 @@ public class PopulateFragment extends Fragment {
     private Button startButton;
     private Button fillButton;
     private Button unassignButton;
+    private Button createButton;
     private int size;
     private int genCount = 0;
     private boolean isSeedSelected = false;
@@ -131,6 +132,13 @@ public class PopulateFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (isSeedSelected) putSeedBackInPool(selectedSeed);
+            }
+        });
+        createButton = (Button) view.findViewById(R.id.create_participant);
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.showParticipantInfoDialog(DatabaseContract.ParticipantTable.CONTENT_URI, true);
             }
         });
 
@@ -315,11 +323,23 @@ public class PopulateFragment extends Fragment {
         return false;
     }
 
-    public int saveNewParticipant(ContentValues values) {
-        Uri newUri = getActivity().getContentResolver().insert(DatabaseContract.ParticipantTable.CONTENT_URI,
-                values);
+    public int saveNewParticipant(Uri uri, ContentValues values) {
+        //Insert values into participant table
+        Uri newUri = getActivity().getContentResolver().insert(uri, values);
+        //Get id and name from content values
+        String name = (String)values.get(DatabaseContract.ParticipantTable.COLUMN_NAME_NAME);
+        int id = Integer.valueOf(newUri.getLastPathSegment());
+        Participant newParticipant = ParticipantFactory.getParticipant("single", name, id);
+        participantPool.put(id, newParticipant); //Add to pool
+        //If seed was selected when new participant was created, participant is assigned
+        if (isSeedSelected) {
+            isSavedParticipantSelected = true;
+            selectedParticipant = newParticipant;
+            assignSeed();
+        }
         updateSavedList();
-        return Integer.valueOf(newUri.getLastPathSegment());
+        updateSeedList();
+        return id;
     }
 
     public void updateSavedList() {

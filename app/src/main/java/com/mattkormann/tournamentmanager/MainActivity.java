@@ -205,7 +205,7 @@
                 PopulateFragment pf = (PopulateFragment)
                         getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (pf != null) {
-                    pf.saveNewParticipant(values);
+                    pf.saveNewParticipant(uri, values);
                 }
             }
             else if (f instanceof ParticipantsFragment) {

@@ -47,7 +47,7 @@
     <string name="update_or_new_message">Update loaded template?</string>
     <string name="save_new">Save new</string>
     <string name="save">Save</string>
-    <string name="createNew">Create New</string>
+    <string name="createParticipant">Create Participant</string>
     <string name="load">Edit Saved</string>
     <string name="start_tournament_create_new">New</string>
     <string name="start_tournament_load_in_progress">Continue</string>

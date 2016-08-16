@@ -85,6 +85,11 @@
             android:layout_weight="1">
         </android.support.v7.widget.RecyclerView>
         <Button
+            android:id="@+id/create_participant"
+            android:text="@string/createParticipant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <Button
             android:id="@+id/unassign_seed"
             android:text="@string/unassign_seed"
             android:layout_width="match_parent"
